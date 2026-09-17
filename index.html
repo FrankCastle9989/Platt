@@ -557,29 +557,47 @@
         </ul>
       </div>
 
+
       <div class="register-box">
         <h3>Registro de Interés</h3>
-        <form onsubmit="event.preventDefault(); alert('¡Gracias por registrarte en Platt! Te contactaremos muy pronto para activar tu prueba piloto.');">
+        <!-- Reemplaza "TU_FORM_ID" por el código que te dio Formspree -->
+        <form action="https://formspree.io/f/mljdebaa" method="POST">
+          
           <div class="form-group">
-            <label>¿Cómo quieres participar?</label>
-            <select class="form-control" required>
+            <label for="perfil">¿Cómo quieres participar?</label>
+            <select id="perfil" name="Perfil" class="form-control" required>
               <option value="">Selecciona tu perfil...</option>
-              <option value="restaurante">Tengo un Restaurante / Fonda</option>
-              <option value="repartidor">Soy Repartidor independiente</option>
-              <option value="usuario">Quiero pedir comida (Cliente)</option>
+              <option value="Restaurante">Tengo un Restaurante / Fonda</option>
+              <option value="Repartidor">Soy Repartidor independiente</option>
+              <option value="Usuario">Quiero pedir comida (Cliente)</option>
             </select>
           </div>
+
           <div class="form-group">
-            <label>Nombre o Nombre del Negocio</label>
-            <input type="text" class="form-control" placeholder="Ej. Tacos El Rey / Juan Pérez" required>
+            <label for="nombre">Nombre o Nombre del Negocio</label>
+            <input type="text" id="nombre" name="Nombre_o_Negocio" class="form-control" placeholder="Ej. Tacos El Rey / Juan Pérez" required>
           </div>
+
           <div class="form-group">
-            <label>Teléfono / WhatsApp de contacto</label>
-            <input type="tel" class="form-control" placeholder="10 dígitos" required>
+            <label for="telefono">Teléfono / WhatsApp de contacto</label>
+            <input type="tel" id="telefono" name="Telefono_WhatsApp" class="form-control" placeholder="10 dígitos" required>
           </div>
+
+          <!-- Opcional: Campo de correo del prospecto si desea recibir confirmación -->
+          <div class="form-group">
+            <label for="email">Correo electrónico (Opcional)</label>
+            <input type="email" id="email" name="_replyto" class="form-control" placeholder="correo@ejemplo.com">
+          </div>
+
+          <!-- Asunto personalizado del correo que recibirás -->
+          <input type="hidden" name="_subject" value="🚀 ¡Nuevo Registro Beta para Platt!">
+
           <button type="submit" class="btn-submit">Enviar Registro Beta</button>
         </form>
       </div>
+
+
+
     </div>
   </section>
 
