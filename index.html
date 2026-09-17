@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Platt - Tu comida al precio real de mostrador</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+
+    :root {
+      --primary: #E66A42;         /* Naranja Terracota Saturado */
+      --primary-hover: #D05630;
+      --secondary: #204051;       /* Azul Petróleo Oscuro */
+      --dark-slate: #182C36;
+      --bg-light: #FAF8F5;        /* Blanco Roto / Crema Suave */
+      --card-bg: #FFFFFF;
+      --border-color: #E2E8F0;
+      --text-main: #2D3748;
+      --text-muted: #64748B;
+      --accent-green: #10B981;
+      --radius: 16px;
+      --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+      --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background-color: var(--bg-light);
+      color: var(--text-main);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    /* NAV BAR */
+    header {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      border-bottom: 1px solid var(--border-color);
+      padding: 16px 24px;
+    }
+
+    .nav-container {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .brand-logo {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+    }
+
+    .logo-text {
+      font-size: 28px;
+      font-weight: 900;
+      letter-spacing: -1px;
+      color: var(--secondary);
+    }
+
+    .logo-text span {
+      color: var(--primary);
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 20px;
+      align-items: center;
+    }
+
+    .nav-links a {
+      text-decoration: none;
+      color: var(--text-main);
+      font-weight: 600;
+      font-size: 14px;
+      transition: color 0.2s;
+    }
+
+    .nav-links a:hover {
+      color: var(--primary);
+    }
+
+    .btn-nav {
+      background-color: var(--primary);
+      color: white !important;
+      padding: 10px 20px;
+      border-radius: 30px;
+      font-weight: 700 !important;
+      box-shadow: 0 4px 12px rgba(230, 106, 66, 0.3);
+    }
+
+    /* HERO SECTION */
+    .hero {
+      padding: 60px 24px 80px 24px;
+      text-align: center;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .badge {
+      display: inline-block;
+      background-color: rgba(230, 106, 66, 0.1);
+      color: var(--primary);
+      padding: 6px 16px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 20px;
+    }
+
+    .hero h1 {
+      font-size: 46px;
+      font-weight: 900;
+      line-height: 1.15;
+      color: var(--secondary);
+      letter-spacing: -1.5px;
+      margin-bottom: 20px;
+    }
+
+    .hero h1 span {
+      color: var(--primary);
+      background: linear-gradient(135deg, #E66A42 0%, #FF8A65 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero p {
+      font-size: 18px;
+      color: var(--text-muted);
+      max-width: 680px;
+      margin: 0 auto 36px auto;
+    }
+
+    .hero-actions {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      padding: 14px 28px;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 16px;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      border: none;
+      transition: all 0.25s ease;
+    }
+
+    .btn-primary {
+      background-color: var(--primary);
+      color: white;
+      box-shadow: 0 8px 20px rgba(230, 106, 66, 0.3);
+    }
+
+    .btn-primary:hover {
+      background-color: var(--primary-hover);
+      transform: translateY(-2px);
+    }
+
+    .btn-secondary {
+      background-color: white;
+      color: var(--secondary);
+      border: 2px solid var(--border-color);
+    }
+
+    .btn-secondary:hover {
+      border-color: var(--secondary);
+      transform: translateY(-2px);
+    }
+
+    /* COMPARISON CARD / PROPOSED STATS */
+    .hero-stats {
+      margin-top: 50px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+      text-align: left;
+    }
+
+    .stat-card {
+      background: white;
+      padding: 24px;
+      border-radius: var(--radius);
+      border: 1px solid var(--border-color);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .stat-card.highlight {
+      border: 2px solid var(--primary);
+      background: linear-gradient(180deg, #FFFFFF 0%, #FFFDFB 100%);
+    }
+
+    .stat-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .stat-value {
+      font-size: 32px;
+      font-weight: 800;
+      color: var(--secondary);
+      margin-bottom: 4px;
+    }
+
+    .stat-desc {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    /* TABS SECTION (SEGMENTS) */
+    .section-segments {
+      max-width: 1100px;
+      margin: 40px auto 80px auto;
+      padding: 0 24px;
+    }
+
+    .section-header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    .section-header h2 {
+      font-size: 32px;
+      font-weight: 800;
+      color: var(--secondary);
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 24px;
+    }
+
+    .feature-card {
+      background: white;
+      border-radius: var(--radius);
+      padding: 32px;
+      border: 1px solid var(--border-color);
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .feature-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 6px;
+      background: var(--border-color);
+    }
+
+    .card-restaurante::before { background: var(--primary); }
+    .card-repartidor::before { background: var(--secondary); }
+    .card-usuario::before { background: var(--accent-green); }
+
+    .card-icon {
+      font-size: 36px;
+      margin-bottom: 16px;
+    }
+
+    .card-tag {
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .card-restaurante .card-tag { color: var(--primary); }
+    .card-repartidor .card-tag { color: var(--secondary); }
+    .card-usuario .card-tag { color: var(--accent-green); }
+
+    .feature-card h3 {
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--secondary);
+      margin-bottom: 12px;
+    }
+
+    .feature-card p {
+      font-size: 14px;
+      color: var(--text-muted);
+      margin-bottom: 20px;
+    }
+
+    .bullet-list {
+      list-style: none;
+      margin-bottom: 24px;
+    }
+
+    .bullet-list li {
+      font-size: 14px;
+      font-weight: 500;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .bullet-list li::before {
+      content: "✓";
+      font-weight: 800;
+      color: var(--accent-green);
+    }
+
+    /* PRICING / PILOT OFFER */
+    .pilot-banner {
+      background: var(--dark-slate);
+      color: white;
+      border-radius: 24px;
+      padding: 48px;
+      margin: 60px auto;
+      max-width: 1000px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 40px;
+      align-items: center;
+    }
+
+    .pilot-text h2 {
+      font-size: 32px;
+      font-weight: 800;
+      margin-bottom: 16px;
+      line-height: 1.2;
+    }
+
+    .pilot-text p {
+      color: #94A3B8;
+      font-size: 15px;
+      margin-bottom: 24px;
+    }
+
+    /* FORM SECTION */
+    .register-box {
+      background: white;
+      padding: 32px;
+      border-radius: var(--radius);
+      color: var(--text-main);
+    }
+
+    .register-box h3 {
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--secondary);
+      margin-bottom: 16px;
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 6px;
+      color: var(--secondary);
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 12px 16px;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      font-size: 14px;
+      font-family: inherit;
+      background-color: #F8FAFC;
+    }
+
+    .form-control:focus {
+      outline: none;
+      border-color: var(--primary);
+      background-color: white;
+    }
+
+    select.form-control {
+      cursor: pointer;
+    }
+
+    .btn-submit {
+      width: 100%;
+      background-color: var(--primary);
+      color: white;
+      padding: 14px;
+      border: none;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .btn-submit:hover {
+      background-color: var(--primary-hover);
+    }
+
+    /* FOOTER */
+    footer {
+      border-top: 1px solid var(--border-color);
+      padding: 40px 24px;
+      text-align: center;
+      font-size: 14px;
+      color: var(--text-muted);
+      background: white;
+    }
+
+    @media (max-width: 768px) {
+      .hero h1 { font-size: 32px; }
+      .pilot-banner { grid-template-columns: 1fr; padding: 24px; }
+      .nav-links { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAVEGACIÓN -->
+  <header>
+    <div class="nav-container">
+      <a href="#" class="brand-logo">
+        <div class="logo-text">Platt<span>.</span></div>
+      </a>
+      <nav class="nav-links">
+        <a href="#restaurantes">Restaurantes</a>
+        <a href="#repartidores">Repartidores</a>
+        <a href="#usuarios">Usuarios</a>
+        <a href="#registro" class="btn-nav">Unirse al Piloto</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- HERO SECTION -->
+  <section class="hero">
+    <span class="badge">🚀 Etapa Beta en Lanzamiento</span>
+    <h1>La plataforma de delivery sin <span>comisiones abusivas</span></h1>
+    <p>Conectamos a tus restaurantes favoritos al <b>verdadero precio de mostrador</b> con repartidores con tarifa justa y transparente. Sin letras chiquitas.</p>
+    
+    <div class="hero-actions">
+      <a href="#registro" class="btn btn-primary">Registra tu Negocio (Gratis)</a>
+      <a href="#repartidores" class="btn btn-secondary">Quiero ser Repartidor</a>
+    </div>
+
+    <div class="hero-stats">
+      <div class="stat-card highlight">
+        <div class="stat-title">Para Restaurantes</div>
+        <div class="stat-value">0%</div>
+        <div class="stat-desc">Comisión por venta. Mantén el 100% de tus ingresos.</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-title">Para Repartidores</div>
+        <div class="stat-value">$99 <span style="font-size:16px; font-weight:500;">MXN/mes</span></div>
+        <div class="stat-desc">Suscripción fija. Todo el costo del envío es tuyo.</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-title">Para el Cliente</div>
+        <div class="stat-value">Precio Real</div>
+        <div class="stat-desc">Mismo costo de menú que consumiendo en el local.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PILARES DEL NEGOCIO -->
+  <section class="section-segments" id="restaurantes">
+    <div class="section-header">
+      <h2>Un modelo justo para todos los frentes</h2>
+      <p style="color: var(--text-muted); margin-top: 8px;">Diseñado para eliminar intermediarios excesivos y devolver la rentabilidad al comercio local.</p>
+    </div>
+
+    <div class="grid-3">
+      <!-- RESTAURANTE -->
+      <div class="feature-card card-restaurante">
+        <div>
+          <div class="card-icon">🏪</div>
+          <div class="card-tag">Restaurantes & Fondas</div>
+          <h3>Vende por internet sin perder margen</h3>
+          <p>Olvida el 30% a 40% de tajada por cada pedido. Con Platt vendes directamente a tus clientes habituales.</p>
+          <ul class="bullet-list">
+            <li>Plan Inicial $0 MXN (hasta 8 platillos)</li>
+            <li>Plan Completo ilimitado a tarifa plana</li>
+            <li>Recibe pedidos directo en tu panel web</li>
+          </ul>
+        </div>
+        <a href="#registro" class="btn btn-secondary" style="width: 100%; justify-content: center;">Probar Plan Gratis</a>
+      </div>
+
+      <!-- REPARTIDOR -->
+      <div class="feature-card card-repartidor" id="repartidores">
+        <div>
+          <div class="card-icon">🛵</div>
+          <div class="card-tag">Repartidores Piloto</div>
+          <h3>100% de tus envíos son para ti</h3>
+          <p>Basta de tarifas dinámicas opacas y retenciones sorpresa. Sabes exactamente lo que ganas en cada viaje.</p>
+          <ul class="bullet-list">
+            <li>Solo $99 MXN al mes de suscripción</li>
+            <li>Cobras la tarifa fija completa de envío</li>
+            <li>Conoce origen, destino y pago desde el inicio</li>
+          </ul>
+        </div>
+        <a href="#registro" class="btn btn-secondary" style="width: 100%; justify-content: center;">Unirme como Repartidor</a>
+      </div>
+
+      <!-- USUARIO -->
+      <div class="feature-card card-usuario" id="usuarios">
+        <div>
+          <div class="card-icon">🍕</div>
+          <div class="card-tag">Clientes / Usuarios</div>
+          <h3>Mismo precio que en la mesa</h3>
+          <p>Apoya al negocio local comprando al costo real del platillo, pagando únicamente el costo directo de envío.</p>
+          <ul class="bullet-list">
+            <li>Sin sobreprecios inflados en el menú</li>
+            <li>Sin "cargos de servicio" ocultos</li>
+            <li>Envíos transparentes y entrega rápida</li>
+          </ul>
+        </div>
+        <a href="#registro" class="btn btn-secondary" style="width: 100%; justify-content: center;">Unirme a la lista</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- BANNER REGISTRO PILOTO -->
+  <section style="padding: 0 24px;" id="registro">
+    <div class="pilot-banner">
+      <div class="pilot-text">
+        <span style="color: var(--primary); font-weight: 800; text-transform: uppercase; letter-spacing: 1px; font-size: 13px;">Únete a la fase Beta</span>
+        <h2>Sé fundador de Platt en tu zona</h2>
+        <p>Estamos seleccionando los primeros 10 restaurantes y 5 repartidores piloto para iniciar pruebas en la zona local. Garantiza tu acceso prioritario y beneficios exclusivos de lanzamiento.</p>
+        <ul style="list-style:none; color: #CBD5E1; font-size:14px; margin-top:16px;">
+          <li style="margin-bottom:8px;">✅ Restaurantes: 3 meses gratis en el Plan Completo.</li>
+          <li style="margin-bottom:8px;">✅ Repartidores: Primer mes de suscripción $0 MXN.</li>
+        </ul>
+      </div>
+
+      <div class="register-box">
+        <h3>Registro de Interés</h3>
+        <form onsubmit="event.preventDefault(); alert('¡Gracias por registrarte en Platt! Te contactaremos muy pronto para activar tu prueba piloto.');">
+          <div class="form-group">
+            <label>¿Cómo quieres participar?</label>
+            <select class="form-control" required>
+              <option value="">Selecciona tu perfil...</option>
+              <option value="restaurante">Tengo un Restaurante / Fonda</option>
+              <option value="repartidor">Soy Repartidor independiente</option>
+              <option value="usuario">Quiero pedir comida (Cliente)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Nombre o Nombre del Negocio</label>
+            <input type="text" class="form-control" placeholder="Ej. Tacos El Rey / Juan Pérez" required>
+          </div>
+          <div class="form-group">
+            <label>Teléfono / WhatsApp de contacto</label>
+            <input type="tel" class="form-control" placeholder="10 dígitos" required>
+          </div>
+          <button type="submit" class="btn-submit">Enviar Registro Beta</button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <p><b>Platt</b> — Tu comida al precio real de mostrador. Cero comisiones ocultas.</p>
+    <p style="margin-top: 8px; font-size: 12px; opacity: 0.7;">© 2026 Platt Inc. Todos los derechos reservados.</p>
+  </footer>
+
+</body>
+</html>
