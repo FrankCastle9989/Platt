@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Platt - Registro de Restaurante Fundador</title>
+  <style>
+    :root {
+      --primary-color: #ff5722;
+      --primary-hover: #e64a19;
+      --bg-color: #f4f6f8;
+      --card-bg: #ffffff;
+      --text-color: #333333;
+      --gray-light: #e0e0e0;
+      --success-color: #2e7d32;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      padding: 15px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 600px;
+      background: var(--card-bg);
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .header h1 {
+      color: var(--primary-color);
+      font-size: 1.6rem;
+    }
+
+    .header p {
+      font-size: 0.9rem;
+      color: #666;
+      margin-top: 5px;
+    }
+
+    /* Barra de Progreso */
+    .steps-bar {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 25px;
+      position: relative;
+    }
+
+    .step-indicator {
+      flex: 1;
+      text-align: center;
+      font-size: 0.8rem;
+      font-weight: bold;
+      color: #aaa;
+      padding-bottom: 8px;
+      border-bottom: 3px solid var(--gray-light);
+    }
+
+    .step-indicator.active {
+      color: var(--primary-color);
+      border-bottom-color: var(--primary-color);
+    }
+
+    /* Formulario y Pasos */
+    .step-content {
+      display: none;
+    }
+
+    .step-content.active {
+      display: block;
+    }
+
+    .form-group {
+      margin-bottom: 15px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-size: 0.85rem;
+      font-weight: bold;
+    }
+
+    input[type="text"],
+    input[type="tel"],
+    input[type="number"],
+    select,
+    textarea {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      background-color: #fafafa;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: var(--primary-color);
+      background-color: #fff;
+    }
+
+    /* Card de Platillo */
+    .dish-card {
+      background: #fdfdfd;
+      border: 1px solid var(--gray-light);
+      border-radius: 10px;
+      padding: 15px;
+      margin-bottom: 15px;
+      position: relative;
+    }
+
+    .dish-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .dish-title {
+      font-weight: bold;
+      color: var(--primary-color);
+    }
+
+    .btn-remove {
+      background: none;
+      border: none;
+      color: #d32f2f;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 0.85rem;
+    }
+
+    .btn-add-dish {
+      width: 100%;
+      background-color: #fff;
+      color: var(--primary-color);
+      border: 2px dashed var(--primary-color);
+      padding: 12px;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-bottom: 20px;
+    }
+
+    /* Botones de Navegación */
+    .actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .btn {
+      flex: 1;
+      padding: 14px;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .btn-primary {
+      background-color: var(--primary-color);
+      color: white;
+    }
+
+    .btn-secondary {
+      background-color: var(--gray-light);
+      color: #333;
+    }
+
+    .btn-submit {
+      background-color: var(--success-color);
+      color: white;
+    }
+
+    /* Checkbox estilo bloque */
+    .checkbox-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .checkbox-group input {
+      width: 18px;
+      height: 18px;
+    }
+
+    #successScreen {
+      text-align: center;
+      padding: 30px 10px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <div class="header">
+    <h1>Platt - Zona Fundadores</h1>
+    <p>Alta de Restaurante y Menú Beta (0% Comisión)</p>
+  </div>
+
+  <!-- Indicador de Progreso -->
+  <div class="steps-bar" id="stepsBar">
+    <div class="step-indicator active" id="ind-1">1. Negocio</div>
+    <div class="step-indicator" id="ind-2">2. Platillos</div>
+    <div class="step-indicator" id="ind-3">3. Cobro</div>
+  </div>
+
+  <!-- Recordatorio de sustituir TU_FORM_ID -->
+  <form id="restaurantForm" action="https://formspree.io/f/TU_FORM_ID" method="POST" enctype="multipart/form-data">
+    
+    <input type="hidden" name="_subject" value="🍽️ ¡Nuevo Restaurante Fundador Registrado!">
+
+    <!-- PASO 1: Datos del Negocio -->
+    <div class="step-content active" id="step-1">
+      <div class="form-group">
+        <label for="nombreNegocio">Nombre del Negocio *</label>
+        <input type="text" id="nombreNegocio" name="Negocio_Nombre" placeholder="Ej. Taquería El Rey" required>
+      </div>
+
+      <div class="form-group">
+        <label for="telefono">WhatsApp de Contacto Operativo *</label>
+        <input type="tel" id="telefono" name="Negocio_WhatsApp" placeholder="10 dígitos" required>
+      </div>
+
+      <div class="form-group">
+        <label for="direccion">Dirección Completa *</label>
+        <textarea id="direccion" name="Negocio_Direccion" rows="2" placeholder="Calle, número, colonia y referencias de entrega" required></textarea>
+      </div>
+
+      <div class="form-group">
+        <label for="horarios">Horario de Atención *</label>
+        <input type="text" id="horarios" name="Negocio_Horario" placeholder="Ej. Lun a Sáb de 1:00 PM a 10:00 PM" required>
+      </div>
+
+      <div class="actions">
+        <button type="button" class="btn btn-primary" onclick="nextStep(2)">Siguiente: Menú (Platillos) →</button>
+      </div>
+    </div>
+
+    <!-- PASO 2: Carga de Platillos Dinámica -->
+    <div class="step-content" id="step-2">
+      <p style="font-size: 0.85rem; color: #666; margin-bottom: 15px;">
+        Registra tus platillos estrella (máximo 8 para la versión Beta).
+      </p>
+
+      <div id="dishesContainer">
+        <!-- El primer platillo se genera automáticamente vía JS -->
+      </div>
+
+      <button type="button" class="btn-add-dish" id="btnAddDish" onclick="addDishField()">+ Agregar Otro Platillo</button>
+
+      <div class="actions">
+        <button type="button" class="btn btn-secondary" onclick="prevStep(1)">← Volver</button>
+        <button type="button" class="btn btn-primary" onclick="nextStep(3)">Siguiente: Cobro →</button>
+      </div>
+    </div>
+
+    <!-- PASO 3: Métodos de Cobro y Confirmación -->
+    <div class="step-content" id="step-3">
+      <div class="form-group">
+        <label for="clabe">CLABE Interbancaria / Banco (Para transferencias directas)</label>
+        <input type="text" id="clabe" name="Cobro_CLABE" placeholder="18 dígitos o Banco / Titular">
+      </div>
+
+      <div class="form-group">
+        <label>Aceptación de Pagos *</label>
+        <div class="checkbox-group">
+          <input type="checkbox" id="efectivo" name="Cobro_Acepta_Efectivo" value="Sí" checked>
+          <label for="efectivo" style="margin:0; font-weight:normal;">Acepto pago en efectivo contra entrega</label>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button type="button" class="btn btn-secondary" onclick="prevStep(2)">← Volver</button>
+        <button type="submit" id="submitBtn" class="btn btn-submit">Finalizar Registro</button>
+      </div>
+    </div>
+
+  </form>
+
+  <!-- Pantalla de Éxito en la misma vista -->
+  <div id="successScreen" style="display: none;">
+    <h2 style="color: var(--success-color); margin-bottom: 10px;">¡Registro Completado! 🎉</h2>
+    <p style="font-size: 1rem; color: #444; margin-bottom: 15px;">
+      Gracias por sumarte como <strong>Restaurante Fundador de Platt</strong>.
+    </p>
+    <p style="font-size: 0.9rem; color: #666;">
+      En breve revisaremos la información de tus platillos y nos pondremos en contacto vía WhatsApp para activar tu menú en la prueba piloto.
+    </p>
+  </div>
+</div>
+
+<script>
+  let currentStep = 1;
+  let dishCount = 0;
+  const maxDishes = 8;
+
+  // Renderizar el primer platillo por defecto
+  window.onload = function() {
+    addDishField();
+  };
+
+  function addDishField() {
+    if (dishCount >= maxDishes) {
+      alert("Para la versión Beta el límite es de " + maxDishes + " platillos principales.");
+      return;
+    }
+
+    dishCount++;
+    const container = document.getElementById("dishesContainer");
+    
+    const dishCard = document.createElement("div");
+    dishCard.className = "dish-card";
+    dishCard.id = `dish-card-${dishCount}`;
+
+    dishCard.innerHTML = `
+      <div class="dish-header">
+        <span class="dish-title">Platillo #${dishCount}</span>
+        ${dishCount > 1 ? `<button type="button" class="btn-remove" onclick="removeDishField(${dishCount})">Eliminar</button>` : ''}
+      </div>
+      <div class="form-group">
+        <input type="text" name="Platillo_${dishCount}_Nombre" placeholder="Nombre del platillo (Ej. Torta Ahogada)" required>
+      </div>
+      <div class="form-group" style="display: flex; gap: 10px;">
+        <input type="number" name="Platillo_${dishCount}_Precio" placeholder="Precio $" step="0.5" style="flex: 1;" required>
+        <input type="text" name="Platillo_${dishCount}_Categoria" placeholder="Categoría (Ej. Entradas)" style="flex: 1;">
+      </div>
+      <div class="form-group">
+        <textarea name="Platillo_${dishCount}_Descripcion" rows="2" placeholder="Descripción corta (ingredientes, porción)"></textarea>
+      </div>
+      <div class="form-group">
+        <label style="font-weight: normal; font-size: 0.8rem;">Foto del platillo:</label>
+        <input type="file" name="Platillo_${dishCount}_Foto" accept="image/*">
+      </div>
+    `;
+
+    container.appendChild(dishCard);
+    updateAddButton();
+  }
+
+  function removeDishField(id) {
+    const card = document.getElementById(`dish-card-${id}`);
+    if (card) {
+      card.remove();
+      dishCount--;
+      updateAddButton();
+    }
+  }
+
+  function updateAddButton() {
+    const btn = document.getElementById("btnAddDish");
+    if (dishCount >= maxDishes) {
+      btn.style.display = "none";
+    } else {
+      btn.style.display = "block";
+    }
+  }
+
+  function nextStep(step) {
+    // Validación básica del Paso 1 antes de avanzar
+    if (currentStep === 1) {
+      const form = document.getElementById("restaurantForm");
+      if (!form.nombreNegocio.checkValidity() || !form.telefono.checkValidity() || !form.direccion.checkValidity() || !form.horarios.checkValidity()) {
+        form.reportValidity();
+        return;
+      }
+    }
+
+    document.getElementById(`step-${currentStep}`).classList.remove("active");
+    document.getElementById(`ind-${currentStep}`).classList.remove("active");
+
+    currentStep = step;
+
+    document.getElementById(`step-${currentStep}`).classList.add("active");
+    document.getElementById(`ind-${currentStep}`).classList.add("active");
+  }
+
+  function prevStep(step) {
+    document.getElementById(`step-${currentStep}`).classList.remove("active");
+    document.getElementById(`ind-${currentStep}`).classList.remove("active");
+
+    currentStep = step;
+
+    document.getElementById(`step-${currentStep}`).classList.add("active");
+    document.getElementById(`ind-${currentStep}`).classList.add("active");
+  }
+
+  // Envío AJAX con Formspree
+  const form = document.getElementById("restaurantForm");
+  const successScreen = document.getElementById("successScreen");
+  const stepsBar = document.getElementById("stepsBar");
+  const submitBtn = document.getElementById("submitBtn");
+
+  form.addEventListener("submit", async function(event) {
+    event.preventDefault();
+    
+    submitBtn.disabled = true;
+    submitBtn.innerText = "Registrando Menú...";
+
+    const data = new FormData(event.target);
+    
+    try {
+      const response = await fetch(event.target.action, {
+        method: form.method,
+        body: data,
+        headers: {
+            'Accept': 'application/json'
+        }
+      });
+
+      if (response.ok) {
+        form.style.display = "none";
+        stepsBar.style.display = "none";
+        successScreen.style.display = "block";
+      } else {
+        alert("Ocurrió un detalle al enviar el registro. Por favor intenta nuevamente.");
+        submitBtn.disabled = false;
+        submitBtn.innerText = "Finalizar Registro";
+      }
+    } catch (error) {
+      alert("Error de conexión. Revisa tu red e inténtalo de nuevo.");
+      submitBtn.disabled = false;
+      submitBtn.innerText = "Finalizar Registro";
+    }
+  });
+</script>
+
+</body>
+</html>
