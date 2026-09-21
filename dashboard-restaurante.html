@@ -323,7 +323,7 @@
       <button class="tab-btn" id="tab-ajustes-btn" onclick="switchTab('ajustes')">🏪 Datos del Negocio</button>
     </div>
 
-    <!-- PESTAÑA 1: GESTIÓN DE MENÚ -->
+<!-- PESTAÑA 1: GESTIÓN DE MENÚ -->
     <div class="tab-content active" id="tab-menu">
       <div class="section-header">
         <h3>Platillos Activos</h3>
@@ -372,6 +372,8 @@
         </div>
       </div>
     </div>
+<!-- PESTAÑA 1: GESTIÓN DE MENÚ -->
+
 
 <!-- PESTAÑA 2: DATOS DEL NEGOCIO -->
 
@@ -560,12 +562,35 @@
             </div>
           </div>
 
+<!-- CAMPOS DE DATOS BANCARIOS (OPCIONALES) -->
           <div class="form-group">
-            <label>CLABE Interbancaria (Transferencias)</label>
-            <input type="text" value="012180000000000000">
+            <label for="banco">Banco (Opcional)</label>
+            <select id="banco" name="Cobro_Banco" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 0.9rem; background-color: #fff;">
+              <option value="">Selecciona tu banco (opcional)...</option>
+              <option value="BBVA" selected>BBVA</option>
+              <option value="Banamex">Citibanamex</option>
+              <option value="Santander">Santander</option>
+              <option value="Banorte">Banorte</option>
+              <option value="HSBC">HSBC</option>
+              <option value="Scotiabank">Scotiabank</option>
+              <option value="Nu">Nu México</option>
+              <option value="Mercado Pago">Mercado Pago</option>
+              <option value="Otro">Otro Banco</option>
+            </select>
           </div>
 
+          <div class="form-group">
+            <label for="clabe">CLABE Interbancaria (Opcional)</label>
+            <input type="text" id="clabe" name="Cobro_CLABE" value="012180000000000000" placeholder="18 dígitos (para transferencias directas)">
+            <small style="font-size: 0.75rem; color: #666; display: block; margin-top: 4px;">
+              Si no cuentas con cuenta bancaria, puedes omitir estos campos y cobrar únicamente en efectivo al entregar.
+            </small>
+          </div>
+          
+<!-- CAMPOS DE DATOS BANCARIOS (OPCIONALES) -->
+
           <button type="submit" class="btn-save">Guardar Cambios</button>
+
         </form>
       </div>
     </div>
