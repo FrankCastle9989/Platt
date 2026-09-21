@@ -373,36 +373,204 @@
       </div>
     </div>
 
-    <!-- PESTAÑA 2: DATOS DEL NEGOCIO -->
+<!-- PESTAÑA 2: DATOS DEL NEGOCIO -->
+
     <div class="tab-content" id="tab-ajustes">
       <div class="form-card">
         <h3 style="margin-bottom: 15px;">Editar Información del Negocio</h3>
         <form onsubmit="event.preventDefault(); alert('¡Datos actualizados correctamente!');">
+          
           <div class="form-group">
             <label>Nombre del Negocio</label>
-            <input type="text" value="Taquería El Rey">
+            <input type="text" value="Taquería El Rey" required>
           </div>
+
           <div class="form-group">
             <label>Teléfono / WhatsApp de Pedidos</label>
-            <input type="tel" value="8112345678">
+            <input type="tel" value="8112345678" required>
           </div>
+
           <div class="form-group">
             <label>Dirección</label>
-            <textarea rows="2">Av. Hidalgo #123, Col. Centro</textarea>
+            <textarea rows="2" required>Av. Hidalgo #123, Col. Centro</textarea>
           </div>
+
+          <!-- SECCIÓN RESTRUCTURADA: DÍAS Y HORARIOS DE ATENCIÓN -->
           <div class="form-group">
-            <label>Horario de Atención</label>
-            <input type="text" value="Lun a Sáb de 2:00 PM a 11:00 PM">
+            <label style="margin-bottom: 10px;">Días y Horarios de Atención</label>
+            
+            <style>
+              .schedule-container {
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+                background: #f9f9f9;
+                padding: 12px;
+                border-radius: 8px;
+                border: 1px solid var(--gray-light);
+              }
+              .day-row {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 8px;
+                padding-bottom: 8px;
+                border-bottom: 1px solid #eee;
+              }
+              .day-row:last-child {
+                border-bottom: none;
+                padding-bottom: 0;
+              }
+              .day-checkbox {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                width: 110px;
+                font-size: 0.85rem;
+                font-weight: bold;
+              }
+              .day-checkbox input {
+                width: 18px;
+                height: 18px;
+                cursor: pointer;
+              }
+              .time-inputs {
+                display: flex;
+                align-items: center;
+                gap: 5px;
+                flex: 1;
+              }
+              .time-inputs input[type="time"] {
+                padding: 6px;
+                font-size: 0.8rem;
+                border-radius: 6px;
+              }
+              .time-inputs input:disabled {
+                background-color: #e9ecef;
+                color: #aaa;
+                cursor: not-allowed;
+              }
+              .closed-label {
+                font-size: 0.8rem;
+                color: var(--danger-color);
+                font-weight: bold;
+                display: none;
+              }
+            </style>
+
+            <div class="schedule-container">
+              <!-- Lunes -->
+              <div class="day-row">
+                <div class="day-checkbox">
+                  <input type="checkbox" id="day-lunes" name="dias_abierto" value="Lunes" checked onchange="toggleDaySchedule('lunes')">
+                  <label for="day-lunes" style="margin:0;">Lunes</label>
+                </div>
+                <div class="time-inputs" id="times-lunes">
+                  <input type="time" id="open-lunes" name="hora_apertura_lunes" value="14:00">
+                  <span style="font-size:0.8rem;">a</span>
+                  <input type="time" id="close-lunes" name="hora_cierre_lunes" value="23:00">
+                </div>
+                <span class="closed-label" id="closed-lunes">Cerrado</span>
+              </div>
+
+              <!-- Martes -->
+              <div class="day-row">
+                <div class="day-checkbox">
+                  <input type="checkbox" id="day-martes" name="dias_abierto" value="Martes" checked onchange="toggleDaySchedule('martes')">
+                  <label for="day-martes" style="margin:0;">Martes</label>
+                </div>
+                <div class="time-inputs" id="times-martes">
+                  <input type="time" id="open-martes" name="hora_apertura_martes" value="14:00">
+                  <span style="font-size:0.8rem;">a</span>
+                  <input type="time" id="close-martes" name="hora_cierre_martes" value="23:00">
+                </div>
+                <span class="closed-label" id="closed-martes">Cerrado</span>
+              </div>
+
+              <!-- Miércoles -->
+              <div class="day-row">
+                <div class="day-checkbox">
+                  <input type="checkbox" id="day-miercoles" name="dias_abierto" value="Miercoles" checked onchange="toggleDaySchedule('miercoles')">
+                  <label for="day-miercoles" style="margin:0;">Miércoles</label>
+                </div>
+                <div class="time-inputs" id="times-miercoles">
+                  <input type="time" id="open-miercoles" name="hora_apertura_miercoles" value="14:00">
+                  <span style="font-size:0.8rem;">a</span>
+                  <input type="time" id="close-miercoles" name="hora_cierre_miercoles" value="23:00">
+                </div>
+                <span class="closed-label" id="closed-miercoles">Cerrado</span>
+              </div>
+
+              <!-- Jueves -->
+              <div class="day-row">
+                <div class="day-checkbox">
+                  <input type="checkbox" id="day-jueves" name="dias_abierto" value="Jueves" checked onchange="toggleDaySchedule('jueves')">
+                  <label for="day-jueves" style="margin:0;">Jueves</label>
+                </div>
+                <div class="time-inputs" id="times-jueves">
+                  <input type="time" id="open-jueves" name="hora_apertura_jueves" value="14:00">
+                  <span style="font-size:0.8rem;">a</span>
+                  <input type="time" id="close-jueves" name="hora_cierre_jueves" value="23:00">
+                </div>
+                <span class="closed-label" id="closed-jueves">Cerrado</span>
+              </div>
+
+              <!-- Viernes -->
+              <div class="day-row">
+                <div class="day-checkbox">
+                  <input type="checkbox" id="day-viernes" name="dias_abierto" value="Viernes" checked onchange="toggleDaySchedule('viernes')">
+                  <label for="day-viernes" style="margin:0;">Viernes</label>
+                </div>
+                <div class="time-inputs" id="times-viernes">
+                  <input type="time" id="open-viernes" name="hora_apertura_viernes" value="14:00">
+                  <span style="font-size:0.8rem;">a</span>
+                  <input type="time" id="close-viernes" name="hora_cierre_viernes" value="00:00">
+                </div>
+                <span class="closed-label" id="closed-viernes">Cerrado</span>
+              </div>
+
+              <!-- Sábado -->
+              <div class="day-row">
+                <div class="day-checkbox">
+                  <input type="checkbox" id="day-sabado" name="dias_abierto" value="Sabado" checked onchange="toggleDaySchedule('sabado')">
+                  <label for="day-sabado" style="margin:0;">Sábado</label>
+                </div>
+                <div class="time-inputs" id="times-sabado">
+                  <input type="time" id="open-sabado" name="hora_apertura_sabado" value="14:00">
+                  <span style="font-size:0.8rem;">a</span>
+                  <input type="time" id="close-sabado" name="hora_cierre_sabado" value="00:00">
+                </div>
+                <span class="closed-label" id="closed-sabado">Cerrado</span>
+              </div>
+
+              <!-- Domingo (Ejemplo desmarcado/cerrado por defecto) -->
+              <div class="day-row">
+                <div class="day-checkbox">
+                  <input type="checkbox" id="day-domingo" name="dias_abierto" value="Domingo" onchange="toggleDaySchedule('domingo')">
+                  <label for="day-domingo" style="margin:0;">Domingo</label>
+                </div>
+                <div class="time-inputs" id="times-domingo" style="display: none;">
+                  <input type="time" id="open-domingo" name="hora_apertura_domingo" value="14:00" disabled>
+                  <span style="font-size:0.8rem;">a</span>
+                  <input type="time" id="close-domingo" name="hora_cierre_domingo" value="22:00" disabled>
+                </div>
+                <span class="closed-label" id="closed-domingo" style="display: inline;">Cerrado</span>
+              </div>
+
+            </div>
           </div>
+
           <div class="form-group">
             <label>CLABE Interbancaria (Transferencias)</label>
             <input type="text" value="012180000000000000">
           </div>
+
           <button type="submit" class="btn-save">Guardar Cambios</button>
         </form>
       </div>
     </div>
 
+<!-- PESTAÑA 2: DATOS DEL NEGOCIO -->
   </div>
 
   <script>
@@ -431,6 +599,31 @@
         statusText.style.color = "var(--danger-color)";
       }
     }
+
+// SCRIPT PESTAÑA 2: DATOS DEL NEGOCIO -->
+// Función para activar/desactivar horarios según el día seleccionado
+
+function toggleDaySchedule(day) {
+  const checkbox = document.getElementById(`day-${day}`);
+  const timesContainer = document.getElementById(`times-${day}`);
+  const closedLabel = document.getElementById(`closed-${day}`);
+  const openInput = document.getElementById(`open-${day}`);
+  const closeInput = document.getElementById(`close-${day}`);
+
+  if (checkbox.checked) {
+    timesContainer.style.display = "flex";
+    closedLabel.style.display = "none";
+    openInput.disabled = false;
+    closeInput.disabled = false;
+  } else {
+    timesContainer.style.display = "none";
+    closedLabel.style.display = "inline";
+    openInput.disabled = true;
+    closeInput.disabled = true;
+  }
+}
+
+// SCRIPT PESTAÑA 2: DATOS DEL NEGOCIO -->
   </script>
 
 </body>
