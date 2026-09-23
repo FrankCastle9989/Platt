@@ -100,6 +100,8 @@
     }
 
     input[type="text"],
+    input[type="email"],
+    input[type="password"],
     input[type="tel"],
     input[type="number"],
     select,
@@ -189,6 +191,19 @@
       background-color: var(--success-color);
       color: white;
     }
+
+    .login-redirect {
+      text-align: center;
+      margin-top: 15px;
+      font-size: 0.85rem;
+      color: #666;
+    }
+
+    .login-redirect a {
+      color: var(--primary-color);
+      font-weight: bold;
+      text-decoration: none;
+    }
   </style>
 </head>
 <body>
@@ -200,14 +215,30 @@
   </div>
 
   <div class="steps-bar" id="stepsBar">
-    <div class="step-indicator active" id="ind-1">1. Negocio</div>
+    <div class="step-indicator active" id="ind-1">1. Cuenta y Negocio</div>
     <div class="step-indicator" id="ind-2">2. Platillos</div>
     <div class="step-indicator" id="ind-3">3. Cobro</div>
   </div>
 
   <form id="restaurantForm">
-    <!-- PASO 1: Datos del Negocio -->
+    <!-- PASO 1: Datos de Cuenta y Negocio -->
     <div class="step-content active" id="step-1">
+      <h3 style="font-size: 1rem; margin-bottom: 12px; color: var(--primary-color);">Datos de Acceso</h3>
+      
+      <div class="form-group">
+        <label for="email">Correo Electrónico *</label>
+        <input type="email" id="email" placeholder="ejemplo@restaurante.com" required>
+      </div>
+
+      <div class="form-group">
+        <label for="password">Contraseña (Mínimo 6 caracteres) *</label>
+        <input type="password" id="password" placeholder="••••••••" minlength="6" required>
+      </div>
+
+      <hr style="border: 0; border-top: 1px dashed var(--gray-light); margin: 20px 0;">
+
+      <h3 style="font-size: 1rem; margin-bottom: 12px; color: var(--primary-color);">Datos del Negocio</h3>
+
       <div class="form-group">
         <label for="nombreNegocio">Nombre del Negocio *</label>
         <input type="text" id="nombreNegocio" placeholder="Ej. Taquería El Rey" required>
@@ -225,6 +256,10 @@
 
       <div class="actions">
         <button type="button" class="btn btn-primary" onclick="nextStep(2)">Siguiente: Menú →</button>
+      </div>
+
+      <div class="login-redirect">
+        ¿Ya tienes cuenta? <a href="login.html">Inicia Sesión aquí</a>
       </div>
     </div>
 
@@ -268,7 +303,7 @@
 
       <div class="actions">
         <button type="button" class="btn btn-secondary" onclick="prevStep(2)">← Volver</button>
-        <button type="submit" id="submitBtn" class="btn btn-submit">Finalizar e Ir a Mi Dashboard</button>
+        <button type="submit" id="submitBtn" class="btn btn-submit">Crear Cuenta e Ir a Mi Dashboard</button>
       </div>
     </div>
   </form>
@@ -276,14 +311,14 @@
   <div id="successScreen" style="display: none; text-align: center; padding: 30px 10px;">
     <h2 style="color: var(--success-color); margin-bottom: 10px;">¡Registro Exitoso! 🎉</h2>
     <p style="font-size: 1rem; color: #444; margin-bottom: 15px;">
-      Tus datos y platillos han sido guardados en la base de datos de Platt.
+      Tu cuenta de usuario, restaurante y menú han sido creados en Supabase.
     </p>
     <button class="btn btn-primary" onclick="window.location.href='dashboard-restaurante.html'">Ir a mi Dashboard</button>
   </div>
 </div>
 
 <script>
-  // 1. Inicializar Supabase con tus credenciales
+  // Inicializar Supabase con tus credenciales
   const SUPABASE_URL = "https://dfunaefzrkjodyawjflw.supabase.co";
   const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRmdW5hZWZ6cmtqb2R5YXdqZmx3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk5NTM0MjIsImV4cCI6MjEwNTUyOTQyMn0.9WfEPYPyUKxvxMp1YHrdJ0F2VhuwnZpFqJb0v3dnax0";
   const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -328,6 +363,19 @@
   }
 
   function nextStep(step) {
+    if (currentStep === 1) {
+      const email = document.getElementById('email').value.trim();
+      const pass = document.getElementById('password').value;
+      const nombre = document.getElementById('nombreNegocio').value.trim();
+      const tel = document.getElementById('telefono').value.trim();
+      const dir = document.getElementById('direccion').value.trim();
+
+      if (!email || !pass || pass.length < 6 || !nombre || !tel || !dir) {
+        alert("Por favor completa el correo, una contraseña de al menos 6 caracteres y los datos del negocio.");
+        return;
+      }
+    }
+
     document.getElementById(`step-${currentStep}`).classList.remove("active");
     document.getElementById(`ind-${currentStep}`).classList.remove("active");
     currentStep = step;
@@ -336,21 +384,43 @@
   }
 
   function prevStep(step) {
-    nextStep(step);
+    document.getElementById(`step-${currentStep}`).classList.remove("active");
+    document.getElementById(`ind-${currentStep}`).classList.remove("active");
+    currentStep = step;
+    document.getElementById(`step-${currentStep}`).classList.add("active");
+    document.getElementById(`ind-${currentStep}`).classList.add("active");
   }
 
-  // Guardar en Supabase al enviar
+  // Enviar y Crear Cuenta + Registro en Supabase
   document.getElementById("restaurantForm").addEventListener("submit", async function(e) {
     e.preventDefault();
     const submitBtn = document.getElementById("submitBtn");
     submitBtn.disabled = true;
-    submitBtn.innerText = "Guardando en la base de datos...";
+    submitBtn.innerText = "Creando cuenta en Supabase...";
+
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value;
 
     try {
-      // 1. Insertar el Restaurante
+      // 1. Crear el usuario en Supabase Auth
+      const { data: authData, error: authError } = await _supabase.auth.signUp({
+        email: email,
+        password: password
+      });
+
+      if (authError) throw authError;
+
+      const userId = authData.user ? authData.user.id : null;
+
+      if (!userId) {
+        throw new Error("No se pudo obtener el ID de usuario registrado.");
+      }
+
+      // 2. Insertar el Restaurante vinculado al user_id
       const { data: restData, error: restError } = await _supabase
         .from('restaurantes')
         .insert([{
+          user_id: userId,
           nombre: document.getElementById("nombreNegocio").value,
           whatsapp: document.getElementById("telefono").value,
           direccion: document.getElementById("direccion").value,
@@ -362,11 +432,9 @@
       if (restError) throw restError;
 
       const restauranteId = restData[0].id;
-
-      // Guardar ID en localStorage para identificar la sesión local
       localStorage.setItem("platt_restaurante_id", restauranteId);
 
-      // 2. Extraer e Insertar los Platillos
+      // 3. Extraer e Insertar Platillos
       const dishCards = document.querySelectorAll(".dish-card");
       const platillosArray = [];
 
@@ -395,15 +463,15 @@
         if (dishError) throw dishError;
       }
 
-      // Éxito: Ocultar formulario y mostrar confirmación
+      // Éxito: Ocultar formulario y mostrar pantalla final
       document.getElementById("restaurantForm").style.display = "none";
       document.getElementById("stepsBar").style.display = "none";
       document.getElementById("successScreen").style.display = "block";
 
     } catch (err) {
-      alert("Error al guardar registro: " + err.message);
+      alert("Error al registrar cuenta: " + err.message);
       submitBtn.disabled = false;
-      submitBtn.innerText = "Finalizar e Ir a Mi Dashboard";
+      submitBtn.innerText = "Crear Cuenta e Ir a Mi Dashboard";
     }
   });
 </script>
