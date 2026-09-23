@@ -15,6 +15,7 @@
       --text-color: #333333;
       --gray-light: #e0e0e0;
       --success-color: #2e7d32;
+      --danger-color: #c62828;
     }
 
     * {
@@ -58,6 +59,29 @@
     .restaurant-info p {
       font-size: 0.85rem;
       color: #666;
+    }
+
+    .user-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .btn-logout {
+      background-color: #fff;
+      color: var(--danger-color);
+      border: 1px solid var(--danger-color);
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-logout:hover {
+      background-color: var(--danger-color);
+      color: #fff;
     }
 
     /* Navegación por Pestañas */
@@ -218,7 +242,7 @@
       margin-bottom: 4px;
     }
 
-    .form-group input, .form-group textarea, .form-group select {
+    .form-group input, .form-group textarea {
       width: 100%;
       padding: 8px;
       border: 1px solid #ccc;
@@ -273,10 +297,13 @@
       <h2 id="restName">Cargando Restaurante...</h2>
       <p id="restAddress">Obteniendo dirección...</p>
     </div>
+    <div class="user-actions">
+      <button class="btn-logout" onclick="handleLogout()">Cerrar Sesión</button>
+    </div>
   </div>
 
   <div class="tabs-nav">
-    <button class="tab-btn active" onclick="switchTab('tab-menu', this)">Menú y Platillos</button>
+    <button class="tab-btn active">Menú y Platillos</button>
   </div>
 
   <!-- PESTAÑA 1: GESTIÓN DE MENÚ -->
@@ -337,39 +364,39 @@
   const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRmdW5hZWZ6cmtqb2R5YXdqZmx3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk5NTM0MjIsImV4cCI6MjEwNTUyOTQyMn0.9WfEPYPyUKxvxMp1YHrdJ0F2VhuwnZpFqJb0v3dnax0";
   const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-  let restaurantId = localStorage.getItem("platt_restaurante_id");
+  let restaurantId = null;
 
+  // Verificación de Autenticación al cargar la página
   window.onload = async function() {
-    if (!restaurantId) {
-      // Si no hay ID en localStorage, obtenemos el primer restaurante disponible
-      const { data } = await _supabase.from('restaurantes').select('id').limit(1);
-      if (data && data.length > 0) {
-        restaurantId = data[0].id;
-        localStorage.setItem("platt_restaurante_id", restaurantId);
-      } else {
-        alert("No se encontró ningún restaurante registrado.");
-        return;
-      }
+    const { data: { session } } = await _supabase.auth.getSession();
+    
+    if (!session) {
+      // Si no hay sesión, reorientar al Login
+      window.location.href = "login.html";
+      return;
     }
-    loadRestaurantData();
-    loadDishes();
-  };
 
-  // Cargar datos del Restaurante
-  async function loadRestaurantData() {
-    const { data, error } = await _supabase
+    const userId = session.user.id;
+
+    // Buscar el restaurante perteneciente al usuario autenticado
+    const { data: restData, error } = await _supabase
       .from('restaurantes')
       .select('*')
-      .eq('id', restaurantId)
+      .eq('user_id', userId)
       .single();
 
-    if (data) {
-      document.getElementById('restName').innerText = data.nombre;
-      document.getElementById('restAddress').innerText = data.direccion || "Sin dirección registrada";
+    if (restData) {
+      restaurantId = restData.id;
+      localStorage.setItem("platt_restaurante_id", restaurantId);
+      document.getElementById('restName').innerText = restData.nombre;
+      document.getElementById('restAddress').innerText = restData.direccion || "Sin dirección registrada";
+      loadDishes();
+    } else {
+      alert("No se encontró un restaurante asociado a esta cuenta.");
     }
-  }
+  };
 
-  // Cargar Platillos desde Supabase
+  // Cargar Platillos de Supabase
   async function loadDishes() {
     const { data: dishes, error } = await _supabase
       .from('platillos')
@@ -421,7 +448,7 @@
       .eq('id', dishId);
   }
 
-  // Abrir Modal (Agregar / Editar)
+  // Abrir Modal
   function openDishModal(mode, id = null, name = '', price = '', desc = '', cat = '') {
     const modal = document.getElementById('dishModal');
     const title = document.getElementById('modalTitle');
@@ -460,7 +487,6 @@
     const cat = document.getElementById('modalDishCategory').value;
 
     if (id) {
-      // Editar existente en Supabase
       await _supabase
         .from('platillos')
         .update({
@@ -471,7 +497,6 @@
         })
         .eq('id', id);
     } else {
-      // Crear nuevo en Supabase
       await _supabase
         .from('platillos')
         .insert([{
@@ -488,6 +513,13 @@
     btn.innerText = "Guardar Platillo";
     closeDishModal();
     loadDishes();
+  }
+
+  // Cerrar Sesión
+  async function handleLogout() {
+    await _supabase.auth.signOut();
+    localStorage.removeItem("platt_restaurante_id");
+    window.location.href = "login.html";
   }
 
   function escapeHtml(text) {
