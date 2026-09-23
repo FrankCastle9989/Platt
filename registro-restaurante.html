@@ -331,7 +331,7 @@
     addDishField();
   };
 
-  function addDishField() {
+function addDishField() {
     if (dishCount >= maxDishes) return;
     dishCount++;
     const container = document.getElementById("dishesContainer");
@@ -348,7 +348,18 @@
       </div>
       <div class="form-group" style="display: flex; gap: 10px;">
         <input type="number" class="dish-price" placeholder="Precio $" step="0.5" style="flex: 1;" required>
-        <input type="text" class="dish-cat" placeholder="Categoría (Ej. Entradas)" style="flex: 1;">
+        <select class="dish-cat" style="flex: 1;" required>
+          <option value="">Categoría...</option>
+          <option value="Tacos">Tacos</option>
+          <option value="Hamburguesas">Hamburguesas</option>
+          <option value="Tortas y Lonches">Tortas y Lonches</option>
+          <option value="Pizzas">Pizzas</option>
+          <option value="Sushi y Asiática">Sushi y Asiática</option>
+          <option value="Entradas y Botanas">Entradas y Botanas</option>
+          <option value="Bebidas">Bebidas</option>
+          <option value="Postres">Postres</option>
+          <option value="Otros">Otros</option>
+        </select>
       </div>
       <div class="form-group">
         <textarea class="dish-desc" rows="2" placeholder="Descripción corta"></textarea>
