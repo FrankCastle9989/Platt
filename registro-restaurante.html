@@ -4,6 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Platt - Registro de Restaurante Fundador</title>
+  <!-- CDN Oficial de Supabase -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     :root {
       --primary-color: #ff5722;
@@ -13,6 +15,7 @@
       --text-color: #333333;
       --gray-light: #e0e0e0;
       --success-color: #2e7d32;
+      --danger-color: #c62828;
     }
 
     * {
@@ -60,7 +63,6 @@
       display: flex;
       justify-content: space-between;
       margin-bottom: 25px;
-      position: relative;
     }
 
     .step-indicator {
@@ -78,7 +80,6 @@
       border-bottom-color: var(--primary-color);
     }
 
-    /* Formulario y Pasos */
     .step-content {
       display: none;
     }
@@ -117,14 +118,12 @@
       background-color: #fff;
     }
 
-    /* Card de Platillo */
     .dish-card {
       background: #fdfdfd;
       border: 1px solid var(--gray-light);
       border-radius: 10px;
       padding: 15px;
       margin-bottom: 15px;
-      position: relative;
     }
 
     .dish-header {
@@ -142,7 +141,7 @@
     .btn-remove {
       background: none;
       border: none;
-      color: #d32f2f;
+      color: var(--danger-color);
       font-weight: bold;
       cursor: pointer;
       font-size: 0.85rem;
@@ -160,7 +159,6 @@
       margin-bottom: 20px;
     }
 
-    /* Botones de Navegación */
     .actions {
       display: flex;
       gap: 10px;
@@ -191,24 +189,6 @@
       background-color: var(--success-color);
       color: white;
     }
-
-    /* Checkbox estilo bloque */
-    .checkbox-group {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-top: 10px;
-    }
-
-    .checkbox-group input {
-      width: 18px;
-      height: 18px;
-    }
-
-    #successScreen {
-      text-align: center;
-      padding: 30px 10px;
-    }
   </style>
 </head>
 <body>
@@ -219,54 +199,42 @@
     <p>Alta de Restaurante y Menú Beta (0% Comisión)</p>
   </div>
 
-  <!-- Indicador de Progreso -->
   <div class="steps-bar" id="stepsBar">
     <div class="step-indicator active" id="ind-1">1. Negocio</div>
     <div class="step-indicator" id="ind-2">2. Platillos</div>
     <div class="step-indicator" id="ind-3">3. Cobro</div>
   </div>
 
-  <!-- Recordatorio de sustituir TU_FORM_ID -->
-  <form id="restaurantForm" action="https://formspree.io/f/TU_FORM_ID" method="POST" enctype="multipart/form-data">
-    
-    <input type="hidden" name="_subject" value="🍽️ ¡Nuevo Restaurante Fundador Registrado!">
-
+  <form id="restaurantForm">
     <!-- PASO 1: Datos del Negocio -->
     <div class="step-content active" id="step-1">
       <div class="form-group">
         <label for="nombreNegocio">Nombre del Negocio *</label>
-        <input type="text" id="nombreNegocio" name="Negocio_Nombre" placeholder="Ej. Taquería El Rey" required>
+        <input type="text" id="nombreNegocio" placeholder="Ej. Taquería El Rey" required>
       </div>
 
       <div class="form-group">
-        <label for="telefono">WhatsApp de Contacto Operativo *</label>
-        <input type="tel" id="telefono" name="Negocio_WhatsApp" placeholder="10 dígitos" required>
+        <label for="telefono">WhatsApp de Contacto *</label>
+        <input type="tel" id="telefono" placeholder="10 dígitos" required>
       </div>
 
       <div class="form-group">
         <label for="direccion">Dirección Completa *</label>
-        <textarea id="direccion" name="Negocio_Direccion" rows="2" placeholder="Calle, número, colonia y referencias de entrega" required></textarea>
-      </div>
-
-      <div class="form-group">
-        <label for="horarios">Horario de Atención *</label>
-        <input type="text" id="horarios" name="Negocio_Horario" placeholder="Ej. Lun a Sáb de 1:00 PM a 10:00 PM" required>
+        <textarea id="direccion" rows="2" placeholder="Calle, número, colonia" required></textarea>
       </div>
 
       <div class="actions">
-        <button type="button" class="btn btn-primary" onclick="nextStep(2)">Siguiente: Menú (Platillos) →</button>
+        <button type="button" class="btn btn-primary" onclick="nextStep(2)">Siguiente: Menú →</button>
       </div>
     </div>
 
-    <!-- PASO 2: Carga de Platillos Dinámica -->
+    <!-- PASO 2: Platillos Dinámicos -->
     <div class="step-content" id="step-2">
       <p style="font-size: 0.85rem; color: #666; margin-bottom: 15px;">
         Registra tus platillos estrella (máximo 8 para la versión Beta).
       </p>
 
-      <div id="dishesContainer">
-        <!-- El primer platillo se genera automáticamente vía JS -->
-      </div>
+      <div id="dishesContainer"></div>
 
       <button type="button" class="btn-add-dish" id="btnAddDish" onclick="addDishField()">+ Agregar Otro Platillo</button>
 
@@ -276,172 +244,166 @@
       </div>
     </div>
 
-    <!-- PASO 3: Métodos de Cobro y Confirmación -->
+    <!-- PASO 3: Cobro y Confirmación -->
     <div class="step-content" id="step-3">
       <div class="form-group">
-        <label for="clabe">CLABE Interbancaria / Banco (Para transferencias directas)</label>
-        <input type="text" id="clabe" name="Cobro_CLABE" placeholder="18 dígitos o Banco / Titular">
+        <label for="banco">Banco (Opcional)</label>
+        <select id="banco">
+          <option value="">Selecciona tu banco...</option>
+          <option value="BBVA">BBVA</option>
+          <option value="Citibanamex">Citibanamex</option>
+          <option value="Santander">Santander</option>
+          <option value="Banorte">Banorte</option>
+          <option value="HSBC">HSBC</option>
+          <option value="Nu">Nu México</option>
+          <option value="Mercado Pago">Mercado Pago</option>
+          <option value="Otro">Otro Banco</option>
+        </select>
       </div>
 
       <div class="form-group">
-        <label>Aceptación de Pagos *</label>
-        <div class="checkbox-group">
-          <input type="checkbox" id="efectivo" name="Cobro_Acepta_Efectivo" value="Sí" checked>
-          <label for="efectivo" style="margin:0; font-weight:normal;">Acepto pago en efectivo contra entrega</label>
-        </div>
+        <label for="clabe">CLABE Interbancaria (Opcional)</label>
+        <input type="text" id="clabe" placeholder="18 dígitos">
       </div>
 
       <div class="actions">
         <button type="button" class="btn btn-secondary" onclick="prevStep(2)">← Volver</button>
-        <button type="submit" id="submitBtn" class="btn btn-submit">Finalizar Registro</button>
+        <button type="submit" id="submitBtn" class="btn btn-submit">Finalizar e Ir a Mi Dashboard</button>
       </div>
     </div>
-
   </form>
 
-  <!-- Pantalla de Éxito en la misma vista -->
-  <div id="successScreen" style="display: none;">
-    <h2 style="color: var(--success-color); margin-bottom: 10px;">¡Registro Completado! 🎉</h2>
+  <div id="successScreen" style="display: none; text-align: center; padding: 30px 10px;">
+    <h2 style="color: var(--success-color); margin-bottom: 10px;">¡Registro Exitoso! 🎉</h2>
     <p style="font-size: 1rem; color: #444; margin-bottom: 15px;">
-      Gracias por sumarte como <strong>Restaurante Fundador de Platt</strong>.
+      Tus datos y platillos han sido guardados en la base de datos de Platt.
     </p>
-    <p style="font-size: 0.9rem; color: #666;">
-      En breve revisaremos la información de tus platillos y nos pondremos en contacto vía WhatsApp para activar tu menú en la prueba piloto.
-    </p>
+    <button class="btn btn-primary" onclick="window.location.href='dashboard-restaurante.html'">Ir a mi Dashboard</button>
   </div>
 </div>
 
 <script>
+  // 1. Inicializar Supabase con tus credenciales
+  const SUPABASE_URL = "https://dfunaefzrkjodyawjflw.supabase.co";
+  const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRmdW5hZWZ6cmtqb2R5YXdqZmx3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk5NTM0MjIsImV4cCI6MjEwNTUyOTQyMn0.9WfEPYPyUKxvxMp1YHrdJ0F2VhuwnZpFqJb0v3dnax0";
+  const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
   let currentStep = 1;
   let dishCount = 0;
   const maxDishes = 8;
 
-  // Renderizar el primer platillo por defecto
   window.onload = function() {
     addDishField();
   };
 
   function addDishField() {
-    if (dishCount >= maxDishes) {
-      alert("Para la versión Beta el límite es de " + maxDishes + " platillos principales.");
-      return;
-    }
-
+    if (dishCount >= maxDishes) return;
     dishCount++;
     const container = document.getElementById("dishesContainer");
-    
-    const dishCard = document.createElement("div");
-    dishCard.className = "dish-card";
-    dishCard.id = `dish-card-${dishCount}`;
-
-    dishCard.innerHTML = `
+    const card = document.createElement("div");
+    card.className = "dish-card";
+    card.id = `dish-card-${dishCount}`;
+    card.innerHTML = `
       <div class="dish-header">
         <span class="dish-title">Platillo #${dishCount}</span>
         ${dishCount > 1 ? `<button type="button" class="btn-remove" onclick="removeDishField(${dishCount})">Eliminar</button>` : ''}
       </div>
       <div class="form-group">
-        <input type="text" name="Platillo_${dishCount}_Nombre" placeholder="Nombre del platillo (Ej. Torta Ahogada)" required>
+        <input type="text" class="dish-name" placeholder="Nombre del platillo" required>
       </div>
       <div class="form-group" style="display: flex; gap: 10px;">
-        <input type="number" name="Platillo_${dishCount}_Precio" placeholder="Precio $" step="0.5" style="flex: 1;" required>
-        <input type="text" name="Platillo_${dishCount}_Categoria" placeholder="Categoría (Ej. Entradas)" style="flex: 1;">
+        <input type="number" class="dish-price" placeholder="Precio $" step="0.5" style="flex: 1;" required>
+        <input type="text" class="dish-cat" placeholder="Categoría (Ej. Entradas)" style="flex: 1;">
       </div>
       <div class="form-group">
-        <textarea name="Platillo_${dishCount}_Descripcion" rows="2" placeholder="Descripción corta (ingredientes, porción)"></textarea>
-      </div>
-      <div class="form-group">
-        <label style="font-weight: normal; font-size: 0.8rem;">Foto del platillo:</label>
-        <input type="file" name="Platillo_${dishCount}_Foto" accept="image/*">
+        <textarea class="dish-desc" rows="2" placeholder="Descripción corta"></textarea>
       </div>
     `;
-
-    container.appendChild(dishCard);
-    updateAddButton();
+    container.appendChild(card);
   }
 
   function removeDishField(id) {
     const card = document.getElementById(`dish-card-${id}`);
-    if (card) {
-      card.remove();
-      dishCount--;
-      updateAddButton();
-    }
-  }
-
-  function updateAddButton() {
-    const btn = document.getElementById("btnAddDish");
-    if (dishCount >= maxDishes) {
-      btn.style.display = "none";
-    } else {
-      btn.style.display = "block";
-    }
+    if (card) { card.remove(); dishCount--; }
   }
 
   function nextStep(step) {
-    // Validación básica del Paso 1 antes de avanzar
-    if (currentStep === 1) {
-      const form = document.getElementById("restaurantForm");
-      if (!form.nombreNegocio.checkValidity() || !form.telefono.checkValidity() || !form.direccion.checkValidity() || !form.horarios.checkValidity()) {
-        form.reportValidity();
-        return;
-      }
-    }
-
     document.getElementById(`step-${currentStep}`).classList.remove("active");
     document.getElementById(`ind-${currentStep}`).classList.remove("active");
-
     currentStep = step;
-
     document.getElementById(`step-${currentStep}`).classList.add("active");
     document.getElementById(`ind-${currentStep}`).classList.add("active");
   }
 
   function prevStep(step) {
-    document.getElementById(`step-${currentStep}`).classList.remove("active");
-    document.getElementById(`ind-${currentStep}`).classList.remove("active");
-
-    currentStep = step;
-
-    document.getElementById(`step-${currentStep}`).classList.add("active");
-    document.getElementById(`ind-${currentStep}`).classList.add("active");
+    nextStep(step);
   }
 
-  // Envío AJAX con Formspree
-  const form = document.getElementById("restaurantForm");
-  const successScreen = document.getElementById("successScreen");
-  const stepsBar = document.getElementById("stepsBar");
-  const submitBtn = document.getElementById("submitBtn");
-
-  form.addEventListener("submit", async function(event) {
-    event.preventDefault();
-    
+  // Guardar en Supabase al enviar
+  document.getElementById("restaurantForm").addEventListener("submit", async function(e) {
+    e.preventDefault();
+    const submitBtn = document.getElementById("submitBtn");
     submitBtn.disabled = true;
-    submitBtn.innerText = "Registrando Menú...";
+    submitBtn.innerText = "Guardando en la base de datos...";
 
-    const data = new FormData(event.target);
-    
     try {
-      const response = await fetch(event.target.action, {
-        method: form.method,
-        body: data,
-        headers: {
-            'Accept': 'application/json'
+      // 1. Insertar el Restaurante
+      const { data: restData, error: restError } = await _supabase
+        .from('restaurantes')
+        .insert([{
+          nombre: document.getElementById("nombreNegocio").value,
+          whatsapp: document.getElementById("telefono").value,
+          direccion: document.getElementById("direccion").value,
+          banco: document.getElementById("banco").value || null,
+          clabe: document.getElementById("clabe").value || null
+        }])
+        .select();
+
+      if (restError) throw restError;
+
+      const restauranteId = restData[0].id;
+
+      // Guardar ID en localStorage para identificar la sesión local
+      localStorage.setItem("platt_restaurante_id", restauranteId);
+
+      // 2. Extraer e Insertar los Platillos
+      const dishCards = document.querySelectorAll(".dish-card");
+      const platillosArray = [];
+
+      dishCards.forEach(card => {
+        const name = card.querySelector(".dish-name").value;
+        const price = card.querySelector(".dish-price").value;
+        const cat = card.querySelector(".dish-cat").value;
+        const desc = card.querySelector(".dish-desc").value;
+
+        if (name && price) {
+          platillosArray.push({
+            restaurante_id: restauranteId,
+            nombre: name,
+            precio: parseFloat(price),
+            categoria: cat || "General",
+            descripcion: desc || ""
+          });
         }
       });
 
-      if (response.ok) {
-        form.style.display = "none";
-        stepsBar.style.display = "none";
-        successScreen.style.display = "block";
-      } else {
-        alert("Ocurrió un detalle al enviar el registro. Por favor intenta nuevamente.");
-        submitBtn.disabled = false;
-        submitBtn.innerText = "Finalizar Registro";
+      if (platillosArray.length > 0) {
+        const { error: dishError } = await _supabase
+          .from('platillos')
+          .insert(platillosArray);
+
+        if (dishError) throw dishError;
       }
-    } catch (error) {
-      alert("Error de conexión. Revisa tu red e inténtalo de nuevo.");
+
+      // Éxito: Ocultar formulario y mostrar confirmación
+      document.getElementById("restaurantForm").style.display = "none";
+      document.getElementById("stepsBar").style.display = "none";
+      document.getElementById("successScreen").style.display = "block";
+
+    } catch (err) {
+      alert("Error al guardar registro: " + err.message);
       submitBtn.disabled = false;
-      submitBtn.innerText = "Finalizar Registro";
+      submitBtn.innerText = "Finalizar e Ir a Mi Dashboard";
     }
   });
 </script>
