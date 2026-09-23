@@ -3,16 +3,18 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Platt - Dashboard Restaurante</title>
+  <title>Platt - Dashboard del Restaurante</title>
+  <!-- CDN Oficial de Supabase -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     :root {
       --primary-color: #ff5722;
+      --primary-hover: #e64a19;
       --bg-color: #f4f6f8;
       --card-bg: #ffffff;
       --text-color: #333333;
       --gray-light: #e0e0e0;
       --success-color: #2e7d32;
-      --danger-color: #c62828;
     }
 
     * {
@@ -25,91 +27,53 @@
     body {
       background-color: var(--bg-color);
       color: var(--text-color);
-      padding-bottom: 30px;
-    }
-
-    /* Barra Superior */
-    .navbar {
-      background-color: var(--card-bg);
-      padding: 15px 20px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-      position: sticky;
-      top: 0;
-      z-index: 100;
-    }
-
-    .brand {
-      font-size: 1.2rem;
-      font-weight: bold;
-      color: var(--primary-color);
-    }
-
-    .status-badge {
-      background-color: #e8f5e9;
-      color: var(--success-color);
-      font-size: 0.75rem;
-      padding: 4px 8px;
-      border-radius: 12px;
-      font-weight: bold;
-    }
-
-    .btn-logout {
-      background: none;
-      border: none;
-      color: #666;
-      font-size: 0.85rem;
-      cursor: pointer;
-    }
-
-    .container {
-      max-width: 600px;
-      margin: 0 auto;
       padding: 15px;
+      display: flex;
+      justify-content: center;
     }
 
-    /* Encabezado del Negocio */
-    .profile-card {
+    .dashboard-container {
+      width: 100%;
+      max-width: 650px;
       background: var(--card-bg);
       border-radius: 12px;
-      padding: 15px;
-      margin-bottom: 20px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+      box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+      padding: 20px;
+    }
+
+    .dashboard-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
+      border-bottom: 2px solid var(--gray-light);
+      padding-bottom: 15px;
+      margin-bottom: 20px;
     }
 
-    .profile-info h2 {
-      font-size: 1.2rem;
-      margin-bottom: 4px;
+    .restaurant-info h2 {
+      color: var(--primary-color);
+      font-size: 1.4rem;
     }
 
-    .profile-info p {
+    .restaurant-info p {
       font-size: 0.85rem;
       color: #666;
     }
 
     /* Navegación por Pestañas */
-    .tabs {
+    .tabs-nav {
       display: flex;
-      border-bottom: 2px solid var(--gray-light);
+      gap: 10px;
       margin-bottom: 20px;
-      background: var(--card-bg);
-      border-radius: 8px 8px 0 0;
+      border-bottom: 1px solid var(--gray-light);
     }
 
     .tab-btn {
-      flex: 1;
-      padding: 12px;
-      text-align: center;
-      background: none;
+      padding: 10px 15px;
       border: none;
+      background: none;
       font-weight: bold;
-      font-size: 0.9rem;
-      color: #777;
+      color: #666;
       cursor: pointer;
       border-bottom: 3px solid transparent;
     }
@@ -127,16 +91,11 @@
       display: block;
     }
 
-    /* Tarjetas de Platillo */
     .section-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
       margin-bottom: 15px;
-    }
-
-    .section-header h3 {
-      font-size: 1.1rem;
     }
 
     .btn-add {
@@ -146,64 +105,54 @@
       padding: 8px 14px;
       border-radius: 6px;
       font-weight: bold;
-      font-size: 0.85rem;
       cursor: pointer;
     }
 
+    /* Lista de Platillos */
     .dish-item {
-      background: var(--card-bg);
-      border-radius: 12px;
-      padding: 15px;
-      margin-bottom: 12px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
       display: flex;
-      gap: 12px;
       align-items: center;
-    }
-
-    .dish-img {
-      width: 70px;
-      height: 70px;
+      justify-content: space-between;
+      padding: 12px;
+      border: 1px solid var(--gray-light);
       border-radius: 8px;
-      object-fit: cover;
-      background-color: #eee;
+      margin-bottom: 10px;
+      background: #fafafa;
     }
 
     .dish-details {
       flex: 1;
+      margin-left: 10px;
     }
 
-    .dish-details h4 {
-      font-size: 0.95rem;
-      margin-bottom: 4px;
+    .dish-title {
+      font-size: 1rem;
+      font-weight: bold;
     }
 
-    .dish-details p {
+    .dish-desc {
       font-size: 0.8rem;
       color: #666;
-      margin-bottom: 6px;
     }
 
     .dish-price {
       font-weight: bold;
       color: var(--primary-color);
-      font-size: 0.95rem;
+      font-size: 0.9rem;
     }
 
     .dish-actions {
       display: flex;
-      flex-direction: column;
-      align-items: flex-end;
-      gap: 8px;
+      align-items: center;
+      gap: 15px;
     }
 
-    /* Switch de Disponibilidad */
+    /* Switch Disponible */
     .switch-container {
       display: flex;
       align-items: center;
       gap: 5px;
       font-size: 0.75rem;
-      font-weight: bold;
     }
 
     .switch {
@@ -251,493 +200,32 @@
     .btn-icon {
       background: none;
       border: 1px solid var(--gray-light);
-      padding: 4px 8px;
-      border-radius: 4px;
-      font-size: 0.75rem;
+      padding: 5px 8px;
+      border-radius: 5px;
       cursor: pointer;
-      color: #555;
-    }
-
-    /* Estilos de Formularios en Ajustes */
-    .form-card {
-      background: var(--card-bg);
-      border-radius: 12px;
-      padding: 20px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-    }
-
-    .form-group {
-      margin-bottom: 15px;
-    }
-
-    label {
-      display: block;
       font-size: 0.85rem;
-      font-weight: bold;
-      margin-bottom: 5px;
     }
 
-    input, textarea {
+    /* Form Grupos Modal */
+    .form-group {
+      margin-bottom: 12px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: bold;
+      margin-bottom: 4px;
+    }
+
+    .form-group input, .form-group textarea, .form-group select {
       width: 100%;
-      padding: 10px;
+      padding: 8px;
       border: 1px solid #ccc;
       border-radius: 6px;
-      font-size: 0.9rem;
     }
 
-    .btn-save {
-      width: 100%;
-      background-color: var(--primary-color);
-      color: white;
-      border: none;
-      padding: 12px;
-      border-radius: 8px;
-      font-weight: bold;
-      cursor: pointer;
-      margin-top: 10px;
-    }
-  </style>
-</head>
-
-<body>
-<!-- Barra Superior -->
-  <nav class="navbar">
-    <div class="brand">Platt <span style="font-size: 0.8rem; font-weight: normal; color: #666;">| Portal Socio</span></div>
-    <button class="btn-logout" onclick="alert('Cerrando sesión...')">Cerrar Sesión</button>
-  </nav>
-<!-- Barra Superior -->
-
-  <div class="container">
-<!-- Card Resumen del Negocio -->
-    <div class="profile-card">
-      <div class="profile-info">
-        <h2 id="negocioNombre">Taquería El Rey</h2>
-        <p>📍 Zona Centro · <span class="status-badge">Beta Activa</span></p>
-      </div>
-      <button class="btn-icon" onclick="switchTab('ajustes')">⚙️ Editar</button>
-    </div>
-<!-- Card Resumen del Negocio -->
-
-<!-- Pestañas de Navegación -->
-    <div class="tabs">
-      <button class="tab-btn active" id="tab-menu-btn" onclick="switchTab('menu')">🍽️ Mi Menú (<span id="countDishes">2</span>/8)</button>
-      <button class="tab-btn" id="tab-ajustes-btn" onclick="switchTab('ajustes')">🏪 Datos del Negocio</button>
-    </div>
-<!-- Pestañas de Navegación -->
-
-<!-- PESTAÑA 1: GESTIÓN DE MENÚ -->
-    <div class="tab-content active" id="tab-menu">
-      <div class="section-header">
-        <h3>Platillos Activos</h3>
-        <button class="btn-add" onclick="openDishModal('add')">+ Agregar Platillo</button>
-      </div>
-
-      <div id="dishesList">
-        <!-- Platillo 1 de ejemplo -->
-        <div class="dish-item" id="dish-1">
-          <img src="https://via.placeholder.com/70" alt="Tacos" class="dish-img">
-          <div class="dish-details">
-            <h4 class="dish-title">Orden de Tacos al Pastor (5 pzas)</h4>
-            <p class="dish-desc">Con cebolla, cilantro y piña en tortilla de maíz.</p>
-            <span class="dish-price" data-price="85">$85.00 MXN</span>
-          </div>
-          <div class="dish-actions">
-            <div class="switch-container">
-              <span>Disponible</span>
-              <label class="switch">
-                <input type="checkbox" checked onchange="toggleAvailability(this)">
-                <span class="slider"></span>
-              </label>
-            </div>
-            <button class="btn-icon" onclick="openDishModal('edit', this)">✏️ Editar</button>
-          </div>
-        </div>
-
-        <!-- Platillo 2 de ejemplo -->
-        <div class="dish-item" id="dish-2">
-          <img src="https://via.placeholder.com/70" alt="Gringa" class="dish-img">
-          <div class="dish-details">
-            <h4 class="dish-title">Gringa de Pastor con Queso</h4>
-            <p class="dish-desc">Tortilla de harina de 22cm con queso asadero.</p>
-            <span class="dish-price" data-price="65">$65.00 MXN</span>
-          </div>
-          <div class="dish-actions">
-            <div class="switch-container">
-              <span>Disponible</span>
-              <label class="switch">
-                <input type="checkbox" checked onchange="toggleAvailability(this)">
-                <span class="slider"></span>
-              </label>
-            </div>
-            <button class="btn-icon" onclick="openDishModal('edit', this)">✏️ Editar</button>
-          </div>
-        </div>
-      </div>
-    </div>
-<!-- PESTAÑA 1: GESTIÓN DE MENÚ -->
-
-
-<!-- PESTAÑA 2: DATOS DEL NEGOCIO -->
-    <div class="tab-content" id="tab-ajustes">
-      <div class="form-card">
-        <h3 style="margin-bottom: 15px;">Editar Información del Negocio</h3>
-        <form onsubmit="event.preventDefault(); alert('¡Datos actualizados correctamente!');">
-          
-          <div class="form-group">
-            <label>Nombre del Negocio</label>
-            <input type="text" value="Taquería El Rey" required>
-          </div>
-
-          <div class="form-group">
-            <label>Teléfono / WhatsApp de Pedidos</label>
-            <input type="tel" value="8112345678" required>
-          </div>
-
-          <div class="form-group">
-            <label>Dirección</label>
-            <textarea rows="2" required>Av. Hidalgo #123, Col. Centro</textarea>
-          </div>
-
-          <!-- SECCIÓN RESTRUCTURADA: DÍAS Y HORARIOS DE ATENCIÓN -->
-          <div class="form-group">
-            <label style="margin-bottom: 10px;">Días y Horarios de Atención</label>
-            
-            <style>
-              .schedule-container {
-                display: flex;
-                flex-direction: column;
-                gap: 10px;
-                background: #f9f9f9;
-                padding: 12px;
-                border-radius: 8px;
-                border: 1px solid var(--gray-light);
-              }
-              .day-row {
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-                gap: 8px;
-                padding-bottom: 8px;
-                border-bottom: 1px solid #eee;
-              }
-              .day-row:last-child {
-                border-bottom: none;
-                padding-bottom: 0;
-              }
-              .day-checkbox {
-                display: flex;
-                align-items: center;
-                gap: 8px;
-                width: 110px;
-                font-size: 0.85rem;
-                font-weight: bold;
-              }
-              .day-checkbox input {
-                width: 18px;
-                height: 18px;
-                cursor: pointer;
-              }
-              .time-inputs {
-                display: flex;
-                align-items: center;
-                gap: 5px;
-                flex: 1;
-              }
-              .time-inputs input[type="time"] {
-                padding: 6px;
-                font-size: 0.8rem;
-                border-radius: 6px;
-              }
-              .time-inputs input:disabled {
-                background-color: #e9ecef;
-                color: #aaa;
-                cursor: not-allowed;
-              }
-              .closed-label {
-                font-size: 0.8rem;
-                color: var(--danger-color);
-                font-weight: bold;
-                display: none;
-              }
-            </style>
-
-            <div class="schedule-container">
-              <!-- Lunes -->
-              <div class="day-row">
-                <div class="day-checkbox">
-                  <input type="checkbox" id="day-lunes" name="dias_abierto" value="Lunes" checked onchange="toggleDaySchedule('lunes')">
-                  <label for="day-lunes" style="margin:0;">Lunes</label>
-                </div>
-                <div class="time-inputs" id="times-lunes">
-                  <input type="time" id="open-lunes" name="hora_apertura_lunes" value="14:00">
-                  <span style="font-size:0.8rem;">a</span>
-                  <input type="time" id="close-lunes" name="hora_cierre_lunes" value="23:00">
-                </div>
-                <span class="closed-label" id="closed-lunes">Cerrado</span>
-              </div>
-
-              <!-- Martes -->
-              <div class="day-row">
-                <div class="day-checkbox">
-                  <input type="checkbox" id="day-martes" name="dias_abierto" value="Martes" checked onchange="toggleDaySchedule('martes')">
-                  <label for="day-martes" style="margin:0;">Martes</label>
-                </div>
-                <div class="time-inputs" id="times-martes">
-                  <input type="time" id="open-martes" name="hora_apertura_martes" value="14:00">
-                  <span style="font-size:0.8rem;">a</span>
-                  <input type="time" id="close-martes" name="hora_cierre_martes" value="23:00">
-                </div>
-                <span class="closed-label" id="closed-martes">Cerrado</span>
-              </div>
-
-              <!-- Miércoles -->
-              <div class="day-row">
-                <div class="day-checkbox">
-                  <input type="checkbox" id="day-miercoles" name="dias_abierto" value="Miercoles" checked onchange="toggleDaySchedule('miercoles')">
-                  <label for="day-miercoles" style="margin:0;">Miércoles</label>
-                </div>
-                <div class="time-inputs" id="times-miercoles">
-                  <input type="time" id="open-miercoles" name="hora_apertura_miercoles" value="14:00">
-                  <span style="font-size:0.8rem;">a</span>
-                  <input type="time" id="close-miercoles" name="hora_cierre_miercoles" value="23:00">
-                </div>
-                <span class="closed-label" id="closed-miercoles">Cerrado</span>
-              </div>
-
-              <!-- Jueves -->
-              <div class="day-row">
-                <div class="day-checkbox">
-                  <input type="checkbox" id="day-jueves" name="dias_abierto" value="Jueves" checked onchange="toggleDaySchedule('jueves')">
-                  <label for="day-jueves" style="margin:0;">Jueves</label>
-                </div>
-                <div class="time-inputs" id="times-jueves">
-                  <input type="time" id="open-jueves" name="hora_apertura_jueves" value="14:00">
-                  <span style="font-size:0.8rem;">a</span>
-                  <input type="time" id="close-jueves" name="hora_cierre_jueves" value="23:00">
-                </div>
-                <span class="closed-label" id="closed-jueves">Cerrado</span>
-              </div>
-
-              <!-- Viernes -->
-              <div class="day-row">
-                <div class="day-checkbox">
-                  <input type="checkbox" id="day-viernes" name="dias_abierto" value="Viernes" checked onchange="toggleDaySchedule('viernes')">
-                  <label for="day-viernes" style="margin:0;">Viernes</label>
-                </div>
-                <div class="time-inputs" id="times-viernes">
-                  <input type="time" id="open-viernes" name="hora_apertura_viernes" value="14:00">
-                  <span style="font-size:0.8rem;">a</span>
-                  <input type="time" id="close-viernes" name="hora_cierre_viernes" value="00:00">
-                </div>
-                <span class="closed-label" id="closed-viernes">Cerrado</span>
-              </div>
-
-              <!-- Sábado -->
-              <div class="day-row">
-                <div class="day-checkbox">
-                  <input type="checkbox" id="day-sabado" name="dias_abierto" value="Sabado" checked onchange="toggleDaySchedule('sabado')">
-                  <label for="day-sabado" style="margin:0;">Sábado</label>
-                </div>
-                <div class="time-inputs" id="times-sabado">
-                  <input type="time" id="open-sabado" name="hora_apertura_sabado" value="14:00">
-                  <span style="font-size:0.8rem;">a</span>
-                  <input type="time" id="close-sabado" name="hora_cierre_sabado" value="00:00">
-                </div>
-                <span class="closed-label" id="closed-sabado">Cerrado</span>
-              </div>
-
-              <!-- Domingo (Ejemplo desmarcado/cerrado por defecto) -->
-              <div class="day-row">
-                <div class="day-checkbox">
-                  <input type="checkbox" id="day-domingo" name="dias_abierto" value="Domingo" onchange="toggleDaySchedule('domingo')">
-                  <label for="day-domingo" style="margin:0;">Domingo</label>
-                </div>
-                <div class="time-inputs" id="times-domingo" style="display: none;">
-                  <input type="time" id="open-domingo" name="hora_apertura_domingo" value="14:00" disabled>
-                  <span style="font-size:0.8rem;">a</span>
-                  <input type="time" id="close-domingo" name="hora_cierre_domingo" value="22:00" disabled>
-                </div>
-                <span class="closed-label" id="closed-domingo" style="display: inline;">Cerrado</span>
-              </div>
-
-            </div>
-          </div>
-
-<!-- CAMPOS DE DATOS BANCARIOS (OPCIONALES) -->
-          <div class="form-group">
-            <label for="banco">Banco (Opcional)</label>
-            <select id="banco" name="Cobro_Banco" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 0.9rem; background-color: #fff;">
-              <option value="">Selecciona tu banco (opcional)...</option>
-              <option value="BBVA" selected>BBVA</option>
-              <option value="Banamex">Citibanamex</option>
-              <option value="Santander">Santander</option>
-              <option value="Banorte">Banorte</option>
-              <option value="HSBC">HSBC</option>
-              <option value="Scotiabank">Scotiabank</option>
-              <option value="Nu">Nu México</option>
-              <option value="Mercado Pago">Mercado Pago</option>
-              <option value="Otro">Otro Banco</option>
-            </select>
-          </div>
-
-          <div class="form-group">
-            <label for="clabe">CLABE Interbancaria (Opcional)</label>
-            <input type="text" id="clabe" name="Cobro_CLABE" value="012180000000000000" placeholder="18 dígitos (para transferencias directas)">
-            <small style="font-size: 0.75rem; color: #666; display: block; margin-top: 4px;">
-              Si no cuentas con cuenta bancaria, puedes omitir estos campos y cobrar únicamente en efectivo al entregar.
-            </small>
-          </div>
-
-<!-- CAMPOS DE DATOS BANCARIOS (OPCIONALES) -->
-
-          <button type="submit" class="btn-save">Guardar Cambios</button>
-
-        </form>
-      </div>
-    </div>
-<!-- PESTAÑA 2: DATOS DEL NEGOCIO -->
-  </div>
-
-<!-- Cambio entre pestañas   -->
-  <script>
-// Cambio entre pestañas
-    function switchTab(tabName) {
-      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-      document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
-
-      if (tabName === 'menu') {
-        document.getElementById('tab-menu-btn').classList.add('active');
-        document.getElementById('tab-menu').classList.add('active');
-      } else {
-        document.getElementById('tab-ajustes-btn').classList.add('active');
-        document.getElementById('tab-ajustes').classList.add('active');
-      }
-    }
-
-    // Toggle para disponibilidad (Agotado / Disponible)
-    function toggleAvailability(checkbox) {
-      const statusText = checkbox.parentElement.previousElementSibling;
-      if (checkbox.checked) {
-        statusText.innerText = "Disponible";
-        statusText.style.color = "initial";
-      } else {
-        statusText.innerText = "Agotado";
-        statusText.style.color = "var(--danger-color)";
-      }
-    }
-
-// SCRIPT PESTAÑA 2: DATOS DEL NEGOCIO -->
-// Función para activar/desactivar horarios según el día seleccionado
-
-function toggleDaySchedule(day) {
-  const checkbox = document.getElementById(`day-${day}`);
-  const timesContainer = document.getElementById(`times-${day}`);
-  const closedLabel = document.getElementById(`closed-${day}`);
-  const openInput = document.getElementById(`open-${day}`);
-  const closeInput = document.getElementById(`close-${day}`);
-
-  if (checkbox.checked) {
-    timesContainer.style.display = "flex";
-    closedLabel.style.display = "none";
-    openInput.disabled = false;
-    closeInput.disabled = false;
-  } else {
-    timesContainer.style.display = "none";
-    closedLabel.style.display = "inline";
-    openInput.disabled = true;
-    closeInput.disabled = true;
-  }
-}
-
-// Abrir ventana emergente (Modal) para nuevos platillos //
-let currentEditElement = null;
-
-    // Abrir ventana emergente (Modal)
-    function openDishModal(mode, buttonElement = null) {
-      const modal = document.getElementById('dishModal');
-      const title = document.getElementById('modalTitle');
-      
-      modal.classList.add('active');
-
-      if (mode === 'add') {
-        title.innerText = "Agregar Nuevo Platillo";
-        document.getElementById('dishForm').reset();
-        currentEditElement = null;
-      } else if (mode === 'edit' && buttonElement) {
-        title.innerText = "Editar Platillo";
-        
-        // Obtener la tarjeta del platillo
-        const dishCard = buttonElement.closest('.dish-item');
-        currentEditElement = dishCard;
-
-        // Extraer valores actuales y colocarlos en el formulario
-        document.getElementById('modalDishName').value = dishCard.querySelector('.dish-title').innerText;
-        document.getElementById('modalDishPrice').value = dishCard.querySelector('.dish-price').getAttribute('data-price') || "0";
-        document.getElementById('modalDishDesc').value = dishCard.querySelector('.dish-desc').innerText;
-      }
-    }
-
-    // Cerrar ventana emergente
-    function closeDishModal() {
-      document.getElementById('dishModal').classList.remove('active');
-    }
-
-    // Guardar cambios (Crear o Editar)
-    function saveDish(event) {
-      event.preventDefault();
-      
-      const name = document.getElementById('modalDishName').value;
-      const price = parseFloat(document.getElementById('modalDishPrice').value).toFixed(2);
-      const desc = document.getElementById('modalDishDesc').value;
-
-      if (currentEditElement) {
-        // Actualizar platillo existente
-        currentEditElement.querySelector('.dish-title').innerText = name;
-        currentEditElement.querySelector('.dish-price').innerText = `$${price} MXN`;
-        currentEditElement.querySelector('.dish-price').setAttribute('data-price', price);
-        currentEditElement.querySelector('.dish-desc').innerText = desc;
-      } else {
-        // Crear nuevo platillo visualmente
-        const list = document.getElementById('dishesList');
-        const newDish = document.createElement('div');
-        newDish.className = 'dish-item';
-        newDish.innerHTML = `
-          <img src="https://via.placeholder.com/70" alt="${name}" class="dish-img">
-          <div class="dish-details">
-            <h4 class="dish-title">${name}</h4>
-            <p class="dish-desc">${desc}</p>
-            <span class="dish-price" data-price="${price}">$${price} MXN</span>
-          </div>
-          <div class="dish-actions">
-            <div class="switch-container">
-              <span>Disponible</span>
-              <label class="switch">
-                <input type="checkbox" checked onchange="toggleAvailability(this)">
-                <span class="slider"></span>
-              </label>
-            </div>
-            <button class="btn-icon" onclick="openDishModal('edit', this)">✏️ Editar</button>
-          </div>
-        `;
-        list.appendChild(newDish);
-        
-        // Actualizar contador de platillos
-        const countSpan = document.getElementById('countDishes');
-        if (countSpan) {
-          countSpan.innerText = parseInt(countSpan.innerText) + 1;
-        }
-      }
-
-      closeDishModal();
-    }
-//FIN Abrir ventana emergente (Modal) para nuevos platillos //
-
-// SCRIPT PESTAÑA 2: DATOS DEL NEGOCIO -->
-  </script>
-<!-- Cambio entre pestañas   -->
-
-<!-- MODAL / VENTANA EMERGENTE PARA PLATILLOS -->
-  <style>
+    /* Modal Overlay */
     .modal-overlay {
       display: none;
       position: fixed;
@@ -748,9 +236,11 @@ let currentEditElement = null;
       align-items: center;
       padding: 15px;
     }
+
     .modal-overlay.active {
       display: flex;
     }
+
     .modal-card {
       background: #fff;
       width: 100%;
@@ -758,62 +248,252 @@ let currentEditElement = null;
       border-radius: 12px;
       padding: 20px;
       box-shadow: 0 4px 20px rgba(0,0,0,0.15);
-      max-height: 90vh;
-      overflow-y: auto;
     }
+
     .modal-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
       margin-bottom: 15px;
     }
+
     .modal-close {
       background: none;
       border: none;
       font-size: 1.2rem;
       cursor: pointer;
-      color: #666;
     }
   </style>
+</head>
+<body>
 
-  <div class="modal-overlay" id="dishModal">
-    <div class="modal-card">
-      <div class="modal-header">
-        <h3 id="modalTitle">Agregar Nuevo Platillo</h3>
-        <button class="modal-close" onclick="closeDishModal()">✕</button>
-      </div>
-
-      <form id="dishForm" onsubmit="saveDish(event)">
-        <input type="hidden" id="editDishId">
-
-        <div class="form-group">
-          <label for="modalDishName">Nombre del Platillo *</label>
-          <input type="text" id="modalDishName" placeholder="Ej. Torta Ahogada" required>
-        </div>
-
-        <div class="form-group">
-          <label for="modalDishPrice">Precio ($ MXN) *</label>
-          <input type="number" id="modalDishPrice" step="0.5" placeholder="85.00" required>
-        </div>
-
-        <div class="form-group">
-          <label for="modalDishDesc">Descripción Corta</label>
-          <textarea id="modalDishDesc" rows="2" placeholder="Ingredientes o detalles del platillo"></textarea>
-        </div>
-
-        <div class="form-group">
-          <label for="modalDishImg">Fotografía del Platillo</label>
-          <input type="file" id="modalDishImg" accept="image/*">
-        </div>
-
-        <div style="display: flex; gap: 10px; margin-top: 20px;">
-          <button type="button" class="btn-save" style="background: #e0e0e0; color: #333;" onclick="closeDishModal()">Cancelar</button>
-          <button type="submit" class="btn-save">Guardar Platillo</button>
-        </div>
-      </form>
+<div class="dashboard-container">
+  <div class="dashboard-header">
+    <div class="restaurant-info">
+      <h2 id="restName">Cargando Restaurante...</h2>
+      <p id="restAddress">Obteniendo dirección...</p>
     </div>
   </div>
-<!-- MODAL / VENTANA EMERGENTE PARA PLATILLOS -->
+
+  <div class="tabs-nav">
+    <button class="tab-btn active" onclick="switchTab('tab-menu', this)">Menú y Platillos</button>
+  </div>
+
+  <!-- PESTAÑA 1: GESTIÓN DE MENÚ -->
+  <div class="tab-content active" id="tab-menu">
+    <div class="section-header">
+      <h3>Platillos (<span id="countDishes">0</span>)</h3>
+      <button class="btn-add" onclick="openDishModal('add')">+ Agregar Platillo</button>
+    </div>
+
+    <div id="dishesList">
+      <p style="text-align: center; color: #888; margin-top: 20px;">Cargando platillos de Supabase...</p>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL PARA PLATILLOS -->
+<div class="modal-overlay" id="dishModal">
+  <div class="modal-card">
+    <div class="modal-header">
+      <h3 id="modalTitle">Agregar Nuevo Platillo</h3>
+      <button class="modal-close" onclick="closeDishModal()">✕</button>
+    </div>
+
+    <form id="dishForm" onsubmit="saveDish(event)">
+      <input type="hidden" id="editDishId">
+
+      <div class="form-group">
+        <label for="modalDishName">Nombre del Platillo *</label>
+        <input type="text" id="modalDishName" placeholder="Ej. Torta Ahogada" required>
+      </div>
+
+      <div class="form-group">
+        <label for="modalDishPrice">Precio ($ MXN) *</label>
+        <input type="number" id="modalDishPrice" step="0.5" placeholder="85.00" required>
+      </div>
+
+      <div class="form-group">
+        <label for="modalDishCategory">Categoría</label>
+        <input type="text" id="modalDishCategory" placeholder="Ej. Entradas, Bebidas, Fuertes">
+      </div>
+
+      <div class="form-group">
+        <label for="modalDishDesc">Descripción Corta</label>
+        <textarea id="modalDishDesc" rows="2" placeholder="Ingredientes o detalles del platillo"></textarea>
+      </div>
+
+      <div style="display: flex; gap: 10px; margin-top: 20px;">
+        <button type="button" class="btn-icon" style="flex: 1; padding: 10px;" onclick="closeDishModal()">Cancelar</button>
+        <button type="submit" id="modalSaveBtn" class="btn-add" style="flex: 1; padding: 10px;">Guardar Platillo</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  // 1. Conexión con Supabase
+  const SUPABASE_URL = "https://dfunaefzrkjodyawjflw.supabase.co";
+  const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRmdW5hZWZ6cmtqb2R5YXdqZmx3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk5NTM0MjIsImV4cCI6MjEwNTUyOTQyMn0.9WfEPYPyUKxvxMp1YHrdJ0F2VhuwnZpFqJb0v3dnax0";
+  const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  let restaurantId = localStorage.getItem("platt_restaurante_id");
+
+  window.onload = async function() {
+    if (!restaurantId) {
+      // Si no hay ID en localStorage, obtenemos el primer restaurante disponible
+      const { data } = await _supabase.from('restaurantes').select('id').limit(1);
+      if (data && data.length > 0) {
+        restaurantId = data[0].id;
+        localStorage.setItem("platt_restaurante_id", restaurantId);
+      } else {
+        alert("No se encontró ningún restaurante registrado.");
+        return;
+      }
+    }
+    loadRestaurantData();
+    loadDishes();
+  };
+
+  // Cargar datos del Restaurante
+  async function loadRestaurantData() {
+    const { data, error } = await _supabase
+      .from('restaurantes')
+      .select('*')
+      .eq('id', restaurantId)
+      .single();
+
+    if (data) {
+      document.getElementById('restName').innerText = data.nombre;
+      document.getElementById('restAddress').innerText = data.direccion || "Sin dirección registrada";
+    }
+  }
+
+  // Cargar Platillos desde Supabase
+  async function loadDishes() {
+    const { data: dishes, error } = await _supabase
+      .from('platillos')
+      .select('*')
+      .eq('restaurante_id', restaurantId)
+      .order('creado_en', { ascending: true });
+
+    const container = document.getElementById('dishesList');
+    container.innerHTML = "";
+
+    if (!dishes || dishes.length === 0) {
+      container.innerHTML = `<p style="text-align: center; color: #888;">Aún no tienes platillos registrados.</p>`;
+      document.getElementById('countDishes').innerText = "0";
+      return;
+    }
+
+    document.getElementById('countDishes').innerText = dishes.length;
+
+    dishes.forEach(dish => {
+      const card = document.createElement('div');
+      card.className = 'dish-item';
+      card.id = `dish-${dish.id}`;
+      card.innerHTML = `
+        <div class="dish-details">
+          <h4 class="dish-title">${dish.nombre}</h4>
+          <p class="dish-desc">${dish.descripcion || ''}</p>
+          <span class="dish-price">$${parseFloat(dish.precio).toFixed(2)} MXN</span>
+        </div>
+        <div class="dish-actions">
+          <div class="switch-container">
+            <span>Disponible</span>
+            <label class="switch">
+              <input type="checkbox" ${dish.disponible ? 'checked' : ''} onchange="toggleAvailability('${dish.id}', this.checked)">
+              <span class="slider"></span>
+            </label>
+          </div>
+          <button class="btn-icon" onclick="openDishModal('edit', '${dish.id}', '${escapeHtml(dish.nombre)}', ${dish.precio}, '${escapeHtml(dish.descripcion || '')}', '${escapeHtml(dish.categoria || '')}')">✏️ Editar</button>
+        </div>
+      `;
+      container.appendChild(card);
+    });
+  }
+
+  // Cambiar disponibilidad en Supabase
+  async function toggleAvailability(dishId, isAvailable) {
+    await _supabase
+      .from('platillos')
+      .update({ disponible: isAvailable })
+      .eq('id', dishId);
+  }
+
+  // Abrir Modal (Agregar / Editar)
+  function openDishModal(mode, id = null, name = '', price = '', desc = '', cat = '') {
+    const modal = document.getElementById('dishModal');
+    const title = document.getElementById('modalTitle');
+
+    modal.classList.add('active');
+
+    if (mode === 'add') {
+      title.innerText = "Agregar Nuevo Platillo";
+      document.getElementById('dishForm').reset();
+      document.getElementById('editDishId').value = "";
+    } else {
+      title.innerText = "Editar Platillo";
+      document.getElementById('editDishId').value = id;
+      document.getElementById('modalDishName').value = name;
+      document.getElementById('modalDishPrice').value = price;
+      document.getElementById('modalDishDesc').value = desc;
+      document.getElementById('modalDishCategory').value = cat;
+    }
+  }
+
+  function closeDishModal() {
+    document.getElementById('dishModal').classList.remove('active');
+  }
+
+  // Guardar Cambios (INSERT / UPDATE)
+  async function saveDish(e) {
+    e.preventDefault();
+    const btn = document.getElementById('modalSaveBtn');
+    btn.disabled = true;
+    btn.innerText = "Guardando...";
+
+    const id = document.getElementById('editDishId').value;
+    const name = document.getElementById('modalDishName').value;
+    const price = parseFloat(document.getElementById('modalDishPrice').value);
+    const desc = document.getElementById('modalDishDesc').value;
+    const cat = document.getElementById('modalDishCategory').value;
+
+    if (id) {
+      // Editar existente en Supabase
+      await _supabase
+        .from('platillos')
+        .update({
+          nombre: name,
+          precio: price,
+          descripcion: desc,
+          categoria: cat
+        })
+        .eq('id', id);
+    } else {
+      // Crear nuevo en Supabase
+      await _supabase
+        .from('platillos')
+        .insert([{
+          restaurante_id: restaurantId,
+          nombre: name,
+          precio: price,
+          descripcion: desc,
+          categoria: cat,
+          disponible: true
+        }]);
+    }
+
+    btn.disabled = false;
+    btn.innerText = "Guardar Platillo";
+    closeDishModal();
+    loadDishes();
+  }
+
+  function escapeHtml(text) {
+    return text.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+  }
+</script>
 
 </body>
 </html>
