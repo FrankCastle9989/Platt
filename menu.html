@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Platt - Menú Digital</title>
+  <!-- CDN Oficial de Supabase -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    :root {
+      --primary-color: #ff5722;
+      --primary-hover: #e64a19;
+      --bg-color: #f4f6f8;
+      --card-bg: #ffffff;
+      --text-color: #333333;
+      --gray-light: #e0e0e0;
+      --whatsapp-color: #25d366;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      padding-bottom: 90px; /* Espacio para la barra del carrito flotante */
+      display: flex;
+      justify-content: center;
+    }
+
+    .menu-container {
+      width: 100%;
+      max-width: 500px;
+      background: var(--card-bg);
+      min-height: 100vh;
+      box-shadow: 0 0 15px rgba(0,0,0,0.05);
+      position: relative;
+    }
+
+    /* Header del Restaurante */
+    .restaurant-header {
+      background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
+      color: white;
+      padding: 25px 20px;
+      border-bottom-left-radius: 20px;
+      border-bottom-right-radius: 20px;
+    }
+
+    .restaurant-header h1 {
+      font-size: 1.6rem;
+      margin-bottom: 5px;
+    }
+
+    .restaurant-header p {
+      font-size: 0.85rem;
+      opacity: 0.9;
+    }
+
+    .menu-body {
+      padding: 20px;
+    }
+
+    /* Categorías */
+    .category-title {
+      font-size: 1.1rem;
+      color: var(--primary-color);
+      margin: 20px 0 10px 0;
+      border-bottom: 2px solid var(--gray-light);
+      padding-bottom: 5px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* Tarjetas de Platillos */
+    .dish-card {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 14px;
+      border: 1px solid var(--gray-light);
+      border-radius: 10px;
+      margin-bottom: 12px;
+      background: #ffffff;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+    }
+
+    .dish-info {
+      flex: 1;
+      padding-right: 10px;
+    }
+
+    .dish-name {
+      font-weight: bold;
+      font-size: 0.95rem;
+      margin-bottom: 4px;
+    }
+
+    .dish-desc {
+      font-size: 0.8rem;
+      color: #666;
+      margin-bottom: 6px;
+    }
+
+    .dish-price {
+      font-weight: bold;
+      color: var(--primary-color);
+      font-size: 0.95rem;
+    }
+
+    /* Botones de Control de Cantidad */
+    .dish-counter {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-counter {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      border: 1px solid var(--primary-color);
+      background: white;
+      color: var(--primary-color);
+      font-weight: bold;
+      font-size: 1rem;
+      cursor: pointer;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .btn-counter.add {
+      background: var(--primary-color);
+      color: white;
+    }
+
+    .counter-num {
+      font-weight: bold;
+      font-size: 0.9rem;
+      min-width: 18px;
+      text-align: center;
+    }
+
+    /* Barra Flotante del Carrito */
+    .cart-bar {
+      position: fixed;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100%;
+      max-width: 500px;
+      background: #ffffff;
+      border-top: 1px solid var(--gray-light);
+      padding: 12px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 -4px 15px rgba(0,0,0,0.08);
+      z-index: 99;
+    }
+
+    .cart-info {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .cart-total-label {
+      font-size: 0.75rem;
+      color: #666;
+    }
+
+    .cart-total-price {
+      font-size: 1.2rem;
+      font-weight: bold;
+      color: var(--primary-color);
+    }
+
+    .btn-checkout {
+      background-color: var(--whatsapp-color);
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 8px;
+      font-weight: bold;
+      font-size: 0.95rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Modal de Checkout */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.6);
+      z-index: 1000;
+      justify-content: center;
+      align-items: flex-end;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .modal-card {
+      background: #fff;
+      width: 100%;
+      max-width: 500px;
+      border-top-left-radius: 16px;
+      border-top-right-radius: 16px;
+      padding: 20px;
+      max-height: 85vh;
+      overflow-y: auto;
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+      border-bottom: 1px solid var(--gray-light);
+      padding-bottom: 10px;
+    }
+
+    .form-group {
+      margin-bottom: 12px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: bold;
+      margin-bottom: 4px;
+    }
+
+    .form-group input, .form-group textarea, .form-group select {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 0.9rem;
+    }
+
+    .order-summary {
+      background: #fafafa;
+      border: 1px solid var(--gray-light);
+      border-radius: 8px;
+      padding: 10px;
+      margin-bottom: 15px;
+      font-size: 0.85rem;
+    }
+
+    .order-item-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 5px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="menu-container">
+  <!-- Header del Restaurante -->
+  <div class="restaurant-header">
+    <h1 id="restName">Cargando Menú...</h1>
+    <p id="restAddress">Obteniendo ubicación...</p>
+  </div>
+
+  <div class="menu-body" id="menuBody">
+    <p style="text-align: center; color: #888; margin-top: 30px;">Cargando platillos del restaurante...</p>
+  </div>
+
+  <!-- Barra Flotante de Pedido -->
+  <div class="cart-bar">
+    <div class="cart-info">
+      <span class="cart-total-label"><span id="cartCount">0</span> productos</span>
+      <span class="cart-total-price" id="cartTotal">$0.00</span>
+    </div>
+    <button class="btn-checkout" onclick="openCheckoutModal()">
+      Ver Pedido
+    </button>
+  </div>
+</div>
+
+<!-- MODAL DE CONFIRMACIÓN / CHECKOUT -->
+<div class="modal-overlay" id="checkoutModal">
+  <div class="modal-card">
+    <div class="modal-header">
+      <h3>Confirmar Pedido por WhatsApp</h3>
+      <button style="background:none; border:none; font-size:1.2rem; cursor:pointer;" onclick="closeCheckoutModal()">✕</button>
+    </div>
+
+    <div class="order-summary" id="modalOrderSummary">
+      <!-- Resumen dinámico -->
+    </div>
+
+    <form id="checkoutForm" onsubmit="sendWhatsAppOrder(event)">
+      <div class="form-group">
+        <label for="clientName">Tu Nombre Completo *</label>
+        <input type="text" id="clientName" placeholder="Ej. Carlos Mendoza" required>
+      </div>
+
+      <div class="form-group">
+        <label for="orderType">Tipo de Pedido *</label>
+        <select id="orderType" onchange="toggleAddressField(this.value)" required>
+          <option value="Domicilio">Entrega a Domicilio</option>
+          <option value="Para Llevar">Pasar a Recoger / Para Llevar</option>
+          <option value="En Mesa">Comer en el Establecimiento</option>
+        </select>
+      </div>
+
+      <div class="form-group" id="addressGroup">
+        <label for="clientAddress">Dirección de Entrega y Referencias *</label>
+        <textarea id="clientAddress" rows="2" placeholder="Calle, número, colonia y fachada"></textarea>
+      </div>
+
+      <div class="form-group">
+        <label for="orderNotes">Notas Adicionales (Opcional)</label>
+        <textarea id="orderNotes" rows="2" placeholder="Ej. Sin cebolla, salsas extra, con cuánto pagas..."></textarea>
+      </div>
+
+      <button type="submit" class="btn-checkout" style="width: 100%; justify-content: center; padding: 14px; margin-top: 15px;">
+        📲 Enviar Pedido a WhatsApp
+      </button>
+    </form>
+  </div>
+</div>
+
+<script>
+  // Conexión con Supabase
+  const SUPABASE_URL = "https://dfunaefzrkjodyawjflw.supabase.co";
+  const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRmdW5hZWZ6cmtqb2R5YXdqZmx3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk5NTM0MjIsImV4cCI6MjEwNTUyOTQyMn0.9WfEPYPyUKxvxMp1YHrdJ0F2VhuwnZpFqJb0v3dnax0";
+  const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  let restaurantData = null;
+  let cart = {}; // Objeto para almacenar platillos seleccionados { id: { nombre, precio, cantidad } }
+
+  window.onload = async function() {
+    // 1. Obtener el ID del restaurante desde la URL (ej: menu.html?id=123)
+    const urlParams = new URLSearchParams(window.location.search);
+    let restaurantId = urlParams.get('id');
+
+    if (!restaurantId) {
+      // Si no hay parámetro en la URL, tomar el guardado local o el primero disponible
+      restaurantId = localStorage.getItem("platt_restaurante_id");
+    }
+
+    if (!restaurantId) {
+      const { data } = await _supabase.from('restaurantes').select('id').limit(1);
+      if (data && data.length > 0) restaurantId = data[0].id;
+    }
+
+    if (!restaurantId) {
+      document.getElementById('menuBody').innerHTML = "<p style='text-align:center;'>Restaurante no encontrado.</p>";
+      return;
+    }
+
+    loadRestaurantHeader(restaurantId);
+    loadMenuDishes(restaurantId);
+  };
+
+  // Cargar Nombre y WhatsApp del Restaurante
+  async function loadRestaurantHeader(id) {
+    const { data, error } = await _supabase
+      .from('restaurantes')
+      .select('*')
+      .eq('id', id)
+      .single();
+
+    if (data) {
+      restaurantData = data;
+      document.getElementById('restName').innerText = data.nombre;
+      document.getElementById('restAddress').innerText = data.direccion || "Servicio a Domicilio y Para Llevar";
+    }
+  }
+
+  // Cargar Platillos Disponibles
+  async function loadMenuDishes(id) {
+    const { data: dishes, error } = await _supabase
+      .from('platillos')
+      .select('*')
+      .eq('restaurante_id', id)
+      .eq('disponible', true);
+
+    const container = document.getElementById('menuBody');
+    container.innerHTML = "";
+
+    if (!dishes || dishes.length === 0) {
+      container.innerHTML = "<p style='text-align:center; color:#888; margin-top:20px;'>En este momento no hay platillos disponibles.</p>";
+      return;
+    }
+
+    // Agrupar por categorías
+    const categories = {};
+    dishes.forEach(dish => {
+      const cat = dish.categoria || "Menú Principal";
+      if (!categories[cat]) categories[cat] = [];
+      categories[cat].push(dish);
+    });
+
+    // Renderizar categorías y platillos
+    for (const catName in categories) {
+      const catHeader = document.createElement('h2');
+      catHeader.className = 'category-title';
+      catHeader.innerText = catName;
+      container.appendChild(catHeader);
+
+      categories[catName].forEach(dish => {
+        const card = document.createElement('div');
+        card.className = 'dish-card';
+        card.innerHTML = `
+          <div class="dish-info">
+            <div class="dish-name">${dish.nombre}</div>
+            <div class="dish-desc">${dish.descripcion || ''}</div>
+            <div class="dish-price">$${parseFloat(dish.precio).toFixed(2)} MXN</div>
+          </div>
+          <div class="dish-counter">
+            <button class="btn-counter" onclick="updateQuantity('${dish.id}', '${escapeHtml(dish.nombre)}', ${dish.precio}, -1)">-</button>
+            <span class="counter-num" id="qty-${dish.id}">0</span>
+            <button class="btn-counter add" onclick="updateQuantity('${dish.id}', '${escapeHtml(dish.nombre)}', ${dish.precio}, 1)">+</button>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+  }
+
+  // Lógica del Carrito de Compras
+  function updateQuantity(id, name, price, change) {
+    if (!cart[id]) {
+      cart[id] = { nombre: name, precio: price, cantidad: 0 };
+    }
+
+    cart[id].cantidad += change;
+
+    if (cart[id].cantidad <= 0) {
+      delete cart[id];
+      document.getElementById(`qty-${id}`).innerText = "0";
+    } else {
+      document.getElementById(`qty-${id}`).innerText = cart[id].cantidad;
+    }
+
+    renderCartSummary();
+  }
+
+  function renderCartSummary() {
+    let totalItems = 0;
+    let totalPrice = 0;
+
+    for (const id in cart) {
+      totalItems += cart[id].cantidad;
+      totalPrice += cart[id].cantidad * cart[id].precio;
+    }
+
+    document.getElementById('cartCount').innerText = totalItems;
+    document.getElementById('cartTotal').innerText = `$${totalPrice.toFixed(2)} MXN`;
+  }
+
+  // Modales y Checkout
+  function openCheckoutModal() {
+    let totalItems = 0;
+    for (const id in cart) totalItems += cart[id].cantidad;
+
+    if (totalItems === 0) {
+      alert("Agrega al menos un platillo a tu pedido.");
+      return;
+    }
+
+    const summaryContainer = document.getElementById('modalOrderSummary');
+    summaryContainer.innerHTML = "<strong>Resumen del Pedido:</strong><br><br>";
+
+    let total = 0;
+    for (const id in cart) {
+      const item = cart[id];
+      const itemTotal = item.cantidad * item.precio;
+      total += itemTotal;
+      summaryContainer.innerHTML += `
+        <div class="order-item-row">
+          <span>${item.cantidad}x ${item.nombre}</span>
+          <span>$${itemTotal.toFixed(2)}</span>
+        </div>
+      `;
+    }
+
+    summaryContainer.innerHTML += `
+      <hr style="margin: 8px 0; border:0; border-top: 1px solid #ccc;">
+      <div class="order-item-row" style="font-weight:bold; font-size:0.95rem; color:var(--primary-color);">
+        <span>Total a Pagar:</span>
+        <span>$${total.toFixed(2)} MXN</span>
+      </div>
+    `;
+
+    document.getElementById('checkoutModal').classList.add('active');
+  }
+
+  function closeCheckoutModal() {
+    document.getElementById('checkoutModal').classList.remove('active');
+  }
+
+  function toggleAddressField(value) {
+    const addressGroup = document.getElementById('addressGroup');
+    const addressInput = document.getElementById('clientAddress');
+
+    if (value === 'Domicilio') {
+      addressGroup.style.display = 'block';
+      addressInput.required = true;
+    } else {
+      addressGroup.style.display = 'none';
+      addressInput.required = false;
+    }
+  }
+
+  // Generar y Enviar Mensaje de WhatsApp
+  function sendWhatsAppOrder(e) {
+    e.preventDefault();
+
+    if (!restaurantData || !restaurantData.whatsapp) {
+      alert("Error: El restaurante no tiene un número de WhatsApp registrado.");
+      return;
+    }
+
+    const name = document.getElementById('clientName').value.trim();
+    const orderType = document.getElementById('orderType').value;
+    const address = document.getElementById('clientAddress').value.trim();
+    const notes = document.getElementById('orderNotes').value.trim();
+
+    let text = `*NUEVO PEDIDO - ${restaurantData.nombre.toUpperCase()}*\n\n`;
+    text += `👤 *Cliente:* ${name}\n`;
+    text += `🛵 *Tipo:* ${orderType}\n`;
+
+    if (orderType === 'Domicilio') {
+      text += `📍 *Dirección:* ${address}\n`;
+    }
+
+    text += `\n*DETALLE DEL PEDIDO:*\n`;
+
+    let total = 0;
+    for (const id in cart) {
+      const item = cart[id];
+      const subtotal = item.cantidad * item.precio;
+      total += subtotal;
+      text += `• ${item.cantidad}x ${item.nombre} ($${subtotal.toFixed(2)})\n`;
+    }
+
+    text += `\n💰 *TOTAL:* $${total.toFixed(2)} MXN\n`;
+
+    if (notes) {
+      text += `\n📝 *Notas:* ${notes}\n`;
+    }
+
+    text += `\n_Enviado a través de Platt_`;
+
+    // Formatear número de teléfono (Limpiar espacios o guiones)
+    let phone = restaurantData.whatsapp.replace(/\D/g, '');
+    
+    // Asumir clave LADA de México (+52) si son 10 dígitos
+    if (phone.length === 10) {
+      phone = '52' + phone;
+    }
+
+    const encodedText = encodeURIComponent(text);
+    const whatsappUrl = `https://api.whatsapp.com/send?phone=${phone}&text=${encodedText}`;
+
+    // Abrir WhatsApp
+    window.open(whatsappUrl, '_blank');
+    closeCheckoutModal();
+  }
+
+  function escapeHtml(text) {
+    return text.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+  }
+</script>
+
+</body>
+</html>
