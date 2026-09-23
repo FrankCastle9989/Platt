@@ -255,6 +255,7 @@
 
 <script>
   // Conexión con Supabase
+// Conexión con Supabase
   const SUPABASE_URL = "https://dfunaefzrkjodyawjflw.supabase.co";
   const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRmdW5hZWZ6cmtqb2R5YXdqZmx3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk5NTM0MjIsImV4cCI6MjEwNTUyOTQyMn0.9WfEPYPyUKxvxMp1YHrdJ0F2VhuwnZpFqJb0v3dnax0";
   const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -266,7 +267,7 @@
     fetchDirectoryData();
   };
 
-  // Consultar Platillos y Restaurantes con JOIN de Supabase
+  // Consultar Platillos y Restaurantes con JOIN
   async function fetchDirectoryData() {
     const { data, error } = await _supabase
       .from('platillos')
@@ -296,14 +297,21 @@
     renderDishes();
   }
 
-  // Generar Chips de Categorías dinámicamente
+  // Generar Chips de Categorías
   function renderCategories() {
     const container = document.getElementById('categoriesContainer');
     const categoriesSet = new Set();
 
     allDishes.forEach(d => {
-      if (d.categoria) categoriesSet.add(d.categoria);
+      if (d.categoria && d.categoria.trim() !== "") {
+        // Limpiar espacios y normalizar texto
+        const cleanCat = d.categoria.trim();
+        categoriesSet.add(cleanCat);
+      }
     });
+
+    // Limpiar contenedor previo conservando el botón "Todas"
+    container.innerHTML = '<button class="chip-cat active" onclick="selectCategory(\'Todas\', this)">Todas</button>';
 
     categoriesSet.forEach(cat => {
       const btn = document.createElement('button');
@@ -322,17 +330,27 @@
     filterItems();
   }
 
-  // Filtrar y Mostrar Platillos
+  // Filtrar de forma flexible e inteligente
   function filterItems() {
     const query = document.getElementById('searchInput').value.toLowerCase().trim();
+    const catTarget = selectedCategory.toLowerCase().trim();
 
     const filtered = allDishes.filter(dish => {
-      const matchesCategory = selectedCategory === 'Todas' || dish.categoria === selectedCategory;
-      const dishName = (dish.nombre || '').toLowerCase();
-      const dishDesc = (dish.descripcion || '').toLowerCase();
-      const restName = (dish.restaurantes?.nombre || '').toLowerCase();
+      const dishCat = (dish.categoria || '').toLowerCase().trim();
+      const dishName = (dish.nombre || '').toLowerCase().trim();
+      const dishDesc = (dish.descripcion || '').toLowerCase().trim();
+      const restName = (dish.restaurantes?.nombre || '').toLowerCase().trim();
 
-      const matchesSearch = dishName.includes(query) || dishDesc.includes(query) || restName.includes(query);
+      // Coincidencia flexible de categoría:
+      // Si la categoría seleccionada es "Todas", pasa.
+      // Si coincide exacto O si la categoría/nombre del platillo incluye la palabra seleccionada.
+      const matchesCategory = selectedCategory === 'Todas' || 
+                              dishCat === catTarget || 
+                              dishName.includes(catTarget) ||
+                              dishCat.includes(catTarget);
+
+      // Coincidencia con la barra de búsqueda
+      const matchesSearch = dishName.includes(query) || dishDesc.includes(query) || restName.includes(query) || dishCat.includes(query);
 
       return matchesCategory && matchesSearch;
     });
