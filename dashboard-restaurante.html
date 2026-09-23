@@ -6,6 +6,8 @@
   <title>Platt - Dashboard del Restaurante</title>
   <!-- CDN Oficial de Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- CDN para generación de Código QR -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <style>
     :root {
       --primary-color: #ff5722;
@@ -303,7 +305,8 @@
   </div>
 
   <div class="tabs-nav">
-    <button class="tab-btn active">Menú y Platillos</button>
+  <button class="tab-btn active" onclick="switchTab('menu')">Menú y Platillos</button>
+  <button class="tab-btn" onclick="switchTab('qr')">Código QR y Enlace</button>
   </div>
 
   <!-- PESTAÑA 1: GESTIÓN DE MENÚ -->
@@ -317,6 +320,29 @@
       <p style="text-align: center; color: #888; margin-top: 20px;">Cargando platillos de Supabase...</p>
     </div>
   </div>
+
+<!-- PESTAÑA 2: CÓDIGO QR -->
+<div class="tab-content" id="tab-qr" style="display: none;">
+  <div style="text-align: center; padding: 20px; background: #fafafa; border-radius: 12px; border: 1px solid var(--gray-light);">
+    <h3>Tu Código QR de Menú Digital</h3>
+    <p style="font-size: 0.85rem; color: #666; margin: 8px 0 20px;">
+      Descarga e imprime este código para colocarlo en las mesas o mostrador de tu negocio.
+    </p>
+    
+    <div id="qrcode" style="display: flex; justify-content: center; margin-bottom: 20px;"></div>
+    
+    <div class="form-group" style="max-width: 400px; margin: 0 auto 15px;">
+      <label>Enlace Directo a tu Menú:</label>
+      <input type="text" id="menuUrlInput" readonly style="text-align: center; font-weight: bold; background: #fff;">
+    </div>
+
+    <div style="display: flex; gap: 10px; justify-content: center; max-width: 400px; margin: 0 auto;">
+      <button class="btn-add" onclick="copyMenuLink()">📋 Copiar Link</button>
+      <button class="btn-add" style="background-color: #333;" onclick="window.print()">🖨️ Imprimir QR</button>
+    </div>
+  </div>
+</div>
+
 </div>
 
 <!-- MODAL PARA PLATILLOS -->
@@ -342,7 +368,21 @@
 
       <div class="form-group">
         <label for="modalDishCategory">Categoría</label>
-        <input type="text" id="modalDishCategory" placeholder="Ej. Entradas, Bebidas, Fuertes">
+        <div class="form-group">
+          <label for="modalDishCategory">Categoría *</label>
+          <select id="modalDishCategory" required>
+            <option value="">Selecciona una categoría...</option>
+            <option value="Tacos">Tacos</option>
+            <option value="Hamburguesas">Hamburguesas</option>
+            <option value="Tortas y Lonches">Tortas y Lonches</option>
+            <option value="Pizzas">Pizzas</option>
+            <option value="Sushi y Asiática">Sushi y Asiática</option>
+            <option value="Entradas y Botanas">Entradas y Botanas</option>
+            <option value="Bebidas">Bebidas</option>
+            <option value="Postres">Postres</option>
+            <option value="Otros">Otros</option>
+          </select>
+        </div>
       </div>
 
       <div class="form-group">
@@ -525,6 +565,57 @@
   function escapeHtml(text) {
     return text.replace(/'/g, "\\'").replace(/"/g, '&quot;');
   }
+
+
+let qrGenerated = false;
+
+// Cambiar de pestaña
+function switchTab(tabName) {
+  document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(content => content.style.display = 'none');
+
+  if (tabName === 'menu') {
+    document.querySelectorAll('.tab-btn')[0].classList.add('active');
+    document.getElementById('tab-menu').style.display = 'block';
+  } else if (tabName === 'qr') {
+    document.querySelectorAll('.tab-btn')[1].classList.add('active');
+    document.getElementById('tab-qr').style.display = 'block';
+    generateQRCode();
+  }
+}
+
+// Generar Código QR Dinámico
+function generateQRCode() {
+  if (qrGenerated || !restaurantId) return;
+
+  // Construir la URL absoluta hacia el menú público
+  const baseUrl = window.location.href.substring(0, window.location.href.lastIndexOf('/'));
+  const menuUrl = `${baseUrl}/menu.html?id=${restaurantId}`;
+
+  document.getElementById('menuUrlInput').value = menuUrl;
+
+  // Limpiar contenedor previo e insertar QR
+  document.getElementById('qrcode').innerHTML = "";
+  new QRCode(document.getElementById("qrcode"), {
+    text: menuUrl,
+    width: 200,
+    height: 200,
+    colorDark : "#ff5722",
+    colorLight : "#ffffff",
+    correctLevel : QRCode.CorrectLevel.H
+  });
+
+  qrGenerated = true;
+}
+
+// Copiar Link al portapapeles
+function copyMenuLink() {
+  const copyText = document.getElementById("menuUrlInput");
+  copyText.select();
+  document.execCommand("copy");
+  alert("¡Enlace copiado al portapapeles!");
+}
+
 </script>
 
 </body>
