@@ -588,13 +588,8 @@ function switchTab(tabName) {
 function generateQRCode() {
   if (qrGenerated || !restaurantId) return;
 
-  let baseUrl = window.location.href.substring(0, window.location.href.lastIndexOf('/'));
-
-  // Detectar si el usuario está abriendo el archivo localmente (file://)
-  if (window.location.protocol === 'file:') {
-    alert("⚠️ Estás abriendo el proyecto como archivo local (file://).\n\nLos teléfonos no pueden abrir rutas locales de tu computadora. Para escanear el QR desde tu celular, subiremos el proyecto a un hosting web en el siguiente paso (por ejemplo, Vercel o Netlify).");
-  }
-
+  // Detectar la ruta base actual (ej. https://tu-usuario.github.io/tu-repositorio)
+  const baseUrl = window.location.href.substring(0, window.location.href.lastIndexOf('/'));
   const menuUrl = `${baseUrl}/menu.html?id=${restaurantId}`;
 
   document.getElementById('menuUrlInput').value = menuUrl;
@@ -612,7 +607,6 @@ function generateQRCode() {
 
   qrGenerated = true;
 }
-
 // Copiar Link al portapapeles
 function copyMenuLink() {
   const copyText = document.getElementById("menuUrlInput");
