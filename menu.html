@@ -341,42 +341,29 @@
   let restaurantData = null;
   let cart = {}; // Objeto para almacenar platillos seleccionados { id: { nombre, precio, cantidad } }
 
-window.onload = async function() {
-  try {
+  window.onload = async function() {
+    // 1. Obtener el ID del restaurante desde la URL (ej: menu.html?id=123)
     const urlParams = new URLSearchParams(window.location.search);
     let restaurantId = urlParams.get('id');
 
-    console.log("ID detectado en URL:", restaurantId);
+    if (!restaurantId) {
+      // Si no hay parámetro en la URL, tomar el guardado local o el primero disponible
+      restaurantId = localStorage.getItem("platt_restaurante_id");
+    }
 
     if (!restaurantId) {
-      document.getElementById('menuBody').innerHTML = "<p style='text-align:center; padding:20px;'>Falta el ID del restaurante en la URL.</p>";
+      const { data } = await _supabase.from('restaurantes').select('id').limit(1);
+      if (data && data.length > 0) restaurantId = data[0].id;
+    }
+
+    if (!restaurantId) {
+      document.getElementById('menuBody').innerHTML = "<p style='text-align:center;'>Restaurante no encontrado.</p>";
       return;
     }
 
-    // Consultar datos en Supabase
-    const { data: restData, error: restError } = await _supabase
-      .from('restaurantes')
-      .select('*')
-      .eq('id', restaurantId)
-      .single();
-
-    if (restError) throw restError;
-
-    document.getElementById('restName').innerText = restData.nombre;
-    document.getElementById('restAddress').innerText = restData.direccion || "Servicio a Domicilio";
-
+    loadRestaurantHeader(restaurantId);
     loadMenuDishes(restaurantId);
-
-  } catch (err) {
-    console.error("Error al cargar el menú:", err);
-    document.getElementById('menuBody').innerHTML = `
-      <div style="padding: 20px; text-align: center; color: red;">
-        <h3>Ocurrió un error al cargar</h3>
-        <p style="font-size: 0.85rem;">${err.message || err}</p>
-      </div>
-    `;
-  }
-};
+  };
 
   // Cargar Nombre y WhatsApp del Restaurante
   async function loadRestaurantHeader(id) {

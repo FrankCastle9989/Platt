@@ -585,24 +585,48 @@ function switchTab(tabName) {
 }
 
 // Generar Código QR Dinámico
-function generateQRCode() {
-  if (qrGenerated || !restaurantId) return;
+async function generateQRCode() {
+  const qrContainer = document.getElementById('qrcode');
+  const inputUrl = document.getElementById('menuUrlInput');
 
-  // Detectar la ruta base actual (ej. https://tu-usuario.github.io/tu-repositorio)
-  const baseUrl = window.location.href.substring(0, window.location.href.lastIndexOf('/'));
-  const menuUrl = `${baseUrl}/menu.html?id=${restaurantId}`;
+  // Si no tenemos el ID cargado, intentamos obtenerlo de nuevo desde la sesión de Supabase
+  if (!restaurantId) {
+    const { data: { session } } = await _supabase.auth.getSession();
+    if (session) {
+      const { data: restData } = await _supabase
+        .from('restaurantes')
+        .select('id')
+        .eq('user_id', session.user.id)
+        .single();
+      
+      if (restData) {
+        restaurantId = restData.id;
+      }
+    }
+  }
 
-  document.getElementById('menuUrlInput').value = menuUrl;
+  // Si aun así no hay ID, mostramos aviso
+  if (!restaurantId) {
+    qrContainer.innerHTML = "<p style='color:red;'>No se pudo obtener el ID del restaurante. Por favor recarga la página.</p>";
+    return;
+  }
+
+  // Construir la URL completa asegurando que apunte a menu.html con el ID correspondiente
+  const currentPath = window.location.pathname;
+  const basePath = currentPath.substring(0, currentPath.lastIndexOf('/'));
+  const menuUrl = `${window.location.origin}${basePath}/menu.html?id=${restaurantId}`;
+
+  inputUrl.value = menuUrl;
 
   // Limpiar e insertar QR
-  document.getElementById('qrcode').innerHTML = "";
-  new QRCode(document.getElementById("qrcode"), {
+  qrContainer.innerHTML = "";
+  new QRCode(qrContainer, {
     text: menuUrl,
     width: 200,
     height: 200,
-    colorDark : "#ff5722",
-    colorLight : "#ffffff",
-    correctLevel : QRCode.CorrectLevel.H
+    colorDark: "#ff5722",
+    colorLight: "#ffffff",
+    correctLevel: QRCode.CorrectLevel.H
   });
 
   qrGenerated = true;
