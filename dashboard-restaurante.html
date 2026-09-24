@@ -588,13 +588,18 @@ function switchTab(tabName) {
 function generateQRCode() {
   if (qrGenerated || !restaurantId) return;
 
-  // Construir la URL absoluta hacia el menú público
-  const baseUrl = window.location.href.substring(0, window.location.href.lastIndexOf('/'));
+  let baseUrl = window.location.href.substring(0, window.location.href.lastIndexOf('/'));
+
+  // Detectar si el usuario está abriendo el archivo localmente (file://)
+  if (window.location.protocol === 'file:') {
+    alert("⚠️ Estás abriendo el proyecto como archivo local (file://).\n\nLos teléfonos no pueden abrir rutas locales de tu computadora. Para escanear el QR desde tu celular, subiremos el proyecto a un hosting web en el siguiente paso (por ejemplo, Vercel o Netlify).");
+  }
+
   const menuUrl = `${baseUrl}/menu.html?id=${restaurantId}`;
 
   document.getElementById('menuUrlInput').value = menuUrl;
 
-  // Limpiar contenedor previo e insertar QR
+  // Limpiar e insertar QR
   document.getElementById('qrcode').innerHTML = "";
   new QRCode(document.getElementById("qrcode"), {
     text: menuUrl,
