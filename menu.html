@@ -394,6 +394,25 @@
     if (!dishes || dishes.length === 0) {
       container.innerHTML = "<p style='text-align:center; color:#888; margin-top:20px;'>En este momento no hay platillos disponibles.</p>";
       return;
+
+    categories[catName].forEach(dish => {
+      const card = document.createElement('div');
+      card.className = 'dish-card';
+      card.innerHTML = `
+        ${dish.imagen_url ? `<img src="${dish.imagen_url}" alt="${dish.nombre}" style="width: 70px; height: 70px; object-fit: cover; border-radius: 8px; margin-right: 12px;">` : ''}
+        <div class="dish-info">
+          <div class="dish-name">${dish.nombre}</div>
+          <div class="dish-desc">${dish.descripcion || ''}</div>
+          <div class="dish-price">$${parseFloat(dish.precio).toFixed(2)} MXN</div>
+        </div>
+        <div class="dish-counter">
+          <button class="btn-counter" onclick="updateQuantity('${dish.id}', '${escapeHtml(dish.nombre)}', ${dish.precio}, -1)">-</button>
+          <span class="counter-num" id="qty-${dish.id}">0</span>
+          <button class="btn-counter add" onclick="updateQuantity('${dish.id}', '${escapeHtml(dish.nombre)}', ${dish.precio}, 1)">+</button>
+        </div>
+      `;
+      container.appendChild(card);
+    });
     }
 
     // Agrupar por categorías

@@ -389,6 +389,26 @@
       `;
       container.appendChild(card);
     });
+    dishesToRender.forEach(dish => {
+      const rest = dish.restaurantes || {};
+      const card = document.createElement('div');
+      card.className = 'dish-card';
+      card.innerHTML = `
+        ${dish.imagen_url ? `<img src="${dish.imagen_url}" alt="${dish.nombre}" style="width: 100%; height: 160px; object-fit: cover; border-radius: 8px 8px 0 0; margin-bottom: 8px;">` : ''}
+        <div class="dish-header-info">
+          <div class="dish-title">${dish.nombre}</div>
+          <div class="dish-price">$${parseFloat(dish.precio).toFixed(2)} MXN</div>
+        </div>
+        ${dish.descripcion ? `<div class="dish-description">${dish.descripcion}</div>` : ''}
+        <div class="restaurant-tag">
+          <div>
+            <div class="restaurant-name">📍 ${rest.nombre || 'Restaurante'}</div>
+          </div>
+          <a href="menu.html?id=${rest.id}" class="btn-view-menu">Ver Menú →</a>
+        </div>
+      `;
+      container.appendChild(card);
+    });
   }
 </script>
 

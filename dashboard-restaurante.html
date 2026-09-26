@@ -360,6 +360,11 @@
         <label for="modalDishName">Nombre del Platillo *</label>
         <input type="text" id="modalDishName" placeholder="Ej. Torta Ahogada" required>
       </div>
+      <div class="form-group">
+        <label for="modalDishImage">Fotografía del Platillo (Opcional)</label>
+        <input type="file" id="modalDishImage" accept="image/*" style="padding: 8px; border: 1px dashed var(--primary-color); border-radius: 6px; width: 100%;">
+        <small style="color: #666; font-size: 0.75rem;">Formatos recomendados: JPG, PNG o WEBP.</small>
+      </div>
 
       <div class="form-group">
         <label for="modalDishPrice">Precio ($ MXN) *</label>
@@ -637,6 +642,71 @@ function copyMenuLink() {
   copyText.select();
   document.execCommand("copy");
   alert("¡Enlace copiado al portapapeles!");
+}
+
+async function saveDish(e) {
+  e.preventDefault();
+
+  const dishId = document.getElementById('modalDishId').value;
+  const nombre = document.getElementById('modalDishName').value.trim();
+  const precio = parseFloat(document.getElementById('modalDishPrice').value);
+  const categoria = document.getElementById('modalDishCategory').value;
+  const descripcion = document.getElementById('modalDishDescription').value.trim();
+  const fileInput = document.getElementById('modalDishImage');
+  const file = fileInput ? fileInput.files[0] : null;
+
+  let imagenUrl = null;
+
+  try {
+    // 1. Si el usuario adjuntó una foto, la subimos al bucket 'platillos'
+    if (file) {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${restaurantId}/${Date.now()}.${fileExt}`;
+
+      const { data: uploadData, error: uploadError } = await _supabase.storage
+        .from('platillos')
+        .upload(fileName, file, { upsert: true });
+
+      if (uploadError) throw uploadError;
+
+      // Obtener URL pública de la imagen
+      const { data: urlData } = _supabase.storage
+        .from('platillos')
+        .getPublicUrl(fileName);
+
+      imagenUrl = urlData.publicUrl;
+    }
+
+    // 2. Armar el objeto con la información a guardar
+    const dishData = {
+      restaurante_id: restaurantId,
+      nombre: nombre,
+      precio: precio,
+      categoria: categoria,
+      descripcion: descripcion
+    };
+
+    if (imagenUrl) {
+      dishData.imagen_url = imagenUrl;
+    }
+
+    let result;
+    if (dishId) {
+      result = await _supabase.from('platillos').update(dishData).eq('id', dishId);
+    } else {
+      result = await _supabase.from('platillos').insert([dishData]);
+    }
+
+    if (result.error) throw result.error;
+
+    closeDishModal();
+    loadDashboardData();
+    alert("¡Platillo guardado correctamente con su foto!");
+
+  } catch (err) {
+    console.error("Error al guardar platillo:", err);
+    alert("Ocurrió un error al guardar: " + (err.message || err));
+  }
 }
 
 </script>
