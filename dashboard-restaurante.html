@@ -244,7 +244,7 @@
       margin-bottom: 4px;
     }
 
-    .form-group input, .form-group textarea {
+    .form-group input, .form-group textarea, .form-group select {
       width: 100%;
       padding: 8px;
       border: 1px solid #ccc;
@@ -305,8 +305,8 @@
   </div>
 
   <div class="tabs-nav">
-  <button class="tab-btn active" onclick="switchTab('menu')">Menú y Platillos</button>
-  <button class="tab-btn" onclick="switchTab('qr')">Código QR y Enlace</button>
+    <button class="tab-btn active" onclick="switchTab('menu')">Menú y Platillos</button>
+    <button class="tab-btn" onclick="switchTab('qr')">Código QR y Enlace</button>
   </div>
 
   <!-- PESTAÑA 1: GESTIÓN DE MENÚ -->
@@ -321,27 +321,27 @@
     </div>
   </div>
 
-<!-- PESTAÑA 2: CÓDIGO QR -->
-<div class="tab-content" id="tab-qr" style="display: none;">
-  <div style="text-align: center; padding: 20px; background: #fafafa; border-radius: 12px; border: 1px solid var(--gray-light);">
-    <h3>Tu Código QR de Menú Digital</h3>
-    <p style="font-size: 0.85rem; color: #666; margin: 8px 0 20px;">
-      Descarga e imprime este código para colocarlo en las mesas o mostrador de tu negocio.
-    </p>
-    
-    <div id="qrcode" style="display: flex; justify-content: center; margin-bottom: 20px;"></div>
-    
-    <div class="form-group" style="max-width: 400px; margin: 0 auto 15px;">
-      <label>Enlace Directo a tu Menú:</label>
-      <input type="text" id="menuUrlInput" readonly style="text-align: center; font-weight: bold; background: #fff;">
-    </div>
+  <!-- PESTAÑA 2: CÓDIGO QR -->
+  <div class="tab-content" id="tab-qr" style="display: none;">
+    <div style="text-align: center; padding: 20px; background: #fafafa; border-radius: 12px; border: 1px solid var(--gray-light);">
+      <h3>Tu Código QR de Menú Digital</h3>
+      <p style="font-size: 0.85rem; color: #666; margin: 8px 0 20px;">
+        Descarga e imprime este código para colocarlo en las mesas o mostrador de tu negocio.
+      </p>
+      
+      <div id="qrcode" style="display: flex; justify-content: center; margin-bottom: 20px;"></div>
+      
+      <div class="form-group" style="max-width: 400px; margin: 0 auto 15px;">
+        <label>Enlace Directo a tu Menú:</label>
+        <input type="text" id="menuUrlInput" readonly style="text-align: center; font-weight: bold; background: #fff;">
+      </div>
 
-    <div style="display: flex; gap: 10px; justify-content: center; max-width: 400px; margin: 0 auto;">
-      <button class="btn-add" onclick="copyMenuLink()">📋 Copiar Link</button>
-      <button class="btn-add" style="background-color: #333;" onclick="window.print()">🖨️ Imprimir QR</button>
+      <div style="display: flex; gap: 10px; justify-content: center; max-width: 400px; margin: 0 auto;">
+        <button class="btn-add" onclick="copyMenuLink()">📋 Copiar Link</button>
+        <button class="btn-add" style="background-color: #333;" onclick="window.print()">🖨️ Imprimir QR</button>
+      </div>
     </div>
   </div>
-</div>
 
 </div>
 
@@ -360,6 +360,7 @@
         <label for="modalDishName">Nombre del Platillo *</label>
         <input type="text" id="modalDishName" placeholder="Ej. Torta Ahogada" required>
       </div>
+
       <div class="form-group">
         <label for="modalDishImage">Fotografía del Platillo (Opcional)</label>
         <input type="file" id="modalDishImage" accept="image/*" style="padding: 8px; border: 1px dashed var(--primary-color); border-radius: 6px; width: 100%;">
@@ -372,22 +373,19 @@
       </div>
 
       <div class="form-group">
-        <label for="modalDishCategory">Categoría</label>
-        <div class="form-group">
-          <label for="modalDishCategory">Categoría *</label>
-          <select id="modalDishCategory" required>
-            <option value="">Selecciona una categoría...</option>
-            <option value="Tacos">Tacos</option>
-            <option value="Hamburguesas">Hamburguesas</option>
-            <option value="Tortas y Lonches">Tortas y Lonches</option>
-            <option value="Pizzas">Pizzas</option>
-            <option value="Sushi y Asiática">Sushi y Asiática</option>
-            <option value="Entradas y Botanas">Entradas y Botanas</option>
-            <option value="Bebidas">Bebidas</option>
-            <option value="Postres">Postres</option>
-            <option value="Otros">Otros</option>
-          </select>
-        </div>
+        <label for="modalDishCategory">Categoría *</label>
+        <select id="modalDishCategory" required>
+          <option value="">Selecciona una categoría...</option>
+          <option value="Tacos">Tacos</option>
+          <option value="Hamburguesas">Hamburguesas</option>
+          <option value="Tortas y Lonches">Tortas y Lonches</option>
+          <option value="Pizzas">Pizzas</option>
+          <option value="Sushi y Asiática">Sushi y Asiática</option>
+          <option value="Entradas y Botanas">Entradas y Botanas</option>
+          <option value="Bebidas">Bebidas</option>
+          <option value="Postres">Postres</option>
+          <option value="Otros">Otros</option>
+        </select>
       </div>
 
       <div class="form-group">
@@ -410,20 +408,19 @@
   const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
   let restaurantId = null;
+  let qrGenerated = false;
 
   // Verificación de Autenticación al cargar la página
   window.onload = async function() {
     const { data: { session } } = await _supabase.auth.getSession();
     
     if (!session) {
-      // Si no hay sesión, reorientar al Login
       window.location.href = "login.html";
       return;
     }
 
     const userId = session.user.id;
 
-    // Buscar el restaurante perteneciente al usuario autenticado
     const { data: restData, error } = await _supabase
       .from('restaurantes')
       .select('*')
@@ -465,6 +462,7 @@
       card.className = 'dish-item';
       card.id = `dish-${dish.id}`;
       card.innerHTML = `
+        ${dish.imagen_url ? `<img src="${dish.imagen_url}" alt="${dish.nombre}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 6px; margin-right: 10px;">` : ''}
         <div class="dish-details">
           <h4 class="dish-title">${dish.nombre}</h4>
           <p class="dish-desc">${dish.descripcion || ''}</p>
@@ -521,43 +519,141 @@
   // Guardar Cambios (INSERT / UPDATE)
   async function saveDish(e) {
     e.preventDefault();
+
     const btn = document.getElementById('modalSaveBtn');
     btn.disabled = true;
     btn.innerText = "Guardando...";
 
     const id = document.getElementById('editDishId').value;
-    const name = document.getElementById('modalDishName').value;
+    const name = document.getElementById('modalDishName').value.trim();
     const price = parseFloat(document.getElementById('modalDishPrice').value);
-    const desc = document.getElementById('modalDishDesc').value;
+    const desc = document.getElementById('modalDishDesc').value.trim();
     const cat = document.getElementById('modalDishCategory').value;
+    const fileInput = document.getElementById('modalDishImage');
+    const file = fileInput ? fileInput.files[0] : null;
 
-    if (id) {
-      await _supabase
-        .from('platillos')
-        .update({
-          nombre: name,
-          precio: price,
-          descripcion: desc,
-          categoria: cat
-        })
-        .eq('id', id);
-    } else {
-      await _supabase
-        .from('platillos')
-        .insert([{
-          restaurante_id: restaurantId,
-          nombre: name,
-          precio: price,
-          descripcion: desc,
-          categoria: cat,
-          disponible: true
-        }]);
+    let imagenUrl = null;
+
+    try {
+      // 1. Subir imagen a Supabase Storage si se seleccionó un archivo
+      if (file) {
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${restaurantId}/${Date.now()}.${fileExt}`;
+
+        const { data: uploadData, error: uploadError } = await _supabase.storage
+          .from('platillos')
+          .upload(fileName, file, { upsert: true });
+
+        if (uploadError) throw uploadError;
+
+        const { data: urlData } = _supabase.storage
+          .from('platillos')
+          .getPublicUrl(fileName);
+
+        imagenUrl = urlData.publicUrl;
+      }
+
+      // 2. Construir datos a insertar/actualizar
+      const dishData = {
+        restaurante_id: restaurantId,
+        nombre: name,
+        precio: price,
+        categoria: cat,
+        descripcion: desc
+      };
+
+      if (imagenUrl) {
+        dishData.imagen_url = imagenUrl;
+      }
+
+      let result;
+      if (id) {
+        result = await _supabase.from('platillos').update(dishData).eq('id', id);
+      } else {
+        dishData.disponible = true;
+        result = await _supabase.from('platillos').insert([dishData]);
+      }
+
+      if (result.error) throw result.error;
+
+      closeDishModal();
+      loadDishes();
+      alert("¡Platillo guardado correctamente!");
+
+    } catch (err) {
+      console.error("Error al guardar platillo:", err);
+      alert("Ocurrió un error al guardar: " + (err.message || err));
+    } finally {
+      btn.disabled = false;
+      btn.innerText = "Guardar Platillo";
+    }
+  }
+
+  // Cambiar de pestaña
+  function switchTab(tabName) {
+    document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(content => content.style.display = 'none');
+
+    if (tabName === 'menu') {
+      document.querySelectorAll('.tab-btn')[0].classList.add('active');
+      document.getElementById('tab-menu').style.display = 'block';
+    } else if (tabName === 'qr') {
+      document.querySelectorAll('.tab-btn')[1].classList.add('active');
+      document.getElementById('tab-qr').style.display = 'block';
+      generateQRCode();
+    }
+  }
+
+  // Generar Código QR Dinámico
+  async function generateQRCode() {
+    const qrContainer = document.getElementById('qrcode');
+    const inputUrl = document.getElementById('menuUrlInput');
+
+    if (!restaurantId) {
+      const { data: { session } } = await _supabase.auth.getSession();
+      if (session) {
+        const { data: restData } = await _supabase
+          .from('restaurantes')
+          .select('id')
+          .eq('user_id', session.user.id)
+          .single();
+        
+        if (restData) {
+          restaurantId = restData.id;
+        }
+      }
     }
 
-    btn.disabled = false;
-    btn.innerText = "Guardar Platillo";
-    closeDishModal();
-    loadDishes();
+    if (!restaurantId) {
+      qrContainer.innerHTML = "<p style='color:red;'>No se pudo obtener el ID del restaurante. Por favor recarga la página.</p>";
+      return;
+    }
+
+    const currentPath = window.location.pathname;
+    const basePath = currentPath.substring(0, currentPath.lastIndexOf('/'));
+    const menuUrl = `${window.location.origin}${basePath}/menu.html?id=${restaurantId}`;
+
+    inputUrl.value = menuUrl;
+
+    qrContainer.innerHTML = "";
+    new QRCode(qrContainer, {
+      text: menuUrl,
+      width: 200,
+      height: 200,
+      colorDark: "#ff5722",
+      colorLight: "#ffffff",
+      correctLevel: QRCode.CorrectLevel.H
+    });
+
+    qrGenerated = true;
+  }
+
+  // Copiar Link al portapapeles
+  function copyMenuLink() {
+    const copyText = document.getElementById("menuUrlInput");
+    copyText.select();
+    document.execCommand("copy");
+    alert("¡Enlace copiado al portapapeles!");
   }
 
   // Cerrar Sesión
@@ -570,145 +666,6 @@
   function escapeHtml(text) {
     return text.replace(/'/g, "\\'").replace(/"/g, '&quot;');
   }
-
-
-let qrGenerated = false;
-
-// Cambiar de pestaña
-function switchTab(tabName) {
-  document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-  document.querySelectorAll('.tab-content').forEach(content => content.style.display = 'none');
-
-  if (tabName === 'menu') {
-    document.querySelectorAll('.tab-btn')[0].classList.add('active');
-    document.getElementById('tab-menu').style.display = 'block';
-  } else if (tabName === 'qr') {
-    document.querySelectorAll('.tab-btn')[1].classList.add('active');
-    document.getElementById('tab-qr').style.display = 'block';
-    generateQRCode();
-  }
-}
-
-// Generar Código QR Dinámico
-async function generateQRCode() {
-  const qrContainer = document.getElementById('qrcode');
-  const inputUrl = document.getElementById('menuUrlInput');
-
-  // Si no tenemos el ID cargado, intentamos obtenerlo de nuevo desde la sesión de Supabase
-  if (!restaurantId) {
-    const { data: { session } } = await _supabase.auth.getSession();
-    if (session) {
-      const { data: restData } = await _supabase
-        .from('restaurantes')
-        .select('id')
-        .eq('user_id', session.user.id)
-        .single();
-      
-      if (restData) {
-        restaurantId = restData.id;
-      }
-    }
-  }
-
-  // Si aun así no hay ID, mostramos aviso
-  if (!restaurantId) {
-    qrContainer.innerHTML = "<p style='color:red;'>No se pudo obtener el ID del restaurante. Por favor recarga la página.</p>";
-    return;
-  }
-
-  // Construir la URL completa asegurando que apunte a menu.html con el ID correspondiente
-  const currentPath = window.location.pathname;
-  const basePath = currentPath.substring(0, currentPath.lastIndexOf('/'));
-  const menuUrl = `${window.location.origin}${basePath}/menu.html?id=${restaurantId}`;
-
-  inputUrl.value = menuUrl;
-
-  // Limpiar e insertar QR
-  qrContainer.innerHTML = "";
-  new QRCode(qrContainer, {
-    text: menuUrl,
-    width: 200,
-    height: 200,
-    colorDark: "#ff5722",
-    colorLight: "#ffffff",
-    correctLevel: QRCode.CorrectLevel.H
-  });
-
-  qrGenerated = true;
-}
-// Copiar Link al portapapeles
-function copyMenuLink() {
-  const copyText = document.getElementById("menuUrlInput");
-  copyText.select();
-  document.execCommand("copy");
-  alert("¡Enlace copiado al portapapeles!");
-}
-
-async function saveDish(e) {
-  e.preventDefault();
-
-  const dishId = document.getElementById('modalDishId').value;
-  const nombre = document.getElementById('modalDishName').value.trim();
-  const precio = parseFloat(document.getElementById('modalDishPrice').value);
-  const categoria = document.getElementById('modalDishCategory').value;
-  const descripcion = document.getElementById('modalDishDescription').value.trim();
-  const fileInput = document.getElementById('modalDishImage');
-  const file = fileInput ? fileInput.files[0] : null;
-
-  let imagenUrl = null;
-
-  try {
-    // 1. Si el usuario adjuntó una foto, la subimos al bucket 'platillos'
-    if (file) {
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${restaurantId}/${Date.now()}.${fileExt}`;
-
-      const { data: uploadData, error: uploadError } = await _supabase.storage
-        .from('platillos')
-        .upload(fileName, file, { upsert: true });
-
-      if (uploadError) throw uploadError;
-
-      // Obtener URL pública de la imagen
-      const { data: urlData } = _supabase.storage
-        .from('platillos')
-        .getPublicUrl(fileName);
-
-      imagenUrl = urlData.publicUrl;
-    }
-
-    // 2. Armar el objeto con la información a guardar
-    const dishData = {
-      restaurante_id: restaurantId,
-      nombre: nombre,
-      precio: precio,
-      categoria: categoria,
-      descripcion: descripcion
-    };
-
-    if (imagenUrl) {
-      dishData.imagen_url = imagenUrl;
-    }
-
-    let result;
-    if (dishId) {
-      result = await _supabase.from('platillos').update(dishData).eq('id', dishId);
-    } else {
-      result = await _supabase.from('platillos').insert([dishData]);
-    }
-
-    if (result.error) throw result.error;
-
-    closeDishModal();
-    loadDashboardData();
-    alert("¡Platillo guardado correctamente con su foto!");
-
-  } catch (err) {
-    console.error("Error al guardar platillo:", err);
-    alert("Ocurrió un error al guardar: " + (err.message || err));
-  }
-}
-
 </script>
 
 </body>
