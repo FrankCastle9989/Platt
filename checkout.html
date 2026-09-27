@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Confirmar Pedido - Platt</title>
+  <style>
+    body { font-family: sans-serif; background: #f8f9fa; padding: 20px; display: flex; justify-content: center; }
+    .checkout-card { background: #fff; border-radius: 12px; padding: 20px; width: 100%; max-width: 500px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+    h2 { color: #ff5722; margin-bottom: 15px; }
+    .form-group { margin-bottom: 12px; }
+    .form-group label { display: block; font-weight: bold; font-size: 0.85rem; margin-bottom: 4px; }
+    .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; }
+    .btn-send { background: #25d366; color: #fff; width: 100%; padding: 12px; border: none; border-radius: 8px; font-weight: bold; font-size: 1rem; cursor: pointer; margin-top: 15px; }
+  </style>
+</head>
+<body>
+
+<div class="checkout-card">
+  <h2 id="restauranteTitulo">Finalizar Pedido</h2>
+  
+  <form id="formCheckout" onsubmit="enviarPedidoWhatsApp(event)">
+    <div class="form-group">
+      <label for="clienteNombre">Nombre Completo *</label>
+      <input type="text" id="clienteNombre" required placeholder="Ej. Juan Pérez">
+    </div>
+
+    <div class="form-group">
+      <label for="clienteDireccion">Dirección de Entrega *</label>
+      <textarea id="clienteDireccion" rows="2" required placeholder="Calle, número, colonia o referencias"></textarea>
+    </div>
+
+    <div class="form-group">
+      <label for="metodoPago">Forma de Pago *</label>
+      <select id="metodoPago" required onchange="toggleDatosBanco()">
+        <option value="Efectivo">Efectivo</option>
+        <option value="Transferencia">Transferencia Interbancaria</option>
+      </select>
+    </div>
+
+    <div id="infoBanco" style="display:none; background:#eef7ee; padding:10px; border-radius:6px; margin-bottom:12px; font-size:0.85rem;">
+      <p><strong>Banco:</strong> <span id="bancoNombre">--</span></p>
+      <p><strong>CLABE:</strong> <span id="bancoClabe">--</span></p>
+      <small style="color:#555;">Recuerda enviar el comprobante de transferencia por el chat.</small>
+    </div>
+
+    <button type="submit" class="btn-send">📲 Enviar Pedido por WhatsApp</button>
+  </form>
+</div>
+
+<script>
+  let orderData = null;
+
+  window.onload = function() {
+    const rawData = localStorage.getItem("platt_current_order");
+    if (!rawData) {
+      alert("No se encontró información del pedido.");
+      window.location.href = "index.html";
+      return;
+    }
+
+    orderData = JSON.parse(rawData);
+    document.getElementById("restauranteTitulo").innerText = `Pedido para ${orderData.restauranteNombre}`;
+
+    if (orderData.banco && orderData.clabe) {
+      document.getElementById("bancoNombre").innerText = orderData.banco;
+      document.getElementById("bancoClabe").innerText = orderData.clabe;
+    }
+  };
+
+  function toggleDatosBanco() {
+    const metodo = document.getElementById("metodoPago").value;
+    const infoBanco = document.getElementById("infoBanco");
+    if (metodo === "Transferencia" && orderData.clabe) {
+      infoBanco.style.display = "block";
+    } else {
+      infoBanco.style.display = "none";
+    }
+  }
+
+  function enviarPedidoWhatsApp(e) {
+    e.preventDefault();
+
+    const nombre = document.getElementById("clienteNombre").value.trim();
+    const direccion = document.getElementById("clienteDireccion").value.trim();
+    const metodoPago = document.getElementById("metodoPago").value;
+
+    let mensaje = `*¡Hola! Nuevo Pedido desde Platt:*\n\n`;
+    mensaje += `👤 *Cliente:* ${nombre}\n`;
+    mensaje += `📍 *Dirección:* ${direccion}\n`;
+    mensaje += `💳 *Forma de Pago:* ${metodoPago}\n\n`;
+    mensaje += `*Detalle del Pedido:*\n`;
+
+    let total = 0;
+    orderData.items.forEach(item => {
+      const subtotal = item.price * item.qty;
+      total += subtotal;
+      mensaje += `• ${item.qty}x ${item.name} - $${subtotal.toFixed(2)} MXN\n`;
+    });
+
+    mensaje += `\n*Total a Pagar:* $${total.toFixed(2)} MXN\n\n`;
+
+    if (metodoPago === "Transferencia" && orderData.clabe) {
+      mensaje += `_Adjuntaré el comprobante de pago por este medio._`;
+    }
+
+    const whatsappUrl = `https://wa.me/${orderData.whatsappPhone}?text=${encodeURIComponent(mensaje)}`;
+    
+    // Limpiar carrito temporal y abrir WhatsApp
+    localStorage.removeItem("platt_current_order");
+    window.open(whatsappUrl, "_blank");
+  }
+</script>
+
+</body>
+</html>
