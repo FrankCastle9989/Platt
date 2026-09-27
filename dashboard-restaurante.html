@@ -92,6 +92,7 @@
       gap: 10px;
       margin-bottom: 20px;
       border-bottom: 1px solid var(--gray-light);
+      overflow-x: auto;
     }
 
     .tab-btn {
@@ -102,6 +103,7 @@
       color: #666;
       cursor: pointer;
       border-bottom: 3px solid transparent;
+      white-space: nowrap;
     }
 
     .tab-btn.active {
@@ -232,7 +234,7 @@
       font-size: 0.85rem;
     }
 
-    /* Form Grupos Modal */
+    /* Form Grupos Modal y Secciones */
     .form-group {
       margin-bottom: 12px;
     }
@@ -302,13 +304,12 @@
     <div class="user-actions">
       <button class="btn-logout" onclick="handleLogout()">Cerrar Sesión</button>
     </div>
-<!-- Botón en la cabecera/menú del Dashboard -->
-    <button onclick="abrirModalPerfil()" class="btn-editar-perfil">⚙️ Configurar Negocio / Banco</button>
-
   </div>
 
+  <!-- PESTAÑAS INTEGRADAS -->
   <div class="tabs-nav">
     <button class="tab-btn active" onclick="switchTab('menu')">Menú y Platillos</button>
+    <button class="tab-btn" onclick="switchTab('config')">⚙️ Configuración y Banco</button>
     <button class="tab-btn" onclick="switchTab('qr')">Código QR y Enlace</button>
   </div>
 
@@ -324,8 +325,61 @@
     </div>
   </div>
 
-  <!-- PESTAÑA 2: CÓDIGO QR -->
-  <div class="tab-content" id="tab-qr" style="display: none;">
+  <!-- PESTAÑA 2: CONFIGURACIÓN Y BANCO -->
+  <div class="tab-content" id="tab-config">
+    <div style="background: #fafafa; padding: 20px; border-radius: 12px; border: 1px solid var(--gray-light);">
+      <form id="formPerfilRestaurante" onsubmit="guardarPerfilRestaurante(event)">
+        <h4 style="font-size: 0.95rem; color: var(--primary-color); margin-bottom: 12px;">Datos Generales del Negocio</h4>
+        
+        <div class="form-group">
+          <label for="editNombre">Nombre del Restaurante *</label>
+          <input type="text" id="editNombre" required>
+        </div>
+
+        <div class="form-group">
+          <label for="editDireccion">Dirección *</label>
+          <input type="text" id="editDireccion" required>
+        </div>
+
+        <div class="form-group">
+          <label for="editWhatsapp">WhatsApp para Pedidos (10 dígitos) *</label>
+          <input type="tel" id="editWhatsapp" placeholder="Ej. 8112345678" required>
+        </div>
+
+        <hr style="margin: 20px 0; border: none; border-top: 1px solid var(--gray-light);">
+
+        <h4 style="font-size: 0.95rem; color: var(--primary-color); margin-bottom: 12px;">Datos Bancarios (Para Transferencias)</h4>
+        
+        <div class="form-group">
+          <label for="editBanco">Banco</label>
+          <select id="editBanco">
+            <option value="">-- Selecciona un banco --</option>
+            <option value="BBVA">BBVA</option>
+            <option value="Banorte">Banorte</option>
+            <option value="Santander">Santander</option>
+            <option value="Citibanamex">Citibanamex</option>
+            <option value="HSBC">HSBC</option>
+            <option value="Scotiabank">Scotiabank</option>
+            <option value="Mercado Pago">Mercado Pago</option>
+            <option value="STP">STP</option>
+            <option value="Otro">Otro</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="editClabe">CLABE Interbancaria (18 dígitos)</label>
+          <input type="text" id="editClabe" maxlength="18" placeholder="Ej. 012180000000000000">
+        </div>
+
+        <button type="submit" id="btnGuardarPerfil" class="btn-add" style="width: 100%; padding: 12px; margin-top: 15px; font-size: 1rem;">
+          💾 Guardar Configuración
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- PESTAÑA 3: CÓDIGO QR -->
+  <div class="tab-content" id="tab-qr">
     <div style="text-align: center; padding: 20px; background: #fafafa; border-radius: 12px; border: 1px solid var(--gray-light);">
       <h3>Tu Código QR de Menú Digital</h3>
       <p style="font-size: 0.85rem; color: #666; margin: 8px 0 20px;">
@@ -404,76 +458,15 @@
   </div>
 </div>
 
-
-<!-- MODAL DE EDICIÓN DE PERFIL Y BANCO -->
-<div class="modal-overlay" id="modalPerfil">
-  <div class="modal-card">
-    <div class="modal-header">
-      <h3>Configuración del Negocio y Cobro</h3>
-      <button class="modal-close" onclick="cerrarModalPerfil()">✕</button>
-    </div>
-
-    <form id="formPerfilRestaurante">
-      <h4 style="font-size: 0.9rem; color: var(--primary-color); margin-bottom: 10px;">Datos Generales</h4>
-      
-      <div class="form-group">
-        <label for="editNombre">Nombre del Restaurante *</label>
-        <input type="text" id="editNombre" required>
-      </div>
-
-      <div class="form-group">
-        <label for="editDireccion">Dirección *</label>
-        <input type="text" id="editDireccion" required>
-      </div>
-
-      <div class="form-group">
-        <label for="editWhatsapp">WhatsApp para Pedidos (10 dígitos) *</label>
-        <input type="tel" id="editWhatsapp" placeholder="10 dígitos" required>
-      </div>
-
-      <hr style="margin: 15px 0; border: none; border-top: 1px solid var(--gray-light);">
-
-      <h4 style="font-size: 0.9rem; color: var(--primary-color); margin-bottom: 10px;">Datos Bancarios (Transferencias)</h4>
-      
-      <div class="form-group">
-        <label for="editBanco">Banco</label>
-        <select id="editBanco">
-          <option value="">-- Selecciona un banco --</option>
-          <option value="BBVA">BBVA</option>
-          <option value="Banorte">Banorte</option>
-          <option value="Santander">Santander</option>
-          <option value="Citibanamex">Citibanamex</option>
-          <option value="HSBC">HSBC</option>
-          <option value="Scotiabank">Scotiabank</option>
-          <option value="Mercado Pago">Mercado Pago</option>
-          <option value="STP">STP</option>
-          <option value="Otro">Otro</option>
-        </select>
-      </div>
-
-      <div class="form-group">
-        <label for="editClabe">CLABE Interbancaria (18 dígitos)</label>
-        <input type="text" id="editClabe" maxlength="18" placeholder="Ej. 012180000000000000">
-      </div>
-
-      <div style="display: flex; gap: 10px; margin-top: 20px;">
-        <button type="button" class="btn-icon" style="flex: 1; padding: 10px;" onclick="cerrarModalPerfil()">Cancelar</button>
-        <button type="submit" id="btnGuardarPerfil" class="btn-add" style="flex: 1; padding: 10px;">Guardar Cambios</button>
-      </div>
-    </form>
-  </div>
-</div>
-
 <script>
-  // 1. Conexión con Supabase
+  // Conexión con Supabase
   const SUPABASE_URL = "https://dfunaefzrkjodyawjflw.supabase.co";
   const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRmdW5hZWZ6cmtqb2R5YXdqZmx3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk5NTM0MjIsImV4cCI6MjEwNTUyOTQyMn0.9WfEPYPyUKxvxMp1YHrdJ0F2VhuwnZpFqJb0v3dnax0";
   const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
   let restaurantId = null;
-  let qrGenerated = false;
 
-  // Verificación de Autenticación al cargar la página
+  // Verificación de Autenticación al cargar
   window.onload = async function() {
     const { data: { session } } = await _supabase.auth.getSession();
     
@@ -482,26 +475,91 @@
       return;
     }
 
-    const userId = session.user.id;
-
     const { data: restData, error } = await _supabase
       .from('restaurantes')
       .select('*')
-      .eq('user_id', userId)
+      .eq('user_id', session.user.id)
       .single();
 
     if (restData) {
       restaurantId = restData.id;
       localStorage.setItem("platt_restaurante_id", restaurantId);
+      
+      // Mostrar información básica en cabecera
       document.getElementById('restName').innerText = restData.nombre;
       document.getElementById('restAddress').innerText = restData.direccion || "Sin dirección registrada";
+      
+      // Llenar formulario de Configuración
+      document.getElementById('editNombre').value = restData.nombre || '';
+      document.getElementById('editDireccion').value = restData.direccion || '';
+      document.getElementById('editWhatsapp').value = restData.whatsapp || '';
+      document.getElementById('editBanco').value = restData.banco || '';
+      document.getElementById('editClabe').value = restData.clabe || '';
+
       loadDishes();
     } else {
       alert("No se encontró un restaurante asociado a esta cuenta.");
     }
   };
 
-  // Cargar Platillos de Supabase
+  // Cambiar entre Pestañas
+  function switchTab(tabName) {
+    document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+
+    if (tabName === 'menu') {
+      document.querySelectorAll('.tab-btn')[0].classList.add('active');
+      document.getElementById('tab-menu').classList.add('active');
+    } else if (tabName === 'config') {
+      document.querySelectorAll('.tab-btn')[1].classList.add('active');
+      document.getElementById('tab-config').classList.add('active');
+    } else if (tabName === 'qr') {
+      document.querySelectorAll('.tab-btn')[2].classList.add('active');
+      document.getElementById('tab-qr').classList.add('active');
+      generateQRCode();
+    }
+  }
+
+  // Guardar Cambios del Perfil y Banco
+  async function guardarPerfilRestaurante(e) {
+    e.preventDefault();
+
+    const btn = document.getElementById('btnGuardarPerfil');
+    btn.disabled = true;
+    btn.innerText = "Guardando...";
+
+    const updatedData = {
+      nombre: document.getElementById('editNombre').value.trim(),
+      direccion: document.getElementById('editDireccion').value.trim(),
+      whatsapp: document.getElementById('editWhatsapp').value.trim(),
+      banco: document.getElementById('editBanco').value,
+      clabe: document.getElementById('editClabe').value.trim()
+    };
+
+    try {
+      const { error } = await _supabase
+        .from('restaurantes')
+        .update(updatedData)
+        .eq('id', restaurantId);
+
+      if (error) throw error;
+
+      alert("¡Configuración guardada con éxito!");
+      
+      // Actualizar cabecera
+      document.getElementById('restName').innerText = updatedData.nombre;
+      document.getElementById('restAddress').innerText = updatedData.direccion;
+
+    } catch (err) {
+      console.error("Error al actualizar:", err);
+      alert("Ocurrió un error al guardar: " + (err.message || err));
+    } finally {
+      btn.disabled = false;
+      btn.innerText = "💾 Guardar Configuración";
+    }
+  }
+
+  // Cargar Platillos
   async function loadDishes() {
     const { data: dishes, error } = await _supabase
       .from('platillos')
@@ -546,7 +604,7 @@
     });
   }
 
-  // Cambiar disponibilidad en Supabase
+  // Cambiar disponibilidad
   async function toggleAvailability(dishId, isAvailable) {
     await _supabase
       .from('platillos')
@@ -554,7 +612,7 @@
       .eq('id', dishId);
   }
 
-  // Abrir Modal
+  // Abrir Modal de Platillo
   function openDishModal(mode, id = null, name = '', price = '', desc = '', cat = '') {
     const modal = document.getElementById('dishModal');
     const title = document.getElementById('modalTitle');
@@ -579,7 +637,7 @@
     document.getElementById('dishModal').classList.remove('active');
   }
 
-  // Guardar Cambios (INSERT / UPDATE)
+  // Guardar Platillo
   async function saveDish(e) {
     e.preventDefault();
 
@@ -598,7 +656,6 @@
     let imagenUrl = null;
 
     try {
-      // 1. Subir imagen a Supabase Storage si se seleccionó un archivo
       if (file) {
         const fileExt = file.name.split('.').pop();
         const fileName = `${restaurantId}/${Date.now()}.${fileExt}`;
@@ -616,7 +673,6 @@
         imagenUrl = urlData.publicUrl;
       }
 
-      // 2. Construir datos a insertar/actualizar
       const dishData = {
         restaurante_id: restaurantId,
         nombre: name,
@@ -652,45 +708,12 @@
     }
   }
 
-  // Cambiar de pestaña
-  function switchTab(tabName) {
-    document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-    document.querySelectorAll('.tab-content').forEach(content => content.style.display = 'none');
-
-    if (tabName === 'menu') {
-      document.querySelectorAll('.tab-btn')[0].classList.add('active');
-      document.getElementById('tab-menu').style.display = 'block';
-    } else if (tabName === 'qr') {
-      document.querySelectorAll('.tab-btn')[1].classList.add('active');
-      document.getElementById('tab-qr').style.display = 'block';
-      generateQRCode();
-    }
-  }
-
-  // Generar Código QR Dinámico
+  // Generar QR
   async function generateQRCode() {
     const qrContainer = document.getElementById('qrcode');
     const inputUrl = document.getElementById('menuUrlInput');
 
-    if (!restaurantId) {
-      const { data: { session } } = await _supabase.auth.getSession();
-      if (session) {
-        const { data: restData } = await _supabase
-          .from('restaurantes')
-          .select('id')
-          .eq('user_id', session.user.id)
-          .single();
-        
-        if (restData) {
-          restaurantId = restData.id;
-        }
-      }
-    }
-
-    if (!restaurantId) {
-      qrContainer.innerHTML = "<p style='color:red;'>No se pudo obtener el ID del restaurante. Por favor recarga la página.</p>";
-      return;
-    }
+    if (!restaurantId) return;
 
     const currentPath = window.location.pathname;
     const basePath = currentPath.substring(0, currentPath.lastIndexOf('/'));
@@ -707,11 +730,8 @@
       colorLight: "#ffffff",
       correctLevel: QRCode.CorrectLevel.H
     });
-
-    qrGenerated = true;
   }
 
-  // Copiar Link al portapapeles
   function copyMenuLink() {
     const copyText = document.getElementById("menuUrlInput");
     copyText.select();
@@ -719,7 +739,6 @@
     alert("¡Enlace copiado al portapapeles!");
   }
 
-  // Cerrar Sesión
   async function handleLogout() {
     await _supabase.auth.signOut();
     localStorage.removeItem("platt_restaurante_id");
@@ -729,83 +748,6 @@
   function escapeHtml(text) {
     return text.replace(/'/g, "\\'").replace(/"/g, '&quot;');
   }
-
-// Funciones para el Modal de Perfil/Banco
-  async function abrirModalPerfil() {
-    try {
-      const { data: { session } } = await _supabase.auth.getSession();
-      if (!session) {
-        alert("Debes iniciar sesión.");
-        return;
-      }
-
-      const { data, error } = await _supabase
-        .from('restaurantes')
-        .select('*')
-        .eq('user_id', session.user.id)
-        .single();
-
-      if (error) throw error;
-
-      if (data) {
-        restaurantId = data.id;
-        document.getElementById('editNombre').value = data.nombre || '';
-        document.getElementById('editDireccion').value = data.direccion || '';
-        document.getElementById('editWhatsapp').value = data.whatsapp || '';
-        document.getElementById('editBanco').value = data.banco || '';
-        document.getElementById('editClabe').value = data.clabe || '';
-
-        document.getElementById('modalPerfil').classList.add('active');
-      }
-    } catch (err) {
-      console.error("Error al cargar perfil:", err);
-      alert("No se pudo obtener la información del negocio.");
-    }
-  }
-
-  function cerrarModalPerfil() {
-    document.getElementById('modalPerfil').classList.remove('active');
-  }
-
-  // Guardar Cambios del Perfil
-  document.getElementById('formPerfilRestaurante').addEventListener('submit', async function(e) {
-    e.preventDefault();
-
-    const btn = document.getElementById('btnGuardarPerfil');
-    btn.disabled = true;
-    btn.innerText = "Guardando...";
-
-    const updatedData = {
-      nombre: document.getElementById('editNombre').value.trim(),
-      direccion: document.getElementById('editDireccion').value.trim(),
-      whatsapp: document.getElementById('editWhatsapp').value.trim(),
-      banco: document.getElementById('editBanco').value,
-      clabe: document.getElementById('editClabe').value.trim()
-    };
-
-    try {
-      const { error } = await _supabase
-        .from('restaurantes')
-        .update(updatedData)
-        .eq('id', restaurantId);
-
-      if (error) throw error;
-
-      alert("¡Información del negocio actualizada correctamente!");
-      cerrarModalPerfil();
-      
-      // Actualizar la vista de la pantalla
-      document.getElementById('restName').innerText = updatedData.nombre;
-      document.getElementById('restAddress').innerText = updatedData.direccion;
-
-    } catch (err) {
-      console.error("Error al actualizar:", err);
-      alert("Error al guardar cambios: " + (err.message || err));
-    } finally {
-      btn.disabled = false;
-      btn.innerText = "Guardar Cambios";
-    }
-  });
 </script>
 
 </body>
