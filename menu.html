@@ -325,30 +325,31 @@
     }
   }
 
+// Función para enviar el pedido desde menu.html
 function sendWhatsAppOrder() {
-  if (cart.length === 0) {
+  if (!cart || cart.length === 0) {
     alert("Tu carrito está vacío.");
     return;
   }
 
-  // 1. Obtener el teléfono guardado en la BD
-  let rawPhone = restaurantData ? restaurantData.telefono : null;
+  // 1. Obtener el valor guardado en la columna 'Whatsapp'
+  let rawPhone = restaurantData ? restaurantData.Whatsapp : null;
 
   if (!rawPhone) {
-    alert("Este restaurante no tiene un número de WhatsApp configurado.");
+    alert("Este restaurante no tiene un número de WhatsApp registrado.");
     return;
   }
 
-  // 2. Limpiar caracteres especiales (espacios, guiones, paréntesis)
+  // 2. Limpiar caracteres no numéricos
   let cleanPhone = rawPhone.toString().replace(/\D/g, '');
 
-  // 3. Formatear lógicamente a 12 dígitos (México: +52 + 10 dígitos)
+  // 3. Agregar el prefijo internacional de México (+52) si viene a 10 dígitos
   if (cleanPhone.length === 10) {
     cleanPhone = '52' + cleanPhone;
   }
 
-  // 4. Construir el texto del pedido
-  let message = `*¡Hola! Quisiera realizar el siguiente pedido en ${restaurantData.nombre}:*\n\n`;
+  // 4. Armar el mensaje estructurado con el resumen del pedido
+  let message = `*¡Hola! Quisiera realizar un pedido en ${restaurantData.nombre}:*\n\n`;
   
   let total = 0;
   cart.forEach(item => {
@@ -358,12 +359,13 @@ function sendWhatsAppOrder() {
   });
 
   message += `\n*Total a pagar:* $${total.toFixed(2)} MXN\n\n`;
-  message += `_Enviado desde Platt Menú Digital_`;
+  message += `_Enviado a través de Platt Menú Digital_`;
 
-  // 5. Redirigir a WhatsApp con el número automático
+  // 5. Redirigir al WhatsApp con el número exacto capturado
   const whatsappUrl = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`;
   window.open(whatsappUrl, '_blank');
 }
+
   function escapeHtml(str) {
     return str.replace(/'/g, "\\'").replace(/"/g, '&quot;');
   }
