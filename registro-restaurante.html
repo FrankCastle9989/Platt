@@ -118,53 +118,54 @@
   const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
   // Integración del envío con coincidencia de IDs
-  document.getElementById('formRegistro').addEventListener('submit', async function(e) {
-    e.preventDefault();
+document.getElementById('formRegistro').addEventListener('submit', async function(e) {
+  e.preventDefault();
 
-    const btn = document.getElementById('btnSubmit');
-    btn.disabled = true;
-    btn.innerText = "Guardando...";
+  const btn = document.getElementById('btnSubmit');
+  btn.disabled = true;
+  btn.innerText = "Guardando...";
 
-    // 1. Obtener valores del HTML utilizando los IDs 'nombre', 'direccion' y 'telefono'
-    const nombreRestaurante = document.getElementById('nombre').value.trim();
-    const direccionRestaurante = document.getElementById('direccion').value.trim();
-    const telefonoWhatsApp = document.getElementById('telefono').value.trim();
+  const nombreRestaurante = document.getElementById('nombre').value.trim();
+  const direccionRestaurante = document.getElementById('direccion').value.trim();
+  const telefonoWhatsApp = document.getElementById('telefono').value.trim();
 
-    try {
-      // 2. Obtener la sesión activa del usuario
-      const { data: { session }, error: sessionError } = await _supabase.auth.getSession();
+  try {
+    // Intentar obtener sesión activa
+    let { data: { session } } = await _supabase.auth.getSession();
+    
+    // Si no hay sesión (para pruebas directas sin login)
+    let currentUserId = session ? session.user.id : null;
 
-      if (sessionError || !session) {
-        alert("Debes iniciar sesión para registrar tu restaurante.");
-        window.location.href = "login.html";
-        return;
-      }
+    // Insertar el restaurante con el teléfono
+    const { data, error } = await _supabase
+      .from('restaurantes')
+      .insert([
+        {
+          ...(currentUserId && { user_id: currentUserId }),
+          nombre: nombreRestaurante,
+          direccion: direccionRestaurante,
+          telefono: telefonoWhatsApp // <-- Se guarda el número ingresado
+        }
+      ])
+      .select();
 
-      // 3. Insertar registro enviando el teléfono directamente a la columna 'telefono'
-      const { data, error } = await _supabase
-        .from('restaurantes')
-        .insert([
-          {
-            user_id: session.user.id,
-            nombre: nombreRestaurante,
-            direccion: direccionRestaurante,
-            telefono: telefonoWhatsApp // Mapeado a la columna 'telefono' de Supabase
-          }
-        ]);
+    if (error) throw error;
 
-      if (error) throw error;
+    const restauranteCreado = data[0];
+    // Guardar ID localmente para pruebas rápidas
+    localStorage.setItem("platt_restaurante_id", restauranteCreado.id);
 
-      alert("¡Restaurante registrado con éxito!");
-      window.location.href = "dashboard-restaurante.html";
+    alert("¡Restaurante registrado con éxito! ID: " + restauranteCreado.id);
+    window.location.href = `menu.html?id=${restauranteCreado.id}`;
 
-    } catch (err) {
-      console.error("Error al registrar el restaurante:", err);
-      alert("Ocurrió un error al registrar: " + (err.message || err));
-    } finally {
-      btn.disabled = false;
-      btn.innerText = "Registrar Negocio";
-    }
-  });
+  } catch (err) {
+    console.error("Error al registrar el restaurante:", err);
+    alert("Ocurrió un error al registrar: " + (err.message || err));
+  } finally {
+    btn.disabled = false;
+    btn.innerText = "Registrar Negocio";
+  }
+});
 </script>
 
 </body>

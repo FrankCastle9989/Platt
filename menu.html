@@ -325,29 +325,45 @@
     }
   }
 
-  function sendWhatsAppOrder() {
-    if (!restaurantData || !restaurantData.telefono) {
-      alert("El restaurante no tiene un número de WhatsApp registrado.");
-      return;
-    }
-
-    let text = `¡Hola *${restaurantData.nombre}*! 👋 Quisiera realizar el siguiente pedido a través de *Platt*:\n\n`;
-    let total = 0;
-
-    for (const id in cart) {
-      const item = cart[id];
-      const subtotal = item.qty * item.price;
-      total += subtotal;
-      text += `• ${item.qty}x ${item.name} ($${subtotal.toFixed(2)})\n`;
-    }
-
-    text += `\n*Total a pagar:* $${total.toFixed(2)} MXN`;
-
-    const phone = restaurantData.telefono.replace(/\D/g, '');
-    const url = `https://wa.me/${phone}?text=${encodeURIComponent(text)}`;
-    window.open(url, '_blank');
+function sendWhatsAppOrder() {
+  if (cart.length === 0) {
+    alert("Tu carrito está vacío.");
+    return;
   }
 
+  // 1. Obtener el teléfono guardado en la BD
+  let rawPhone = restaurantData ? restaurantData.telefono : null;
+
+  if (!rawPhone) {
+    alert("Este restaurante no tiene un número de WhatsApp configurado.");
+    return;
+  }
+
+  // 2. Limpiar caracteres especiales (espacios, guiones, paréntesis)
+  let cleanPhone = rawPhone.toString().replace(/\D/g, '');
+
+  // 3. Formatear lógicamente a 12 dígitos (México: +52 + 10 dígitos)
+  if (cleanPhone.length === 10) {
+    cleanPhone = '52' + cleanPhone;
+  }
+
+  // 4. Construir el texto del pedido
+  let message = `*¡Hola! Quisiera realizar el siguiente pedido en ${restaurantData.nombre}:*\n\n`;
+  
+  let total = 0;
+  cart.forEach(item => {
+    const subtotal = item.precio * item.cantidad;
+    total += subtotal;
+    message += `• ${item.cantidad}x ${item.nombre} - $${subtotal.toFixed(2)} MXN\n`;
+  });
+
+  message += `\n*Total a pagar:* $${total.toFixed(2)} MXN\n\n`;
+  message += `_Enviado desde Platt Menú Digital_`;
+
+  // 5. Redirigir a WhatsApp con el número automático
+  const whatsappUrl = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`;
+  window.open(whatsappUrl, '_blank');
+}
   function escapeHtml(str) {
     return str.replace(/'/g, "\\'").replace(/"/g, '&quot;');
   }
