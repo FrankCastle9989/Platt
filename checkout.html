@@ -5,43 +5,75 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Confirmar Pedido - Platt</title>
   <style>
-    body { font-family: sans-serif; background: #f8f9fa; padding: 20px; display: flex; justify-content: center; }
-    .checkout-card { background: #fff; border-radius: 12px; padding: 20px; width: 100%; max-width: 500px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
-    h2 { color: #ff5722; margin-bottom: 15px; }
-    .form-group { margin-bottom: 12px; }
-    .form-group label { display: block; font-weight: bold; font-size: 0.85rem; margin-bottom: 4px; }
-    .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; }
-    .btn-send { background: #25d366; color: #fff; width: 100%; padding: 12px; border: none; border-radius: 8px; font-weight: bold; font-size: 1rem; cursor: pointer; margin-top: 15px; }
+    :root {
+      --primary-color: #ff5722;
+      --bg-color: #f8f9fa;
+      --card-bg: #ffffff;
+      --text-color: #212529;
+      --gray-light: #e9ecef;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    body { background: var(--bg-color); color: var(--text-color); padding: 20px; display: flex; justify-content: center; }
+    
+    .checkout-card { background: var(--card-bg); border-radius: 12px; padding: 24px; width: 100%; max-width: 500px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); border: 1px solid var(--gray-light); }
+    h2 { color: var(--primary-color); margin-bottom: 6px; text-align: center; }
+    p.subtitle { text-align: center; font-size: 0.85rem; color: #666; margin-bottom: 20px; }
+
+    .form-group { margin-bottom: 15px; }
+    .form-group label { display: block; font-weight: bold; font-size: 0.85rem; margin-bottom: 5px; }
+    .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 0.95rem; }
+    
+    .btn-send { background: #25d366; color: #fff; width: 100%; padding: 14px; border: none; border-radius: 8px; font-weight: bold; font-size: 1.05rem; cursor: pointer; margin-top: 15px; transition: background 0.2s; }
+    .btn-send:hover { background: #1ebd56; }
+
+    #infoBanco { background: #eef7ee; border: 1px solid #c8e6c9; padding: 12px; border-radius: 6px; margin-bottom: 15px; font-size: 0.85rem; }
   </style>
 </head>
 <body>
 
 <div class="checkout-card">
   <h2 id="restauranteTitulo">Finalizar Pedido</h2>
+  <p class="subtitle">Ingresa tus datos para recibir tu orden</p>
   
   <form id="formCheckout" onsubmit="enviarPedidoWhatsApp(event)">
     <div class="form-group">
       <label for="clienteNombre">Nombre Completo *</label>
-      <input type="text" id="clienteNombre" required placeholder="Ej. Juan Pérez">
+      <input type="text" id="clienteNombre" required placeholder="Ej. Jesus Montes">
     </div>
 
     <div class="form-group">
+      <label for="tipoEntrega">Tipo de Pedido *</label>
+      <select id="tipoEntrega" required onchange="toggleEntregaOptions()">
+        <option value="Domicilio">🛵 Servicio a Domicilio</option>
+        <option value="Pasar a recoger">🏃 Pasar a recoger (Para llevar)</option>
+      </select>
+    </div>
+
+    <div class="form-group" id="groupDireccion">
       <label for="clienteDireccion">Dirección de Entrega *</label>
-      <textarea id="clienteDireccion" rows="2" required placeholder="Calle, número, colonia o referencias"></textarea>
+      <textarea id="clienteDireccion" rows="2" placeholder="Calle, número, colonia o referencias de tu domicilio"></textarea>
     </div>
 
     <div class="form-group">
       <label for="metodoPago">Forma de Pago *</label>
       <select id="metodoPago" required onchange="toggleDatosBanco()">
-        <option value="Efectivo">Efectivo</option>
-        <option value="Transferencia">Transferencia Interbancaria</option>
+        <option value="Efectivo">💵 Efectivo</option>
+        <option value="Transferencia">🏦 Transferencia Interbancaria</option>
       </select>
     </div>
 
-    <div id="infoBanco" style="display:none; background:#eef7ee; padding:10px; border-radius:6px; margin-bottom:12px; font-size:0.85rem;">
+    <!-- Datos Bancarios si se elige Transferencia -->
+    <div id="infoBanco" style="display:none;">
       <p><strong>Banco:</strong> <span id="bancoNombre">--</span></p>
       <p><strong>CLABE:</strong> <span id="bancoClabe">--</span></p>
-      <small style="color:#555;">Recuerda enviar el comprobante de transferencia por el chat.</small>
+      <small style="color:#2e7d32; display:block; margin-top:4px;">💡 Recuerda adjuntar tu comprobante de pago por el chat.</small>
+    </div>
+
+    <!-- NUEVO CAMPO DE NOTAS ADICIONALES -->
+    <div class="form-group">
+      <label for="clienteNotas">📝 Notas o Especificaciones (Opcional)</label>
+      <textarea id="clienteNotas" rows="2" placeholder="Ej. Incluir salsas extra, no poner cebolla, cubiertos y servilletas..."></textarea>
     </div>
 
     <button type="submit" class="btn-send">📲 Enviar Pedido por WhatsApp</button>
@@ -54,23 +86,40 @@
   window.onload = function() {
     const rawData = localStorage.getItem("platt_current_order");
     if (!rawData) {
-      alert("No se encontró información del pedido.");
+      alert("No se encontró información del pedido activo.");
       window.location.href = "index.html";
       return;
     }
 
     orderData = JSON.parse(rawData);
-    document.getElementById("restauranteTitulo").innerText = `Pedido para ${orderData.restauranteNombre}`;
+    document.getElementById("restauranteTitulo").innerText = orderData.restauranteNombre;
 
     if (orderData.banco && orderData.clabe) {
       document.getElementById("bancoNombre").innerText = orderData.banco;
       document.getElementById("bancoClabe").innerText = orderData.clabe;
     }
+
+    toggleEntregaOptions();
   };
+
+  function toggleEntregaOptions() {
+    const tipo = document.getElementById("tipoEntrega").value;
+    const groupDir = document.getElementById("groupDireccion");
+    const inputDir = document.getElementById("clienteDireccion");
+
+    if (tipo === "Pasar a recoger") {
+      groupDir.style.display = "none";
+      inputDir.removeAttribute("required");
+    } else {
+      groupDir.style.display = "block";
+      inputDir.setAttribute("required", "true");
+    }
+  }
 
   function toggleDatosBanco() {
     const metodo = document.getElementById("metodoPago").value;
     const infoBanco = document.getElementById("infoBanco");
+
     if (metodo === "Transferencia" && orderData.clabe) {
       infoBanco.style.display = "block";
     } else {
@@ -82,14 +131,29 @@
     e.preventDefault();
 
     const nombre = document.getElementById("clienteNombre").value.trim();
+    const tipoEntrega = document.getElementById("tipoEntrega").value;
     const direccion = document.getElementById("clienteDireccion").value.trim();
     const metodoPago = document.getElementById("metodoPago").value;
+    const notas = document.getElementById("clienteNotas").value.trim();
 
-    let mensaje = `*¡Hola! Nuevo Pedido desde Platt:*\n\n`;
+    // Estructura del Mensaje con Emojis Integrados
+    let mensaje = `*¡Hola! Quisiera realizar un nuevo pedido en ${orderData.restauranteNombre}:*\n\n`;
+    
     mensaje += `👤 *Cliente:* ${nombre}\n`;
-    mensaje += `📍 *Dirección:* ${direccion}\n`;
-    mensaje += `💳 *Forma de Pago:* ${metodoPago}\n\n`;
-    mensaje += `*Detalle del Pedido:*\n`;
+    mensaje += `🛵 *Tipo:* ${tipoEntrega}\n`;
+    
+    if (tipoEntrega === "Domicilio") {
+      mensaje += `📍 *Dirección:* ${direccion}\n`;
+    }
+
+    mensaje += `💳 *Pago:* ${metodoPago}\n`;
+
+    if (notas) {
+      mensaje += `📝 *Notas:* ${notas}\n`;
+    }
+
+    mensaje += `\n-------------------------------\n`;
+    mensaje += `🛒 *Detalle del Pedido:*\n`;
 
     let total = 0;
     orderData.items.forEach(item => {
@@ -98,15 +162,18 @@
       mensaje += `• ${item.qty}x ${item.name} - $${subtotal.toFixed(2)} MXN\n`;
     });
 
-    mensaje += `\n*Total a Pagar:* $${total.toFixed(2)} MXN\n\n`;
+    mensaje += `-------------------------------\n`;
+    mensaje += `💰 *TOTAL:* $${total.toFixed(2)} MXN\n\n`;
 
     if (metodoPago === "Transferencia" && orderData.clabe) {
-      mensaje += `_Adjuntaré el comprobante de pago por este medio._`;
+      mensaje += `_Adjuntaré el comprobante de transferencia a este chat._\n`;
     }
+
+    mensaje += `_Enviado desde Platt Menú Digital_`;
 
     const whatsappUrl = `https://wa.me/${orderData.whatsappPhone}?text=${encodeURIComponent(mensaje)}`;
     
-    // Limpiar carrito temporal y abrir WhatsApp
+    // Limpiar el carrito local y abrir WhatsApp
     localStorage.removeItem("platt_current_order");
     window.open(whatsappUrl, "_blank");
   }
