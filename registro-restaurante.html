@@ -151,7 +151,7 @@
             ...(currentUserId && { user_id: currentUserId }),
             nombre: nombre,
             direccion: direccion,
-            Whatsapp: numWhatsapp // <-- Nombre exacto de tu columna en Supabase
+            whatsapp: numWhatsapp // <-- Nombre exacto de tu columna en Supabase, en minusculas
           }
         ])
         .select();

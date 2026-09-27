@@ -333,7 +333,8 @@ function sendWhatsAppOrder() {
   }
 
   // 1. Obtener el valor guardado en la columna 'Whatsapp'
-  let rawPhone = restaurantData ? restaurantData.Whatsapp : null;
+  // Obtener el número guardado en la columna 'whatsapp'
+  let rawPhone = restaurantData ? (restaurantData.whatsapp || restaurantData.telefono) : null;
 
   if (!rawPhone) {
     alert("Este restaurante no tiene un número de WhatsApp registrado.");
