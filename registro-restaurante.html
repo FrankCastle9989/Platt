@@ -21,7 +21,7 @@
     h2 { color: var(--primary-color); margin-bottom: 10px; text-align: center; }
     p.subtitle { text-align: center; color: #666; font-size: 0.9rem; margin-bottom: 20px; }
 
-    /* Barra de Progreso por Pasos */
+    /* Indicador de Pasos */
     .steps-indicator { display: flex; justify-content: space-between; margin-bottom: 25px; position: relative; }
     .steps-indicator::before { content: ''; position: absolute; top: 50%; left: 0; width: 100%; height: 2px; background: var(--gray-light); z-index: 1; transform: translateY(-50%); }
     .step-node { position: relative; z-index: 2; background: #fff; width: 32px; height: 32px; border-radius: 50%; border: 2px solid var(--gray-light); display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.85rem; color: #777; }
@@ -44,9 +44,8 @@
 
 <div class="form-container">
   <h2>Registro de Restaurante</h2>
-  <p class="subtitle">Sigue los pasos para configurar tu menú digital</p>
+  <p class="subtitle">Configura tu negocio y crea tu cuenta de acceso</p>
 
-  <!-- Indicador de Avances -->
   <div class="steps-indicator">
     <div class="step-node active" id="node-1">1</div>
     <div class="step-node" id="node-2">2</div>
@@ -69,13 +68,13 @@
       </div>
     </div>
 
-    <!-- PASO 2: Canal de Pedidos (WhatsApp) -->
+    <!-- PASO 2: Canal de Pedidos -->
     <div class="form-step" id="step-2">
       <div class="form-group">
         <label for="whatsapp">WhatsApp para recibir pedidos *</label>
         <input type="tel" id="whatsapp" placeholder="10 dígitos (Ej. 8112345678)" required>
         <small style="color: #666; font-size: 0.75rem; display: block; margin-top: 4px;">
-          A este número le llegarán las comandas directo de tus clientes.
+          A este número te llegarán los pedidos directamente desde el menú digital.
         </small>
       </div>
       <div class="btn-group">
@@ -84,17 +83,20 @@
       </div>
     </div>
 
-    <!-- PASO 3: Confirmación y Finalizar -->
+    <!-- PASO 3: Cuenta de Acceso (Email y Password) -->
     <div class="form-step" id="step-3">
-      <div style="text-align: center; padding: 10px 0;">
-        <h3>¡Todo listo para darte de alta!</h3>
-        <p style="font-size: 0.85rem; color: #666; margin: 10px 0 20px;">
-          Al hacer clic en finalizar, guardaremos tu negocio y podrás comenzar a agregar tus platillos.
-        </p>
+      <div class="form-group">
+        <label for="email">Correo Electrónico de Acceso *</label>
+        <input type="email" id="email" placeholder="tu@correo.com" required>
       </div>
+      <div class="form-group">
+        <label for="password">Contraseña *</label>
+        <input type="password" id="password" placeholder="Mínimo 6 caracteres" minlength="6" required>
+      </div>
+
       <div class="btn-group">
         <button type="button" class="btn btn-secondary" onclick="nextStep(2)">← Atrás</button>
-        <button type="submit" id="btnSubmit" class="btn btn-primary">🚀 Finalizar Registro</button>
+        <button type="submit" id="btnSubmit" class="btn btn-primary">🚀 Crear Cuenta y Registrar</button>
       </div>
     </div>
   </form>
@@ -105,10 +107,7 @@
   const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRmdW5hZWZ6cmtqb2R5YXdqZmx3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk5NTM0MjIsImV4cCI6MjEwNTUyOTQyMn0.9WfEPYPyUKxvxMp1YHrdJ0F2VhuwnZpFqJb0v3dnax0";
   const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-  let currentStep = 1;
-
   function nextStep(step) {
-    // Validar campos obligatorios antes de avanzar
     if (step === 2 && !document.getElementById('nombre').value.trim()) {
       alert("Por favor ingresa el nombre de tu restaurante.");
       return;
@@ -125,7 +124,6 @@
     for (let i = 1; i <= step; i++) {
       document.getElementById(`node-${i}`).classList.add('active');
     }
-    currentStep = step;
   }
 
   document.getElementById('formRegistro').addEventListener('submit', async function(e) {
@@ -133,43 +131,53 @@
 
     const btn = document.getElementById('btnSubmit');
     btn.disabled = true;
-    btn.innerText = "Guardando...";
+    btn.innerText = "Registrando...";
 
     const nombre = document.getElementById('nombre').value.trim();
     const direccion = document.getElementById('direccion').value.trim();
     const numWhatsapp = document.getElementById('whatsapp').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const password = document.getElementById('password').value.trim();
 
     try {
-      let { data: { session } } = await _supabase.auth.getSession();
-      let currentUserId = session ? session.user.id : null;
+      // 1. Crear el usuario en Supabase Auth
+      const { data: authData, error: authError } = await _supabase.auth.signUp({
+        email: email,
+        password: password
+      });
 
-      // GUARDAR EN LA COLUMNA 'Whatsapp'
-      const { data, error } = await _supabase
+      if (authError) throw authError;
+
+      const newUser = authData.user;
+      if (!newUser) throw new Error("No se pudo crear el usuario.");
+
+      // 2. Vincular el negocio con el user_id recién creado y guardar el número en 'whatsapp'
+      const { data: restData, error: restError } = await _supabase
         .from('restaurantes')
         .insert([
           {
-            ...(currentUserId && { user_id: currentUserId }),
+            user_id: newUser.id,
             nombre: nombre,
             direccion: direccion,
-            whatsapp: numWhatsapp // <-- Nombre exacto de tu columna en Supabase, en minusculas
+            whatsapp: numWhatsapp
           }
         ])
         .select();
 
-      if (error) throw error;
+      if (restError) throw restError;
 
-      const restCreado = data[0];
+      const restCreado = restData[0];
       localStorage.setItem("platt_restaurante_id", restCreado.id);
 
-      alert("¡Restaurante guardado exitosamente!");
+      alert("¡Cuenta y restaurante creados con éxito! Redirigiendo a tu Dashboard...");
       window.location.href = "dashboard-restaurante.html";
 
     } catch (err) {
       console.error("Error al registrar:", err);
-      alert("Error al registrar: " + (err.message || err));
+      alert("Error en el registro: " + (err.message || err));
     } finally {
       btn.disabled = false;
-      btn.innerText = "🚀 Finalizar Registro";
+      btn.innerText = "🚀 Crear Cuenta y Registrar";
     }
   });
 </script>
