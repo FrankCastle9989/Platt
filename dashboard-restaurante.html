@@ -302,6 +302,9 @@
     <div class="user-actions">
       <button class="btn-logout" onclick="handleLogout()">Cerrar Sesión</button>
     </div>
+<!-- Botón en la cabecera/menú del Dashboard -->
+    <button onclick="abrirModalPerfil()" class="btn-editar-perfil">⚙️ Configurar Negocio / Banco</button>
+
   </div>
 
   <div class="tabs-nav">
@@ -396,6 +399,66 @@
       <div style="display: flex; gap: 10px; margin-top: 20px;">
         <button type="button" class="btn-icon" style="flex: 1; padding: 10px;" onclick="closeDishModal()">Cancelar</button>
         <button type="submit" id="modalSaveBtn" class="btn-add" style="flex: 1; padding: 10px;">Guardar Platillo</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+
+<!-- MODAL DE EDICIÓN DE PERFIL Y BANCO -->
+<div class="modal-overlay" id="modalPerfil">
+  <div class="modal-card">
+    <div class="modal-header">
+      <h3>Configuración del Negocio y Cobro</h3>
+      <button class="modal-close" onclick="cerrarModalPerfil()">✕</button>
+    </div>
+
+    <form id="formPerfilRestaurante">
+      <h4 style="font-size: 0.9rem; color: var(--primary-color); margin-bottom: 10px;">Datos Generales</h4>
+      
+      <div class="form-group">
+        <label for="editNombre">Nombre del Restaurante *</label>
+        <input type="text" id="editNombre" required>
+      </div>
+
+      <div class="form-group">
+        <label for="editDireccion">Dirección *</label>
+        <input type="text" id="editDireccion" required>
+      </div>
+
+      <div class="form-group">
+        <label for="editWhatsapp">WhatsApp para Pedidos (10 dígitos) *</label>
+        <input type="tel" id="editWhatsapp" placeholder="10 dígitos" required>
+      </div>
+
+      <hr style="margin: 15px 0; border: none; border-top: 1px solid var(--gray-light);">
+
+      <h4 style="font-size: 0.9rem; color: var(--primary-color); margin-bottom: 10px;">Datos Bancarios (Transferencias)</h4>
+      
+      <div class="form-group">
+        <label for="editBanco">Banco</label>
+        <select id="editBanco">
+          <option value="">-- Selecciona un banco --</option>
+          <option value="BBVA">BBVA</option>
+          <option value="Banorte">Banorte</option>
+          <option value="Santander">Santander</option>
+          <option value="Citibanamex">Citibanamex</option>
+          <option value="HSBC">HSBC</option>
+          <option value="Scotiabank">Scotiabank</option>
+          <option value="Mercado Pago">Mercado Pago</option>
+          <option value="STP">STP</option>
+          <option value="Otro">Otro</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="editClabe">CLABE Interbancaria (18 dígitos)</label>
+        <input type="text" id="editClabe" maxlength="18" placeholder="Ej. 012180000000000000">
+      </div>
+
+      <div style="display: flex; gap: 10px; margin-top: 20px;">
+        <button type="button" class="btn-icon" style="flex: 1; padding: 10px;" onclick="cerrarModalPerfil()">Cancelar</button>
+        <button type="submit" id="btnGuardarPerfil" class="btn-add" style="flex: 1; padding: 10px;">Guardar Cambios</button>
       </div>
     </form>
   </div>
@@ -666,6 +729,83 @@
   function escapeHtml(text) {
     return text.replace(/'/g, "\\'").replace(/"/g, '&quot;');
   }
+
+// Funciones para el Modal de Perfil/Banco
+  async function abrirModalPerfil() {
+    try {
+      const { data: { session } } = await _supabase.auth.getSession();
+      if (!session) {
+        alert("Debes iniciar sesión.");
+        return;
+      }
+
+      const { data, error } = await _supabase
+        .from('restaurantes')
+        .select('*')
+        .eq('user_id', session.user.id)
+        .single();
+
+      if (error) throw error;
+
+      if (data) {
+        restaurantId = data.id;
+        document.getElementById('editNombre').value = data.nombre || '';
+        document.getElementById('editDireccion').value = data.direccion || '';
+        document.getElementById('editWhatsapp').value = data.whatsapp || '';
+        document.getElementById('editBanco').value = data.banco || '';
+        document.getElementById('editClabe').value = data.clabe || '';
+
+        document.getElementById('modalPerfil').classList.add('active');
+      }
+    } catch (err) {
+      console.error("Error al cargar perfil:", err);
+      alert("No se pudo obtener la información del negocio.");
+    }
+  }
+
+  function cerrarModalPerfil() {
+    document.getElementById('modalPerfil').classList.remove('active');
+  }
+
+  // Guardar Cambios del Perfil
+  document.getElementById('formPerfilRestaurante').addEventListener('submit', async function(e) {
+    e.preventDefault();
+
+    const btn = document.getElementById('btnGuardarPerfil');
+    btn.disabled = true;
+    btn.innerText = "Guardando...";
+
+    const updatedData = {
+      nombre: document.getElementById('editNombre').value.trim(),
+      direccion: document.getElementById('editDireccion').value.trim(),
+      whatsapp: document.getElementById('editWhatsapp').value.trim(),
+      banco: document.getElementById('editBanco').value,
+      clabe: document.getElementById('editClabe').value.trim()
+    };
+
+    try {
+      const { error } = await _supabase
+        .from('restaurantes')
+        .update(updatedData)
+        .eq('id', restaurantId);
+
+      if (error) throw error;
+
+      alert("¡Información del negocio actualizada correctamente!");
+      cerrarModalPerfil();
+      
+      // Actualizar la vista de la pantalla
+      document.getElementById('restName').innerText = updatedData.nombre;
+      document.getElementById('restAddress').innerText = updatedData.direccion;
+
+    } catch (err) {
+      console.error("Error al actualizar:", err);
+      alert("Error al guardar cambios: " + (err.message || err));
+    } finally {
+      btn.disabled = false;
+      btn.innerText = "Guardar Cambios";
+    }
+  });
 </script>
 
 </body>
