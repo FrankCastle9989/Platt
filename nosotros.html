@@ -99,6 +99,56 @@
     .form-group input, .form-group select { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; font-size: 0.95rem; }
 
     footer { text-align: center; padding: 25px; color: var(--gray-text); font-size: 0.85rem; border-top: 1px solid var(--border-color); background: #fff; }
+
+/* Selector de pestañas por usuario */
+    .user-type-selector {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 30px;
+      flex-wrap: wrap;
+    }
+
+    .tab-btn {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      padding: 10px 20px;
+      border-radius: 25px;
+      font-weight: bold;
+      font-size: 0.95rem;
+      cursor: pointer;
+      color: var(--gray-text);
+      transition: all 0.2s ease;
+    }
+
+    .tab-btn.active, .tab-btn:hover {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+      box-shadow: 0 4px 10px rgba(255, 87, 34, 0.3);
+    }
+
+    /* Ocultar/Mostrar grupos de pricing */
+    .pricing-group {
+      display: none;
+    }
+
+    .pricing-group.active {
+      display: block;
+    }
+
+    /* Ajuste cuando hay una sola tarjeta */
+    .pricing-container.single-card {
+      max-width: 480px;
+    }
+
+    .customer-card {
+      border: 2px solid var(--secondary) !important;
+    }
+
+    .customer-card .price {
+      color: var(--secondary) !important;
+    } 
   </style>
 </head>
 <body>
@@ -139,53 +189,115 @@
     </section>
 
     <!-- Planes de Suscripción ($99 MXN) -->
+<!-- Sección de Pricing y Beneficios por Usuario -->
     <section class="pricing-section">
       <div class="pricing-title">
-        <h2>Elige el plan ideal para ti</h2>
-        <p style="color: var(--gray-text);">Precios accesibles pensados para apoyar el comercio local</p>
+        <h2>Planes y Beneficios a tu Medida</h2>
+        <p style="color: var(--gray-text);">Transparencia total, sin letras chiquitas ni comisiones ocultas.</p>
       </div>
 
-      <div class="pricing-container" aria-label="Planes de precios">
-        
-        <!-- Plan Restaurantero -->
-        <article class="pricing-card featured">
-          <span class="card-tag">Más Elegido</span>
-          <div>
-            <h2>Plan Restaurantero</h2>
-            <div class="price-box">
-              <div class="price">$99 <span style="font-size:1.2rem; color:var(--dark);">MXN</span></div>
-              <span>/ mes</span>
-            </div>
-            <ul class="features-list">
-              <li>Menú digital interactivo e ilimitado</li>
-              <li>Recepción de pedidos por WhatsApp</li>
-              <li>Panel para editar platillos, precios y fotos</li>
-              <li>Cobros en efectivo y transferencia</li>
-              <li>0% de comisión por venta realizada</li>
-            </ul>
-          </div>
-          <button class="btn-card" onclick="seleccionarPlan('Restaurante')">Quiero este plan</button>
-        </article>
-
-        <!-- Plan Repartidor -->
-        <article class="pricing-card">
-          <div>
-            <h2>Plan Repartidor</h2>
-            <div class="price-box">
-              <div class="price">$99 <span style="font-size:1.2rem; color:var(--dark);">MXN</span></div>
-              <span>/ mes</span>
-            </div>
-            <ul class="features-list">
-              <li>Vinculación directa con restaurantes de la zona</li>
-              <li>Notificaciones de entregas disponibles</li>
-              <li>Conserva el 100% de tus entregas y propinas</li>
-              <li>Libertad total de horarios sin penalizaciones</li>
-            </ul>
-          </div>
-          <button class="btn-card dark" onclick="seleccionarPlan('Repartidor')">Unirme como Repartidor</button>
-        </article>
-
+      <!-- Selector de Tipo de Usuario (Tabs) -->
+      <div class="user-type-selector">
+        <button class="tab-btn active" onclick="switchUserType('restaurante', this)">🍽️ Restaurantes</button>
+        <button class="tab-btn" onclick="switchUserType('repartidor', this)">🛵 Repartidores</button>
+        <button class="tab-btn" onclick="switchUserType('cliente', this)">😋 Clientes</button>
       </div>
+
+      <!-- 1. PRICING PARA RESTAURANTES -->
+      <div id="pricing-restaurante" class="pricing-group active">
+        <div class="pricing-container">
+          
+          <!-- Plan Gratuito -->
+          <article class="pricing-card">
+            <div>
+              <h2>Plan Inicial</h2>
+              <div class="price-box">
+                <div class="price">$0 <span style="font-size:1.2rem; color:var(--dark);">MXN</span></div>
+                <span>Gratis para siempre</span>
+              </div>
+              <ul class="features-list">
+                <li>Sin costo o gratis</li>
+                <li>Limitado a 5 platillos</li>
+                <li>Pedidos ilimitados</li>
+                <li>Menú interactivo</li>
+                <li>Panel para editar platillos, precios y fotos</li>
+                <li>Cobros en efectivo y transferencia</li>
+                <li>0% de comisión por venta</li>
+              </ul>
+            </div>
+            <button class="btn-card dark" onclick="seleccionarPlan('Restaurante Inicial')">Empieza Gratis</button>
+          </article>
+
+          <!-- Plan PRO ($99 MXN) -->
+          <article class="pricing-card featured">
+            <span class="card-tag">Más Recomendado</span>
+            <div>
+              <h2>Plan PRO</h2>
+              <div class="price-box">
+                <div class="price">$99 <span style="font-size:1.2rem; color:var(--dark);">MXN</span></div>
+                <span>/ mes</span>
+              </div>
+              <ul class="features-list">
+                <li><strong>Platillos ilimitados</strong></li>
+                <li>Pedidos ilimitados</li>
+                <li>Menú interactivo personalizado</li>
+                <li>Panel para editar platillos, precios y fotos</li>
+                <li>Cobros en efectivo y transferencia</li>
+                <li>0% de comisión por venta</li>
+                <li>Soporte prioritario</li>
+              </ul>
+            </div>
+            <button class="btn-card" onclick="seleccionarPlan('Restaurante PRO')">Obtener Plan PRO</button>
+          </article>
+
+        </div>
+      </div>
+
+      <!-- 2. PRICING PARA REPARTIDORES -->
+      <div id="pricing-repartidor" class="pricing-group">
+        <div class="pricing-container single-card">
+          <article class="pricing-card featured">
+            <span class="card-tag">Suscripción Repartidor</span>
+            <div>
+              <h2>Plan Repartidor</h2>
+              <div class="price-box">
+                <div class="price">$99 <span style="font-size:1.2rem; color:var(--dark);">MXN</span></div>
+                <span>/ mes</span>
+              </div>
+              <ul class="features-list">
+                <li>Vinculación directa con restaurantes de la zona</li>
+                <li>Notificaciones de entregas disponibles</li>
+                <li>Conserva el 100% de tus entregas y propinas</li>
+                <li>Libertad total de horarios sin penalizaciones</li>
+              </ul>
+            </div>
+            <button class="btn-card" onclick="seleccionarPlan('Repartidor')">Unirme como Repartidor</button>
+          </article>
+        </div>
+      </div>
+
+      <!-- 3. BENEFICIOS PARA CLIENTES -->
+      <div id="pricing-cliente" class="pricing-group">
+        <div class="pricing-container single-card">
+          <article class="pricing-card customer-card">
+            <div>
+              <h2>Uso 100% Gratuito para Clientes</h2>
+              <div class="price-box">
+                <div class="price">$0 <span style="font-size:1.2rem; color:var(--dark);">MXN</span></div>
+                <span>Sin cargos de servicio</span>
+              </div>
+              <ul class="features-list">
+                <li><strong>Totalmente gratis:</strong> Sin comisiones ocultas ni tarifas de servicio al pedir.</li>
+                <li><strong>Transparencia de precios:</strong> Consulta el total real de tu cuenta al instante mientras agregas platillos.</li>
+                <li><strong>Atención directa:</strong> Tu pedido llega directo al restaurante por WhatsApp sin intermediarios.</li>
+                <li><strong>Sin registros obligatorios:</strong> Pide directamente de forma rápida e intuitiva.</li>
+              </ul>
+            </div>
+            <button class="btn-card" onclick="seleccionarPlan('Cliente')">Explorar como Cliente</button>
+          </article>
+        </div>
+      </div>
+
     </section>
 
     <!-- Formulario de Captura para Lanzamiento -->
@@ -244,6 +356,18 @@
       alert(`¡Gracias ${nombre}! Hemos registrado tu interés como ${rol}. Te enviaremos un mensaje por WhatsApp al número ${telefono} cuando abramos inscripciones.`);
       document.getElementById("registroForm").reset();
     }
+function switchUserType(type, btnElement) {
+      // Remover clase 'active' de todos los botones
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+      
+      // Ocultar todos los grupos de precios
+      document.querySelectorAll('.pricing-group').forEach(group => group.classList.remove('active'));
+
+      // Activar el botón presionado y mostrar el grupo correspondiente
+      btnElement.classList.add('active');
+      document.getElementById(`pricing-${type}`).classList.add('active');
+    }
+    
   </script>
 </body>
 </html>
