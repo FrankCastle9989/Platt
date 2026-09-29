@@ -7,6 +7,120 @@
   <!-- CDN Oficial de Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
+    /* --- Barra de Navegación Limpia y Moderna --- */
+    .main-navbar {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid #e9ecef;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      padding: 12px 20px;
+    }
+
+    .nav-container {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .nav-logo {
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: #ff5722;
+      text-decoration: none;
+      letter-spacing: -0.5px;
+    }
+
+    .nav-menu {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .nav-link {
+      text-decoration: none;
+      color: #212529;
+      font-weight: 600;
+      font-size: 0.95rem;
+      transition: color 0.2s;
+    }
+
+    .nav-link:hover {
+      color: #ff5722;
+    }
+
+    /* Dropdown para Restaurantes */
+    .dropdown {
+      position: relative;
+      display: inline-block;
+    }
+
+    .dropdown-btn {
+      background: #ff5722;
+      color: #ffffff;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: background 0.2s ease, transform 0.1s ease;
+    }
+
+    .dropdown-btn:hover {
+      background: #e64a19;
+    }
+
+    .dropdown-btn .arrow {
+      font-size: 0.75rem;
+      transition: transform 0.2s ease;
+    }
+
+    .dropdown-content {
+      display: none;
+      position: absolute;
+      right: 0;
+      top: 110%;
+      background-color: #ffffff;
+      min-width: 200px;
+      box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.1);
+      border-radius: 12px;
+      border: 1px solid #e9ecef;
+      overflow: hidden;
+      z-index: 1001;
+    }
+
+    .dropdown-content a {
+      color: #212529;
+      padding: 12px 16px;
+      text-decoration: none;
+      display: block;
+      font-size: 0.88rem;
+      font-weight: 500;
+      transition: background 0.15s ease, color 0.15s ease;
+    }
+
+    .dropdown-content a:hover {
+      background-color: #fff3e0;
+      color: #ff5722;
+    }
+
+    .dropdown-content.show {
+      display: block;
+      animation: fadeIn 0.2s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
     :root {
       --primary-color: #ff5722;
       --primary-hover: #e64a19;
@@ -235,38 +349,47 @@
 </head>
 <body>
 
-<div class="main-container">
-  <!-- Navbar Top -->
-  <div class="app-navbar">
-    <a href="index.html" class="brand-logo">Platt</a>
-    <a href="login.html" class="btn-partner">Soy Restaurante 👤</a>
-  </div>
+<!-- Encabezado / Barra de Navegación Principal -->
+<header class="main-navbar">
+  <div class="nav-container">
+    <a href="index.html" class="nav-logo">Platt</a>
 
-  <!-- Buscador Hero -->
-  <div class="hero-search-box">
-    <h1>¿Qué se te antoja hoy?</h1>
-    <p>Explora platillos y restaurantes locales registrados en Platt.</p>
-    <div class="search-input-wrapper">
-      <input type="text" id="searchInput" class="search-input" placeholder="Buscar por platillo, categoría o restaurante..." oninput="filterItems()">
-    </div>
-  </div>
+    <nav class="nav-menu">
+      <a href="nosotros.html" class="nav-link">Nosotros</a>
 
-  <!-- Filtro por Categorías -->
-  <div class="categories-wrapper" id="categoriesContainer">
-    <button class="chip-cat active" onclick="selectCategory('Todas', this)">Todas</button>
+      <!-- Desplegable Soy Restaurante -->
+      <div class="dropdown">
+        <button class="dropdown-btn" onclick="toggleDropdown(event)">
+          Soy Restaurante <span class="arrow">▾</span>
+        </button>
+        <div class="dropdown-content" id="restaurantDropdown">
+          <a href="nosotros.html#pricing-restaurante">Ver Planes y Precios</a>
+          <a href="login.html">Iniciar Sesión</a>
+          <a href="nosotros.html#registro">Registrar mi Negocio</a>
+        </div>
+      </div>
+    </nav>
   </div>
-
-  <!-- Contenedor de Resultados -->
-  <div class="results-header">
-    <h2>Platillos Disponibles (<span id="totalDishes">0</span>)</h2>
-  </div>
-
-  <div id="dishesList">
-    <div class="empty-state">Cargando la oferta gastronómica...</div>
-  </div>
-</div>
+</header>
 
 <script>
+
+// Manejo del menú desplegable de Restaurante
+function toggleDropdown(event) {
+  event.stopPropagation();
+  const dropdown = document.getElementById("restaurantDropdown");
+  dropdown.classList.toggle("show");
+}
+
+// Cerrar el menú si el usuario hace clic fuera de él
+window.addEventListener("click", function(e) {
+  const dropdown = document.getElementById("restaurantDropdown");
+  if (dropdown && dropdown.classList.contains("show")) {
+    dropdown.classList.remove("show");
+  }
+});
+
+
   // Conexión con Supabase
   const SUPABASE_URL = "https://dfunaefzrkjodyawjflw.supabase.co";
   const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRmdW5hZWZ6cmtqb2R5YXdqZmx3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk5NTM0MjIsImV4cCI6MjEwNTUyOTQyMn0.9WfEPYPyUKxvxMp1YHrdJ0F2VhuwnZpFqJb0v3dnax0";
