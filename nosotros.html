@@ -1,17 +1,18 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <!-- SEO Básico -->
+  <!-- SEO y Metaetiquetas Principales -->
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sobre Nosotros y Planes de Registro | Platt Menú Digital</title>
-  <meta name="description" content="Descubre Platt: la plataforma integral de menú digital para restaurantes y repartidores. Conoce nuestros planes de suscripción y regístrate para el acceso anticipado.">
+  <title>Sobre Nosotros y Planes | Platt Menú Digital</title>
+  <meta name="description" content="Conoce Platt: la plataforma integral de menú digital para restaurantes y repartidores por solo $99 MXN/mes. Sin comisiones por venta. Registrate para el acceso anticipado.">
+  <meta name="keywords" content="menu digital, restaurante, pedidos whatsapp, repartidores, sin comisiones, platt">
   <meta name="robots" content="index, follow">
   <link rel="canonical" href="https://tudominio.com/nosotros.html">
 
-  <!-- Open Graph para Redes Sociales (Facebook, WhatsApp, LinkedIn) -->
-  <meta property="og:title" content="Platt - Revolución Digital para Restaurantes y Repartidores">
-  <meta property="og:description" content="Digitaliza tu restaurante o únete como repartidor. Explora nuestros planes y recibe acceso anticipado.">
+  <!-- Open Graph para Redes Sociales (WhatsApp, Facebook, LinkedIn) -->
+  <meta property="og:title" content="Platt - Menú Digital y Red de Repartidores">
+  <meta property="og:description" content="Digitaliza tu restaurante o únete como repartidor independiente por solo $99 MXN/mes. Recibe acceso anticipado.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://tudominio.com/nosotros.html">
   <meta property="og:image" content="https://tudominio.com/assets/og-image.jpg">
@@ -24,7 +25,7 @@
     "name": "Platt Menú Digital",
     "url": "https://tudominio.com",
     "logo": "https://tudominio.com/assets/logo.png",
-    "description": "Plataforma de gestión de menús digitales y pedidos por WhatsApp para restaurantes y repartidores.",
+    "description": "Plataforma de menú digital e interacción directa por WhatsApp para restaurantes y repartidores sin pagar comisiones por pedido.",
     "contactPoint": {
       "@type": "ContactPoint",
       "contactType": "Atención al cliente",
@@ -33,58 +34,71 @@
   }
   </script>
 
-  <!-- Estilos CSS -->
   <style>
     :root {
-      --primary-color: #ff5722;
-      --primary-hover: #e64a19;
-      --secondary-color: #25d366;
-      --bg-color: #f8f9fa;
+      --primary: #ff5722;
+      --primary-dark: #e64a19;
+      --secondary: #25d366;
+      --dark: #1a1a1a;
+      --light-bg: #f8f9fa;
       --card-bg: #ffffff;
-      --text-color: #212529;
-      --gray-light: #e9ecef;
       --gray-text: #6c757d;
+      --border-color: #e9ecef;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-    body { background-color: var(--bg-color); color: var(--text-color); line-height: 1.6; }
+    body { background-color: var(--light-bg); color: var(--dark); line-height: 1.6; }
 
-    header { background: #fff; border-bottom: 1px solid var(--gray-light); padding: 15px 20px; text-align: center; sticky: top; }
-    header .logo { font-size: 1.8rem; font-weight: 800; color: var(--primary-color); text-decoration: none; }
+    /* Header */
+    header { background: #fff; border-bottom: 1px solid var(--border-color); padding: 15px 20px; position: sticky; top: 0; z-index: 100; display: flex; justify-content: space-between; align-items: center; }
+    .logo { font-size: 1.8rem; font-weight: 800; color: var(--primary); text-decoration: none; }
+    .nav-btn { background: var(--primary); color: white; padding: 8px 16px; border-radius: 20px; text-decoration: none; font-weight: bold; font-size: 0.9rem; transition: background 0.2s; }
+    .nav-btn:hover { background: var(--primary-dark); }
 
     /* Hero Section */
-    .hero { text-align: center; padding: 50px 20px 30px; max-width: 800px; margin: 0 auto; }
-    .hero h1 { font-size: 2.2rem; color: var(--text-color); margin-bottom: 15px; }
-    .hero p { font-size: 1.1rem; color: var(--gray-text); margin-bottom: 25px; }
+    .hero { text-align: center; padding: 60px 20px 40px; max-width: 850px; margin: 0 auto; }
+    .hero-badge { background: #ffe0b2; color: #e65100; font-weight: bold; padding: 6px 14px; border-radius: 20px; font-size: 0.85rem; display: inline-block; margin-bottom: 15px; }
+    .hero h1 { font-size: 2.5rem; color: var(--dark); margin-bottom: 15px; line-height: 1.2; }
+    .hero p { font-size: 1.15rem; color: var(--gray-text); margin-bottom: 25px; }
 
-    /* Contenedor de Planes */
-    .pricing-container { max-width: 1000px; margin: 0 auto; padding: 20px; display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 25px; }
+    /* Features Grid */
+    .features { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; max-width: 1000px; margin: 0 auto 50px; padding: 0 20px; }
+    .feature-card { background: var(--card-bg); padding: 25px; border-radius: 12px; border: 1px solid var(--border-color); text-align: center; }
+    .feature-icon { font-size: 2.2rem; margin-bottom: 10px; }
+    .feature-card h3 { font-size: 1.1rem; margin-bottom: 8px; }
+    .feature-card p { font-size: 0.9rem; color: var(--gray-text); }
+
+    /* Pricing Section */
+    .pricing-title { text-align: center; margin-bottom: 30px; }
+    .pricing-container { max-width: 900px; margin: 0 auto 60px; padding: 0 20px; display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; }
     
-    .pricing-card { background: var(--card-bg); border-radius: 16px; padding: 30px 20px; border: 1px solid var(--gray-light); box-shadow: 0 4px 15px rgba(0,0,0,0.05); display: flex; flex-direction: column; justify-content: space-between; text-align: center; }
-    .pricing-card.featured { border: 2px solid var(--primary-color); position: relative; }
-    .badge { position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: var(--primary-color); color: #fff; padding: 4px 12px; border-radius: 12px; font-size: 0.75rem; font-weight: bold; text-transform: uppercase; }
+    .pricing-card { background: var(--card-bg); border-radius: 16px; padding: 35px 25px; border: 1px solid var(--border-color); box-shadow: 0 4px 20px rgba(0,0,0,0.06); display: flex; flex-direction: column; justify-content: space-between; position: relative; }
+    .pricing-card.featured { border: 2px solid var(--primary); }
+    .card-tag { position: absolute; top: -14px; left: 50%; transform: translateX(-50%); background: var(--primary); color: white; padding: 4px 14px; border-radius: 12px; font-size: 0.75rem; font-weight: bold; text-transform: uppercase; }
 
-    .pricing-card h2 { font-size: 1.5rem; margin-bottom: 10px; }
-    .price { font-size: 2rem; font-weight: bold; color: var(--primary-color); margin-bottom: 15px; }
-    .price span { font-size: 0.9rem; color: var(--gray-text); }
+    .pricing-card h2 { font-size: 1.4rem; text-align: center; margin-bottom: 10px; }
+    .price-box { text-align: center; margin-bottom: 20px; }
+    .price-box .price { font-size: 2.5rem; font-weight: 800; color: var(--primary); }
+    .price-box span { font-size: 0.9rem; color: var(--gray-text); }
 
-    .features-list { list-style: none; padding: 0; text-align: left; margin-bottom: 25px; }
-    .features-list li { padding: 8px 0; font-size: 0.95rem; border-bottom: 1px dashed var(--gray-light); }
-    .features-list li::before { content: "✓ "; color: var(--secondary-color); font-weight: bold; }
+    .features-list { list-style: none; padding: 0; margin-bottom: 30px; }
+    .features-list li { padding: 10px 0; font-size: 0.95rem; border-bottom: 1px dashed var(--border-color); display: flex; align-items: center; gap: 8px; }
+    .features-list li::before { content: "✓"; color: var(--secondary); font-weight: bold; font-size: 1.1rem; }
 
-    /* Formulario de Lista de Espera */
-    .waitlist-section { background: #fff; border: 1px solid var(--gray-light); border-radius: 16px; max-width: 700px; margin: 40px auto; padding: 35px 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
-    .waitlist-section h2 { text-align: center; color: var(--primary-color); margin-bottom: 10px; }
-    .waitlist-section p { text-align: center; color: var(--gray-text); font-size: 0.95rem; margin-bottom: 20px; }
+    .btn-card { background: var(--primary); color: white; border: none; padding: 12px; border-radius: 8px; font-weight: bold; font-size: 1rem; cursor: pointer; width: 100%; transition: background 0.2s; }
+    .btn-card:hover { background: var(--primary-dark); }
+    .btn-card.dark { background: var(--dark); }
 
-    .form-group { margin-bottom: 15px; }
-    .form-group label { display: block; font-weight: bold; font-size: 0.85rem; margin-bottom: 5px; }
-    .form-group input, .form-group select { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; font-size: 1rem; }
+    /* Waitlist Section */
+    .waitlist-section { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 16px; max-width: 650px; margin: 0 auto 60px; padding: 40px 30px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); }
+    .waitlist-section h2 { text-align: center; color: var(--primary); margin-bottom: 10px; font-size: 1.6rem; }
+    .waitlist-section p { text-align: center; color: var(--gray-text); font-size: 0.95rem; margin-bottom: 25px; }
 
-    .btn-submit { background: var(--primary-color); color: #fff; border: none; width: 100%; padding: 14px; border-radius: 8px; font-size: 1rem; font-weight: bold; cursor: pointer; transition: background 0.2s; }
-    .btn-submit:hover { background: var(--primary-hover); }
+    .form-group { margin-bottom: 18px; }
+    .form-group label { display: block; font-weight: bold; font-size: 0.85rem; margin-bottom: 6px; }
+    .form-group input, .form-group select { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; font-size: 0.95rem; }
 
-    footer { text-align: center; padding: 25px; color: var(--gray-text); font-size: 0.85rem; border-top: 1px solid var(--gray-light); margin-top: 40px; }
+    footer { text-align: center; padding: 25px; color: var(--gray-text); font-size: 0.85rem; border-top: 1px solid var(--border-color); background: #fff; }
   </style>
 </head>
 <body>
@@ -92,61 +106,97 @@
   <!-- Encabezado Semántico -->
   <header>
     <a href="nosotros.html" class="logo">Platt</a>
+    <a href="#registro" class="nav-btn">Registrarme</a>
   </header>
 
   <main>
-    <!-- Sección Principal / Hero -->
+    <!-- Hero / Sección Principal -->
     <section class="hero">
-      <h1>Conecta tu restaurante con tus clientes directamente por WhatsApp</h1>
-      <p>Sin comisiones excesivas por cada platillo. Elige la solución diseñada para potenciar negocios locales y repartidores independientes.</p>
+      <span class="hero-badge">🚀 Próximo Lanzamiento</span>
+      <h1>Impulsa tu negocio de comida sin comisiones por pedido</h1>
+      <p>La alternativa transparente para restaurantes y repartidores locales. Gestiona tu menú digital y recibe tus pedidos directo por WhatsApp.</p>
     </section>
 
-    <!-- Planes de Suscripción -->
-    <section class="pricing-container" aria-label="Planes de suscripción">
-      
-      <!-- Plan Restaurantero -->
-      <article class="pricing-card featured">
-        <span class="badge">Más Popular</span>
-        <div>
-          <h2>Plan Restaurantero</h2>
-          <div class="price">$299 <span>/ mes</span></div>
-          <ul class="features-list">
-            <li>Menú digital interactivo e ilimitado</li>
-            <li>Recepción de pedidos directamente por WhatsApp</li>
-            <li>Panel de control para platillos y precios</li>
-            <li>Soporte para cobro en efectivo y transferencia</li>
-            <li>Sin cobro de comisión por venta</li>
-          </ul>
-        </div>
-        <button class="btn-submit" onclick="scrollToWaitlist('Restaurantero')">Interesado en este plan</button>
+    <!-- Beneficios Principales -->
+    <section class="features" aria-label="Ventajas de Platt">
+      <article class="feature-card">
+        <div class="feature-icon">📲</div>
+        <h3>Pedidos Directos</h3>
+        <p>Los clientes eligen en tu menú y recibes la orden con dirección y forma de pago en tu WhatsApp.</p>
       </article>
 
-      <!-- Plan Repartidor -->
-      <article class="pricing-card">
-        <div>
-          <h2>Plan Repartidor</h2>
-          <div class="price">$149 <span>/ mes</span></div>
-          <ul class="features-list">
-            <li>Red de vinculación directa con restaurantes locales</li>
-            <li>Recibe notificaciones de pedidos en tu zona</li>
-            <li>100% de tus propinas y entregas para ti</li>
-            <li>Sin horarios forzados ni penalizaciones</li>
-          </ul>
-        </div>
-        <button class="btn-submit" style="background:#212529;" onclick="scrollToWaitlist('Repartidor')">Unirme como Repartidor</button>
+      <article class="feature-card">
+        <div class="feature-icon">💰</div>
+        <h3>Cero Comisiones</h3>
+        <p>No pagas porcentaje de tus ventas. Todo el ingreso de tus alimentos se queda en tu bolsillo.</p>
       </article>
 
+      <article class="feature-card">
+        <div class="feature-icon">🛵</div>
+        <h3>Conexión con Repartidores</h3>
+        <p>Red directa entre restaurantes y repartidores locales sin intermediarios excesivos.</p>
+      </article>
     </section>
 
-    <!-- Formulario Registro Anticipado (Lead Capture para SEO/Marketing) -->
-    <section class="waitlist-section" id="registro-seccion">
-      <h2>🚀 ¡Aviso de Lanzamiento y Acceso Anticipado!</h2>
-      <p>Déjanos tus datos y te notificaremos inmediatamente cuando el sitio e inscripción oficial estén listos en tu ciudad.</p>
+    <!-- Planes de Suscripción ($99 MXN) -->
+    <section class="pricing-section">
+      <div class="pricing-title">
+        <h2>Elige el plan ideal para ti</h2>
+        <p style="color: var(--gray-text);">Precios accesibles pensados para apoyar el comercio local</p>
+      </div>
 
-      <form id="waitlistForm" onsubmit="handleWaitlistSubmit(event)">
+      <div class="pricing-container" aria-label="Planes de precios">
+        
+        <!-- Plan Restaurantero -->
+        <article class="pricing-card featured">
+          <span class="card-tag">Más Elegido</span>
+          <div>
+            <h2>Plan Restaurantero</h2>
+            <div class="price-box">
+              <div class="price">$99 <span style="font-size:1.2rem; color:var(--dark);">MXN</span></div>
+              <span>/ mes</span>
+            </div>
+            <ul class="features-list">
+              <li>Menú digital interactivo e ilimitado</li>
+              <li>Recepción de pedidos por WhatsApp</li>
+              <li>Panel para editar platillos, precios y fotos</li>
+              <li>Cobros en efectivo y transferencia</li>
+              <li>0% de comisión por venta realizada</li>
+            </ul>
+          </div>
+          <button class="btn-card" onclick="seleccionarPlan('Restaurante')">Quiero este plan</button>
+        </article>
+
+        <!-- Plan Repartidor -->
+        <article class="pricing-card">
+          <div>
+            <h2>Plan Repartidor</h2>
+            <div class="price-box">
+              <div class="price">$99 <span style="font-size:1.2rem; color:var(--dark);">MXN</span></div>
+              <span>/ mes</span>
+            </div>
+            <ul class="features-list">
+              <li>Vinculación directa con restaurantes de la zona</li>
+              <li>Notificaciones de entregas disponibles</li>
+              <li>Conserva el 100% de tus entregas y propinas</li>
+              <li>Libertad total de horarios sin penalizaciones</li>
+            </ul>
+          </div>
+          <button class="btn-card dark" onclick="seleccionarPlan('Repartidor')">Unirme como Repartidor</button>
+        </article>
+
+      </div>
+    </section>
+
+    <!-- Formulario de Captura para Lanzamiento -->
+    <section class="waitlist-section" id="registro">
+      <h2>✨ Recibe acceso anticipado</h2>
+      <p>Déjanos tus datos para avisarte inmediatamente cuando el sitio e inscripciones estén activas en tu zona.</p>
+
+      <form id="registroForm" onsubmit="guardarRegistro(event)">
         <div class="form-group">
-          <label for="userRole">Me interesa Registrarme como: *</label>
-          <select id="userRole" required>
+          <label for="tipoUsuario">Me quiero registrar como: *</label>
+          <select id="tipoUsuario" required>
             <option value="Restaurante">Restaurante / Negocio de Comida</option>
             <option value="Repartidor">Repartidor Independiente</option>
             <option value="Cliente">Cliente / Comensal</option>
@@ -154,21 +204,21 @@
         </div>
 
         <div class="form-group">
-          <label for="userName">Nombre Completo: *</label>
-          <input type="text" id="userName" required placeholder="Ej. Jesus Montes">
+          <label for="nombreCliente">Nombre Completo: *</label>
+          <input type="text" id="nombreCliente" required placeholder="Ej. Jesus Montes">
         </div>
 
         <div class="form-group">
-          <label for="userPhone">Teléfono WhatsApp: *</label>
-          <input type="tel" id="userPhone" required placeholder="Ej. 8112345678">
+          <label for="telefonoCliente">Teléfono WhatsApp: *</label>
+          <input type="tel" id="telefonoCliente" required placeholder="Ej. 8112345678">
         </div>
 
         <div class="form-group">
-          <label for="userEmail">Correo Electrónico (Opcional):</label>
-          <input type="email" id="userEmail" placeholder="ejemplo@correo.com">
+          <label for="correoCliente">Correo Electrónico (Opcional):</label>
+          <input type="email" id="correoCliente" placeholder="tu@email.com">
         </div>
 
-        <button type="submit" class="btn-submit">Avisarme cuando esté listo ✨</button>
+        <button type="submit" class="btn-card">¡Avisarme del lanzamiento!</button>
       </form>
     </section>
   </main>
@@ -178,23 +228,21 @@
   </footer>
 
   <script>
-    function scrollToWaitlist(role) {
-      const selectRole = document.getElementById("userRole");
-      if (role === 'Restaurante') selectRole.value = "Restaurante";
-      if (role === 'Repartidor') selectRole.value = "Repartidor";
-      
-      document.getElementById("registro-seccion").scrollIntoView({ behavior: 'smooth' });
+    function seleccionarPlan(rol) {
+      const select = document.getElementById("tipoUsuario");
+      select.value = rol;
+      document.getElementById("registro").scrollIntoView({ behavior: 'smooth' });
     }
 
-    function handleWaitlistSubmit(e) {
+    function guardarRegistro(e) {
       e.preventDefault();
       
-      const role = document.getElementById("userRole").value;
-      const name = document.getElementById("userName").value;
-      const phone = document.getElementById("userPhone").value;
+      const rol = document.getElementById("tipoUsuario").value;
+      const nombre = document.getElementById("nombreCliente").value;
+      const telefono = document.getElementById("telefonoCliente").value;
 
-      alert(`¡Gracias ${name}! Hemos registrado tu interés como ${role}. Te avisaremos por WhatsApp al número ${phone} tan pronto abramos el registro.`);
-      document.getElementById("waitlistForm").reset();
+      alert(`¡Gracias ${nombre}! Hemos registrado tu interés como ${rol}. Te enviaremos un mensaje por WhatsApp al número ${telefono} cuando abramos inscripciones.`);
+      document.getElementById("registroForm").reset();
     }
   </script>
 </body>
