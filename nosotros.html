@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <!-- SEO Básico -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sobre Nosotros y Planes de Registro | Platt Menú Digital</title>
+  <meta name="description" content="Descubre Platt: la plataforma integral de menú digital para restaurantes y repartidores. Conoce nuestros planes de suscripción y regístrate para el acceso anticipado.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://tudominio.com/nosotros.html">
+
+  <!-- Open Graph para Redes Sociales (Facebook, WhatsApp, LinkedIn) -->
+  <meta property="og:title" content="Platt - Revolución Digital para Restaurantes y Repartidores">
+  <meta property="og:description" content="Digitaliza tu restaurante o únete como repartidor. Explora nuestros planes y recibe acceso anticipado.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://tudominio.com/nosotros.html">
+  <meta property="og:image" content="https://tudominio.com/assets/og-image.jpg">
+
+  <!-- Datos Estructurados JSON-LD para Google (Schema.org) -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "Platt Menú Digital",
+    "url": "https://tudominio.com",
+    "logo": "https://tudominio.com/assets/logo.png",
+    "description": "Plataforma de gestión de menús digitales y pedidos por WhatsApp para restaurantes y repartidores.",
+    "contactPoint": {
+      "@type": "ContactPoint",
+      "contactType": "Atención al cliente",
+      "availableLanguage": "Spanish"
+    }
+  }
+  </script>
+
+  <!-- Estilos CSS -->
+  <style>
+    :root {
+      --primary-color: #ff5722;
+      --primary-hover: #e64a19;
+      --secondary-color: #25d366;
+      --bg-color: #f8f9fa;
+      --card-bg: #ffffff;
+      --text-color: #212529;
+      --gray-light: #e9ecef;
+      --gray-text: #6c757d;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    body { background-color: var(--bg-color); color: var(--text-color); line-height: 1.6; }
+
+    header { background: #fff; border-bottom: 1px solid var(--gray-light); padding: 15px 20px; text-align: center; sticky: top; }
+    header .logo { font-size: 1.8rem; font-weight: 800; color: var(--primary-color); text-decoration: none; }
+
+    /* Hero Section */
+    .hero { text-align: center; padding: 50px 20px 30px; max-width: 800px; margin: 0 auto; }
+    .hero h1 { font-size: 2.2rem; color: var(--text-color); margin-bottom: 15px; }
+    .hero p { font-size: 1.1rem; color: var(--gray-text); margin-bottom: 25px; }
+
+    /* Contenedor de Planes */
+    .pricing-container { max-width: 1000px; margin: 0 auto; padding: 20px; display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 25px; }
+    
+    .pricing-card { background: var(--card-bg); border-radius: 16px; padding: 30px 20px; border: 1px solid var(--gray-light); box-shadow: 0 4px 15px rgba(0,0,0,0.05); display: flex; flex-direction: column; justify-content: space-between; text-align: center; }
+    .pricing-card.featured { border: 2px solid var(--primary-color); position: relative; }
+    .badge { position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: var(--primary-color); color: #fff; padding: 4px 12px; border-radius: 12px; font-size: 0.75rem; font-weight: bold; text-transform: uppercase; }
+
+    .pricing-card h2 { font-size: 1.5rem; margin-bottom: 10px; }
+    .price { font-size: 2rem; font-weight: bold; color: var(--primary-color); margin-bottom: 15px; }
+    .price span { font-size: 0.9rem; color: var(--gray-text); }
+
+    .features-list { list-style: none; padding: 0; text-align: left; margin-bottom: 25px; }
+    .features-list li { padding: 8px 0; font-size: 0.95rem; border-bottom: 1px dashed var(--gray-light); }
+    .features-list li::before { content: "✓ "; color: var(--secondary-color); font-weight: bold; }
+
+    /* Formulario de Lista de Espera */
+    .waitlist-section { background: #fff; border: 1px solid var(--gray-light); border-radius: 16px; max-width: 700px; margin: 40px auto; padding: 35px 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+    .waitlist-section h2 { text-align: center; color: var(--primary-color); margin-bottom: 10px; }
+    .waitlist-section p { text-align: center; color: var(--gray-text); font-size: 0.95rem; margin-bottom: 20px; }
+
+    .form-group { margin-bottom: 15px; }
+    .form-group label { display: block; font-weight: bold; font-size: 0.85rem; margin-bottom: 5px; }
+    .form-group input, .form-group select { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; font-size: 1rem; }
+
+    .btn-submit { background: var(--primary-color); color: #fff; border: none; width: 100%; padding: 14px; border-radius: 8px; font-size: 1rem; font-weight: bold; cursor: pointer; transition: background 0.2s; }
+    .btn-submit:hover { background: var(--primary-hover); }
+
+    footer { text-align: center; padding: 25px; color: var(--gray-text); font-size: 0.85rem; border-top: 1px solid var(--gray-light); margin-top: 40px; }
+  </style>
+</head>
+<body>
+
+  <!-- Encabezado Semántico -->
+  <header>
+    <a href="nosotros.html" class="logo">Platt</a>
+  </header>
+
+  <main>
+    <!-- Sección Principal / Hero -->
+    <section class="hero">
+      <h1>Conecta tu restaurante con tus clientes directamente por WhatsApp</h1>
+      <p>Sin comisiones excesivas por cada platillo. Elige la solución diseñada para potenciar negocios locales y repartidores independientes.</p>
+    </section>
+
+    <!-- Planes de Suscripción -->
+    <section class="pricing-container" aria-label="Planes de suscripción">
+      
+      <!-- Plan Restaurantero -->
+      <article class="pricing-card featured">
+        <span class="badge">Más Popular</span>
+        <div>
+          <h2>Plan Restaurantero</h2>
+          <div class="price">$299 <span>/ mes</span></div>
+          <ul class="features-list">
+            <li>Menú digital interactivo e ilimitado</li>
+            <li>Recepción de pedidos directamente por WhatsApp</li>
+            <li>Panel de control para platillos y precios</li>
+            <li>Soporte para cobro en efectivo y transferencia</li>
+            <li>Sin cobro de comisión por venta</li>
+          </ul>
+        </div>
+        <button class="btn-submit" onclick="scrollToWaitlist('Restaurantero')">Interesado en este plan</button>
+      </article>
+
+      <!-- Plan Repartidor -->
+      <article class="pricing-card">
+        <div>
+          <h2>Plan Repartidor</h2>
+          <div class="price">$149 <span>/ mes</span></div>
+          <ul class="features-list">
+            <li>Red de vinculación directa con restaurantes locales</li>
+            <li>Recibe notificaciones de pedidos en tu zona</li>
+            <li>100% de tus propinas y entregas para ti</li>
+            <li>Sin horarios forzados ni penalizaciones</li>
+          </ul>
+        </div>
+        <button class="btn-submit" style="background:#212529;" onclick="scrollToWaitlist('Repartidor')">Unirme como Repartidor</button>
+      </article>
+
+    </section>
+
+    <!-- Formulario Registro Anticipado (Lead Capture para SEO/Marketing) -->
+    <section class="waitlist-section" id="registro-seccion">
+      <h2>🚀 ¡Aviso de Lanzamiento y Acceso Anticipado!</h2>
+      <p>Déjanos tus datos y te notificaremos inmediatamente cuando el sitio e inscripción oficial estén listos en tu ciudad.</p>
+
+      <form id="waitlistForm" onsubmit="handleWaitlistSubmit(event)">
+        <div class="form-group">
+          <label for="userRole">Me interesa Registrarme como: *</label>
+          <select id="userRole" required>
+            <option value="Restaurante">Restaurante / Negocio de Comida</option>
+            <option value="Repartidor">Repartidor Independiente</option>
+            <option value="Cliente">Cliente / Comensal</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="userName">Nombre Completo: *</label>
+          <input type="text" id="userName" required placeholder="Ej. Jesus Montes">
+        </div>
+
+        <div class="form-group">
+          <label for="userPhone">Teléfono WhatsApp: *</label>
+          <input type="tel" id="userPhone" required placeholder="Ej. 8112345678">
+        </div>
+
+        <div class="form-group">
+          <label for="userEmail">Correo Electrónico (Opcional):</label>
+          <input type="email" id="userEmail" placeholder="ejemplo@correo.com">
+        </div>
+
+        <button type="submit" class="btn-submit">Avisarme cuando esté listo ✨</button>
+      </form>
+    </section>
+  </main>
+
+  <footer>
+    <p>&copy; 2026 Platt Menú Digital. Todos los derechos reservados.</p>
+  </footer>
+
+  <script>
+    function scrollToWaitlist(role) {
+      const selectRole = document.getElementById("userRole");
+      if (role === 'Restaurante') selectRole.value = "Restaurante";
+      if (role === 'Repartidor') selectRole.value = "Repartidor";
+      
+      document.getElementById("registro-seccion").scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function handleWaitlistSubmit(e) {
+      e.preventDefault();
+      
+      const role = document.getElementById("userRole").value;
+      const name = document.getElementById("userName").value;
+      const phone = document.getElementById("userPhone").value;
+
+      alert(`¡Gracias ${name}! Hemos registrado tu interés como ${role}. Te avisaremos por WhatsApp al número ${phone} tan pronto abramos el registro.`);
+      document.getElementById("waitlistForm").reset();
+    }
+  </script>
+</body>
+</html>
