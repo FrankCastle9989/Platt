@@ -43,6 +43,28 @@
 <body>
 
 <div class="form-container">
+
+<header class="main-navbar">
+  <div class="nav-container">
+    <a href="index.html" class="nav-logo">Platt</a>
+
+    <nav class="nav-menu">
+<!-- Desplegable Soy Restaurante -->
+      <div class="dropdown">
+        <button class="dropdown-btn" onclick="toggleDropdown(event)">
+          Menú <span class="arrow">▾</span>
+        </button>
+        <div class="dropdown-content" id="restaurantDropdown">
+          <a href="nosotros.html" class="nav-link">Nosotros</a>
+          <a href="login.html">Iniciar Sesión</a>
+          <a href="nosotros.html#pricing-restaurante">Precios</a>
+          <a href="registro-restaurante.html">Registrar mi restaurante</a>
+        </div>
+      </div>
+    </nav>
+  </div>
+</header>
+
   <h2>Registro de Restaurante</h2>
   <p class="subtitle">Configura tu negocio y crea tu cuenta de acceso</p>
 
