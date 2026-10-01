@@ -4,6 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Platt - Registro de Restaurante</title>
+
+  <!-- Hoja de estilos del Navbar Global -->
+  <link rel="stylesheet" href="navbar.css">
+
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     :root {
@@ -14,128 +18,17 @@
       --gray-light: #e0e0e0;
     }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    * { 
+      box-sizing: border-box; 
+      margin: 0; 
+      padding: 0; 
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+    }
     
-    /* Body ajustado para permitir que la barra esté fija arriba */
     body { 
       background-color: var(--bg-color); 
       color: var(--text-color); 
       min-height: 100vh;
-    }
-
-    /* --- Barra de Navegación Limpia y Moderna --- */
-    .main-navbar {
-      background: rgba(255, 255, 255, 0.95);
-      backdrop-filter: blur(10px);
-      border-bottom: 1px solid #e9ecef;
-      position: sticky;
-      top: 0;
-      z-index: 1000;
-      padding: 12px 20px;
-      width: 100%;
-    }
-
-    .nav-container {
-      max-width: 1100px;
-      margin: 0 auto;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .nav-logo {
-      font-size: 1.6rem;
-      font-weight: 800;
-      color: #ff5722;
-      text-decoration: none;
-      letter-spacing: -0.5px;
-    }
-
-    .nav-menu {
-      display: flex;
-      align-items: center;
-      gap: 20px;
-    }
-
-    .nav-link {
-      text-decoration: none;
-      color: #212529;
-      font-weight: 600;
-      font-size: 0.95rem;
-      transition: color 0.2s;
-    }
-
-    .nav-link:hover {
-      color: #ff5722;
-    }
-
-    /* Dropdown para Restaurantes */
-    .dropdown {
-      position: relative;
-      display: inline-block;
-    }
-
-    .dropdown-btn {
-      background: #ff5722;
-      color: #ffffff;
-      border: none;
-      padding: 8px 16px;
-      border-radius: 20px;
-      font-weight: 600;
-      font-size: 0.9rem;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      transition: background 0.2s ease, transform 0.1s ease;
-    }
-
-    .dropdown-btn:hover {
-      background: #e64a19;
-    }
-
-    .dropdown-btn .arrow {
-      font-size: 0.75rem;
-      transition: transform 0.2s ease;
-    }
-
-    .dropdown-content {
-      display: none;
-      position: absolute;
-      right: 0;
-      top: 110%;
-      background-color: #ffffff;
-      min-width: 200px;
-      box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.1);
-      border-radius: 12px;
-      border: 1px solid #e9ecef;
-      overflow: hidden;
-      z-index: 1001;
-    }
-
-    .dropdown-content a {
-      color: #212529;
-      padding: 12px 16px;
-      text-decoration: none;
-      display: block;
-      font-size: 0.88rem;
-      font-weight: 500;
-      transition: background 0.15s ease, color 0.15s ease;
-    }
-
-    .dropdown-content a:hover {
-      background-color: #fff3e0;
-      color: #ff5722;
-    }
-
-    .dropdown-content.show {
-      display: block;
-      animation: fadeIn 0.2s ease-in-out;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(-8px); }
-      to { opacity: 1; transform: translateY(0); }
     }
 
     /* Envoltorio para centrar el formulario debajo del menú */
@@ -146,15 +39,69 @@
       padding: 40px 20px;
     }
     
-    .form-container { background: var(--card-bg); padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 100%; max-width: 500px; }
-    h2 { color: var(--primary-color); margin-bottom: 10px; text-align: center; }
-    p.subtitle { text-align: center; color: #666; font-size: 0.9rem; margin-bottom: 20px; }
+    .form-container { 
+      background: var(--card-bg); 
+      padding: 30px; 
+      border-radius: 12px; 
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1); 
+      width: 100%; 
+      max-width: 500px; 
+    }
+
+    h2 { 
+      color: var(--primary-color); 
+      margin-bottom: 10px; 
+      text-align: center; 
+    }
+
+    p.subtitle { 
+      text-align: center; 
+      color: #666; 
+      font-size: 0.9rem; 
+      margin-bottom: 20px; 
+    }
 
     /* Indicador de Pasos */
-    .steps-indicator { display: flex; justify-content: space-between; margin-bottom: 25px; position: relative; }
-    .steps-indicator::before { content: ''; position: absolute; top: 50%; left: 0; width: 100%; height: 2px; background: var(--gray-light); z-index: 1; transform: translateY(-50%); }
-    .step-node { position: relative; z-index: 2; background: #fff; width: 32px; height: 32px; border-radius: 50%; border: 2px solid var(--gray-light); display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.85rem; color: #777; }
-    .step-node.active { border-color: var(--primary-color); background: var(--primary-color); color: #fff; }
+    .steps-indicator { 
+      display: flex; 
+      justify-content: space-between; 
+      margin-bottom: 25px; 
+      position: relative; 
+    }
+
+    .steps-indicator::before { 
+      content: ''; 
+      position: absolute; 
+      top: 50%; 
+      left: 0; 
+      width: 100%; 
+      height: 2px; 
+      background: var(--gray-light); 
+      z-index: 1; 
+      transform: translateY(-50%); 
+    }
+
+    .step-node { 
+      position: relative; 
+      z-index: 2; 
+      background: #fff; 
+      width: 32px; 
+      height: 32px; 
+      border-radius: 50%; 
+      border: 2px solid var(--gray-light); 
+      display: flex; 
+      align-items: center; 
+      justify-content: center; 
+      font-weight: bold; 
+      font-size: 0.85rem; 
+      color: #777; 
+    }
+
+    .step-node.active { 
+      border-color: var(--primary-color); 
+      background: var(--primary-color); 
+      color: #fff; 
+    }
 
     .form-step { display: none; }
     .form-step.active { display: block; }
@@ -171,10 +118,8 @@
 </head>
 <body>
 
-<!-- Encabezado / Barra de Navegación Principal -->
-<header class="main-navbar">
-  <div id="navbar-container"></div>
-</header>
+<!-- Contenedor Único donde JavaScript inyectará navbar.html -->
+<div id="navbar-container"></div>
 
 <div class="page-wrapper">
   <div class="form-container">
@@ -238,22 +183,11 @@
   </div>
 </div>
 
+<!-- Script Global que descarga e inyecta la barra de navegación -->
+<script src="navbar.js"></script>
+
+<!-- Script de la lógica de negocio y Supabase -->
 <script>
-  // Manejo del menú desplegable de Restaurante
-  function toggleDropdown(event) {
-    event.stopPropagation();
-    const dropdown = document.getElementById("restaurantDropdown");
-    dropdown.classList.toggle("show");
-  }
-
-  // Cerrar el menú si el usuario hace clic fuera de él
-  window.addEventListener("click", function(e) {
-    const dropdown = document.getElementById("restaurantDropdown");
-    if (dropdown && dropdown.classList.contains("show")) {
-      dropdown.classList.remove("show");
-    }
-  });
-
   const SUPABASE_URL = "https://dfunaefzrkjodyawjflw.supabase.co";
   const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRmdW5hZWZ6cmtqb2R5YXdqZmx3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk5NTM0MjIsImV4cCI6MjEwNTUyOTQyMn0.9WfEPYPyUKxvxMp1YHrdJ0F2VhuwnZpFqJb0v3dnax0";
   const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
