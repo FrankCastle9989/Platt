@@ -1,0 +1,23 @@
+<!-- navbar.html -->
+<header class="main-navbar">
+  <div class="nav-container">
+    <a href="index.html" class="nav-logo">Platt</a>
+
+    <nav class="nav-menu">
+      <a href="nosotros.html" class="nav-link">Nosotros</a>
+
+      <!-- Desplegable Soy Restaurante -->
+      <div class="dropdown">
+        <button class="dropdown-btn" onclick="toggleDropdown(event)">
+          Soy Restaurante <span class="arrow">▾</span>
+        </button>
+        <div class="dropdown-content" id="restaurantDropdown">
+          <a href="login.html">🔑 Iniciar Sesión</a>
+          <a href="nosotros.html#pricing-restaurante">💳 Ver Planes y Precios</a>
+          <a href="registro-restaurante.html">🚀 Registrar mi Negocio</a>
+          <a href="index.html">🏠 Regresar al Inicio</a>
+        </div>
+      </div>
+    </nav>
+  </div>
+</header>
