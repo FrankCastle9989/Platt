@@ -3,178 +3,408 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Confirmar Pedido - Platt</title>
+  <title>Platt - Finalizar Pedido</title>
+
+  <!-- Hoja de estilos del Navbar Global -->
+  <link rel="stylesheet" href="navbar.css">
+
+  <!-- CDN de Supabase -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
   <style>
     :root {
       --primary-color: #ff5722;
-      --bg-color: #f8f9fa;
+      --primary-hover: #e64a19;
+      --bg-color: #f4f6f8;
       --card-bg: #ffffff;
-      --text-color: #212529;
-      --gray-light: #e9ecef;
+      --text-color: #333333;
+      --gray-light: #e0e0e0;
     }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-    body { background: var(--bg-color); color: var(--text-color); padding: 20px; display: flex; justify-content: center; }
-    
-    .checkout-card { background: var(--card-bg); border-radius: 12px; padding: 24px; width: 100%; max-width: 500px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); border: 1px solid var(--gray-light); }
-    h2 { color: var(--primary-color); margin-bottom: 6px; text-align: center; }
-    p.subtitle { text-align: center; font-size: 0.85rem; color: #666; margin-bottom: 20px; }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
 
-    .form-group { margin-bottom: 15px; }
-    .form-group label { display: block; font-weight: bold; font-size: 0.85rem; margin-bottom: 5px; }
-    .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 0.95rem; }
-    
-    .btn-send { background: #25d366; color: #fff; width: 100%; padding: 14px; border: none; border-radius: 8px; font-weight: bold; font-size: 1.05rem; cursor: pointer; margin-top: 15px; transition: background 0.2s; }
-    .btn-send:hover { background: #1ebd56; }
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
 
-    #infoBanco { background: #eef7ee; border: 1px solid #c8e6c9; padding: 12px; border-radius: 6px; margin-bottom: 15px; font-size: 0.85rem; }
+    .page-wrapper {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 40px 20px;
+    }
+
+    .checkout-card {
+      background: var(--card-bg);
+      width: 100%;
+      max-width: 550px;
+      border-radius: 12px;
+      padding: 30px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    }
+
+    h2 {
+      color: var(--primary-color);
+      margin-bottom: 5px;
+      text-align: center;
+    }
+
+    p.subtitle {
+      text-align: center;
+      color: #666;
+      font-size: 0.9rem;
+      margin-bottom: 25px;
+    }
+
+    .form-group {
+      margin-bottom: 18px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: bold;
+      margin-bottom: 6px;
+    }
+
+    .form-group input, .form-group textarea {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid var(--gray-light);
+      border-radius: 8px;
+      font-size: 0.95rem;
+      outline: none;
+    }
+
+    .form-group input:focus, .form-group textarea:focus {
+      border-color: var(--primary-color);
+    }
+
+    .input-geo-group {
+      display: flex;
+      gap: 8px;
+    }
+
+    .btn-geo {
+      background-color: #fff3e0;
+      color: var(--primary-color);
+      border: 1px solid var(--primary-color);
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: bold;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background 0.2s;
+    }
+
+    .btn-geo:hover {
+      background-color: #ffe0b2;
+    }
+
+    /* Resumen de Compra */
+    .resumen-box {
+      background-color: #fafafa;
+      border: 1px solid #eee;
+      border-radius: 8px;
+      padding: 15px;
+      margin-top: 20px;
+      margin-bottom: 20px;
+    }
+
+    .resumen-box h3 {
+      font-size: 1rem;
+      margin-bottom: 10px;
+      border-bottom: 1px solid var(--gray-light);
+      padding-bottom: 5px;
+    }
+
+    .resumen-linea {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 8px;
+      font-size: 0.9rem;
+    }
+
+    .resumen-total {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 12px;
+      padding-top: 10px;
+      border-top: 2px solid var(--gray-light);
+      font-size: 1.1rem;
+      font-weight: bold;
+      color: var(--primary-color);
+    }
+
+    .btn-submit {
+      width: 100%;
+      background-color: #25d366; /* Verde WhatsApp */
+      color: white;
+      border: none;
+      padding: 14px;
+      border-radius: 8px;
+      font-size: 1.05rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .btn-submit:hover {
+      background-color: #1eb954;
+    }
+
+    .info-distancia {
+      color: #666;
+      font-size: 0.8rem;
+      margin-top: 5px;
+      display: block;
+    }
   </style>
 </head>
 <body>
 
-<div class="checkout-card">
-  <h2 id="restauranteTitulo">Finalizar Pedido</h2>
-  <p class="subtitle">Ingresa tus datos para recibir tu orden</p>
-  
-  <form id="formCheckout" onsubmit="enviarPedidoWhatsApp(event)">
-    <div class="form-group">
-      <label for="clienteNombre">👤 Nombre Completo *</label>
-      <input type="text" id="clienteNombre" required placeholder="Ej. Jesus Montes">
-    </div>
+<!-- Contenedor del Navbar Modular -->
+<div id="navbar-container"></div>
 
-    <div class="form-group">
-      <label for="tipoEntrega">🛵 Tipo de Pedido *</label>
-      <select id="tipoEntrega" required onchange="toggleEntregaOptions()">
-        <option value="Domicilio">🛵 Servicio a Domicilio</option>
-        <option value="Pasar a recoger">🏃 Pasar a recoger (Para llevar)</option>
-      </select>
-    </div>
+<div class="page-wrapper">
+  <div class="checkout-card">
+    <h2>Confirmar Pedido</h2>
+    <p class="subtitle">Ingresa tus datos de entrega para calcular el envío exacto</p>
 
-    <div class="form-group" id="groupDireccion">
-      <label for="clienteDireccion">📍 Dirección de Entrega *</label>
-      <textarea id="clienteDireccion" rows="2" placeholder="Calle, número, colonia o referencias de tu domicilio"></textarea>
-    </div>
+    <form id="formCheckout" onsubmit="enviarPedidoWhatsApp(event)">
+      <div class="form-group">
+        <label for="clienteNombre">Nombre Completo *</label>
+        <input type="text" id="clienteNombre" placeholder="Ej. Juan Pérez" required>
+      </div>
 
-    <div class="form-group">
-      <label for="metodoPago">💳 Forma de Pago *</label>
-      <select id="metodoPago" required onchange="toggleDatosBanco()">
-        <option value="Efectivo">💵 Efectivo</option>
-        <option value="Transferencia">🏦 Transferencia Interbancaria</option>
-      </select>
-    </div>
+      <div class="form-group">
+        <label for="clienteTelefono">Teléfono de Contacto *</label>
+        <input type="tel" id="clienteTelefono" placeholder="10 dígitos (Ej. 8112345678)" required>
+      </div>
 
-    <!-- Datos Bancarios si se elige Transferencia -->
-    <div id="infoBanco" style="display:none;">
-      <p><strong>Banco:</strong> <span id="bancoNombre">--</span></p>
-      <p><strong>CLABE:</strong> <span id="bancoClabe">--</span></p>
-      <small style="color:#2e7d32; display:block; margin-top:4px;">💡 Recuerda adjuntar tu comprobante de pago por el chat.</small>
-    </div>
+      <div class="form-group">
+        <label for="clienteDireccion">Dirección de Entrega *</label>
+        <div class="input-geo-group">
+          <input type="text" id="clienteDireccion" placeholder="Calle, Número y Colonia" required>
+          <button type="button" id="btnGeolocalizacion" class="btn-geo" onclick="obtenerUbicacionUsuario()">
+            📍 Usar mi ubicación
+          </button>
+        </div>
+        <small id="distanciaInfo" class="info-distancia"></small>
+      </div>
 
-    <!-- CAMPO DE NOTAS CON EMOJI -->
-    <div class="form-group">
-      <label for="clienteNotas">📝 Notas o Especificaciones (Opcional)</label>
-      <textarea id="clienteNotas" rows="2" placeholder="Ej. Incluir más salsas, no poner cebolla, cubiertos y servilletas..."></textarea>
-    </div>
+      <div class="form-group">
+        <label for="clienteNotas">Notas adicionales para la cocina o repartidor</label>
+        <textarea id="clienteNotas" rows="2" placeholder="Ej. Sin cebolla / Sin timbre, llamar al llegar"></textarea>
+      </div>
 
-    <button type="submit" class="btn-send">📲 Enviar Pedido por WhatsApp</button>
-  </form>
+      <!-- Resumen de Costos -->
+      <div class="resumen-box">
+        <h3>Resumen de la Orden</h3>
+        <div class="resumen-linea">
+          <span>Subtotal de productos:</span>
+          <strong id="lblSubtotal">$0.00 MXN</strong>
+        </div>
+        <div class="resumen-linea">
+          <span>Costo de envío:</span>
+          <strong id="lblCostoEnvio">$30.00 MXN</strong>
+        </div>
+        <div class="resumen-total">
+          <span>Total a Pagar:</span>
+          <strong id="lblTotal">$0.00 MXN</strong>
+        </div>
+      </div>
+
+      <button type="submit" class="btn-submit">📱 Confirmar y Enviar por WhatsApp</button>
+    </form>
+  </div>
 </div>
 
-<script>
-  let orderData = null;
+<!-- Script del Navbar Global -->
+<script src="navbar.js"></script>
 
-  window.onload = function() {
-    const rawData = localStorage.getItem("platt_current_order");
-    if (!rawData) {
-      alert("No se encontró información del pedido activo.");
-      window.location.href = "index.html";
+<!-- Lógica del Checkout y Cálculo de Envío -->
+<script>
+  // Inicialización de Supabase
+  const SUPABASE_URL = "https://dfunaefzrkjodyawjflw.supabase.co";
+  const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRmdW5hZWZ6cmtqb2R5YXdqZmx3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk5NTM0MjIsImV4cCI6MjEwNTUyOTQyMn0.9WfEPYPyUKxvxMp1YHrdJ0F2VhuwnZpFqJb0v3dnax0";
+  const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  // Variables de Estado del Pedido
+  let negocioLat = 25.6866; // Coordenada default (Monterrey, NL)
+  let negocioLon = -100.3161;
+  let negocioWhatsapp = "528112345678"; // WhatsApp del restaurante
+  let subtotalProductos = 0;
+  let costoEnvioCalculado = 30; // Tarifa base inicial ($30 MXN)
+  let carritoItems = [];
+
+  // Al cargar la página, recuperar carrito e información del negocio
+  window.onload = async function() {
+    cargarCarritoLocalStorage();
+    await obtenerDatosRestaurante();
+    actualizarTotales();
+  };
+
+  function cargarCarritoLocalStorage() {
+    const rawCarrito = localStorage.getItem("platt_carrito");
+    if (rawCarrito) {
+      carritoItems = JSON.parse(rawCarrito);
+      subtotalProductos = carritoItems.reduce((acc, item) => acc + (item.precio * item.cantidad), 0);
+    } else {
+      subtotalProductos = 0;
+    }
+  }
+
+  async function obtenerDatosRestaurante() {
+    const restauranteId = localStorage.getItem("platt_restaurante_id");
+    if (!restauranteId) return;
+
+    try {
+      const { data, error } = await _supabase
+        .from('restaurantes')
+        .select('whatsapp, latitud, longitud')
+        .eq('id', restauranteId)
+        .single();
+
+      if (data) {
+        if (data.whatsapp) negocioWhatsapp = data.whatsapp;
+        if (data.latitud && data.longitud) {
+          negocioLat = parseFloat(data.latitud);
+          negocioLon = parseFloat(data.longitud);
+        }
+      }
+    } catch (err) {
+      console.warn("No se pudieron cargar coordenadas guardadas del restaurante, usando coordenadas base:", err);
+    }
+  }
+
+  // --- 1. LÓGICA DE CÁLCULO DE DISTANCIA Y ENVÍO ---
+
+  // Fórmula de Haversine para distancia en kilómetros
+  function calcularDistanciaKm(lat1, lon1, lat2, lon2) {
+    const R = 6371; // Radio de la Tierra en km
+    const dLat = (lat2 - lat1) * (Math.PI / 180);
+    const dLon = (lon2 - lon1) * (Math.PI / 180);
+    
+    const a = 
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(lat1 * (Math.PI / 180)) * Math.cos(lat2 * (Math.PI / 180)) * 
+      Math.sin(dLon / 2) * Math.sin(dLon / 2);
+      
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c;
+  }
+
+  // Regla de Cobro: $30 MXN base (0-2 km) + $15 MXN por km extra
+  function calcularCostoEnvio(distanciaKm) {
+    const tarifaBase = 30;
+    const costoKmExtra = 15;
+
+    if (distanciaKm <= 2) {
+      return tarifaBase;
+    } else {
+      const kmExtra = distanciaKm - 2;
+      return tarifaBase + (kmExtra * costoKmExtra);
+    }
+  }
+
+  // --- 2. GEOLOCALIZACIÓN DEL USUARIO ---
+
+  function obtenerUbicacionUsuario() {
+    const btn = document.getElementById('btnGeolocalizacion');
+    const infoText = document.getElementById('distanciaInfo');
+
+    if (!navigator.geolocation) {
+      alert("Tu navegador o dispositivo no soporta la función de geolocalización.");
       return;
     }
 
-    orderData = JSON.parse(rawData);
-    document.getElementById("restauranteTitulo").innerText = orderData.restauranteNombre;
+    btn.disabled = true;
+    btn.innerText = "⏳ Geolocalizando...";
 
-    if (orderData.banco && orderData.clabe) {
-      document.getElementById("bancoNombre").innerText = orderData.banco;
-      document.getElementById("bancoClabe").innerText = orderData.clabe;
-    }
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const userLat = position.coords.latitude;
+        const userLon = position.coords.longitude;
 
-    toggleEntregaOptions();
-  };
+        // Calcular distancia real
+        const distancia = calcularDistanciaKm(negocioLat, negocioLon, userLat, userLon);
 
-  function toggleEntregaOptions() {
-    const tipo = document.getElementById("tipoEntrega").value;
-    const groupDir = document.getElementById("groupDireccion");
-    const inputDir = document.getElementById("clienteDireccion");
+        // Calcular costo
+        costoEnvioCalculado = Math.round(calcularCostoEnvio(distancia));
 
-    if (tipo === "Pasar a recoger") {
-      groupDir.style.display = "none";
-      inputDir.removeAttribute("required");
-    } else {
-      groupDir.style.display = "block";
-      inputDir.setAttribute("required", "true");
-    }
+        // Rellenar input con enlace/coordenadas
+        document.getElementById('clienteDireccion').value = `Ubicación GPS (${userLat.toFixed(5)}, ${userLon.toFixed(5)})`;
+        infoText.innerText = `📏 Distancia aproximada: ${distancia.toFixed(2)} km. Envío: $${costoEnvioCalculado} MXN`;
+
+        actualizarTotales();
+
+        btn.disabled = false;
+        btn.innerText = "📍 Ubicación Obtenida";
+      },
+      (error) => {
+        console.error("Error al obtener ubicación:", error);
+        alert("No se pudo obtener la ubicación. Por favor concede el permiso de ubicación en tu navegador o escribe tu dirección manualmente.");
+        btn.disabled = false;
+        btn.innerText = "📍 Usar mi ubicación";
+      },
+      { enableHighAccuracy: true, timeout: 10000 }
+    );
   }
 
-  function toggleDatosBanco() {
-    const metodo = document.getElementById("metodoPago").value;
-    const infoBanco = document.getElementById("infoBanco");
-
-    if (metodo === "Transferencia" && orderData.clabe) {
-      infoBanco.style.display = "block";
-    } else {
-      infoBanco.style.display = "none";
-    }
+  function actualizarTotales() {
+    const total = subtotalProductos + costoEnvioCalculado;
+    
+    document.getElementById('lblSubtotal').innerText = `$${subtotalProductos.toFixed(2)} MXN`;
+    document.getElementById('lblCostoEnvio').innerText = `$${costoEnvioCalculado.toFixed(2)} MXN`;
+    document.getElementById('lblTotal').innerText = `$${total.toFixed(2)} MXN`;
   }
+
+  // --- 3. ENVÍO DEL PEDIDO A WHATSAPP ---
 
   function enviarPedidoWhatsApp(e) {
     e.preventDefault();
 
-    const nombre = document.getElementById("clienteNombre").value.trim();
-    const tipoEntrega = document.getElementById("tipoEntrega").value;
-    const direccion = document.getElementById("clienteDireccion").value.trim();
-    const metodoPago = document.getElementById("metodoPago").value;
-    const notas = document.getElementById("clienteNotas").value.trim();
+    const nombre = document.getElementById('clienteNombre').value.trim();
+    const telefono = document.getElementById('clienteTelefono').value.trim();
+    const direccion = document.getElementById('clienteDireccion').value.trim();
+    const notas = document.getElementById('clienteNotas').value.trim();
+    const total = subtotalProductos + costoEnvioCalculado;
 
-    // Construcción del mensaje con Unicode codificado explícitamente
-    let mensaje = `*¡Hola! Quisiera realizar un nuevo pedido en ${orderData.restauranteNombre}:*\n\n`;
-    
-    mensaje += `\u{1F464} *Cliente:* ${nombre}\n`;
-    mensaje += `\u{1F6FA} *Tipo:* ${tipoEntrega}\n`;
-    
-    if (tipoEntrega === "Domicilio") {
-      mensaje += `\u{1F40D} *Dirección:* ${direccion}\n`;
+    if (carritoItems.length === 0) {
+      alert("Tu carrito está vacío.");
+      return;
     }
 
-    mensaje += `\u{1F4B3} *Pago:* ${metodoPago}\n`;
+    // Construir desglose en texto para WhatsApp
+    let mensaje = `*¡Nuevo Pedido - Platt!* 🍔\n\n`;
+    mensaje += `*Cliente:* ${nombre}\n`;
+    mensaje += `*Teléfono:* ${telefono}\n`;
+    mensaje += `*Dirección:* ${direccion}\n`;
+    if (notas) mensaje += `*Notas:* ${notas}\n`;
+    mensaje += `\n*--- Detalle del Pedido ---*\n`;
 
-    if (notas) {
-      mensaje += `\u{1F4DD} *Notas:* ${notas}\n`;
-    }
-
-    mensaje += `\n-------------------------------\n`;
-    mensaje += `\u{1F6D2} *Detalle del Pedido:*\n`;
-
-    let total = 0;
-    orderData.items.forEach(item => {
-      const subtotal = item.price * item.qty;
-      total += subtotal;
-      mensaje += `• ${item.qty}x ${item.name} - $${subtotal.toFixed(2)} MXN\n`;
+    carritoItems.forEach(item => {
+      mensaje += `• ${item.cantidad}x ${item.nombre} - $${(item.precio * item.cantidad).toFixed(2)} MXN\n`;
     });
 
-    mensaje += `-------------------------------\n`;
-    mensaje += `\u{1F4B0} *TOTAL:* $${total.toFixed(2)} MXN\n\n`;
+    mensaje += `\n*Subtotal:* $${subtotalProductos.toFixed(2)} MXN\n`;
+    mensaje += `*Envío:* $${costoEnvioCalculado.toFixed(2)} MXN\n`;
+    mensaje += `*TOTAL A PAGAR:* $${total.toFixed(2)} MXN\n`;
 
-    if (metodoPago === "Transferencia" && orderData.clabe) {
-      mensaje += `_Adjuntaré el comprobante de transferencia a este chat._\n`;
-    }
-
-    mensaje += `_Enviado desde Platt Menú Digital_`;
-
-    const whatsappUrl = `https://wa.me/${orderData.whatsappPhone}?text=${encodeURIComponent(mensaje)}`;
-    
-    localStorage.removeItem("platt_current_order");
-    window.open(whatsappUrl, "_blank");
+    const url = `https://wa.me/${negocioWhatsapp}?text=${encodeURIComponent(mensaje)}`;
+    window.open(url, '_blank');
   }
 </script>
 
