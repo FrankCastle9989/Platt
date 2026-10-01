@@ -10,14 +10,17 @@
   <meta name="robots" content="index, follow">
   <link rel="canonical" href="https://tudominio.com/nosotros.html">
 
-  <!-- Open Graph para Redes Sociales (WhatsApp, Facebook, LinkedIn) -->
+  <!-- Estilos del Nav Bar Global -->
+  <link rel="stylesheet" href="navbar.css">
+
+  <!-- Open Graph para Redes Sociales -->
   <meta property="og:title" content="Platt - Menú Digital y Red de Repartidores">
   <meta property="og:description" content="Digitaliza tu restaurante o únete como repartidor independiente por solo $99 MXN/mes. Recibe acceso anticipado.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://tudominio.com/nosotros.html">
   <meta property="og:image" content="https://tudominio.com/assets/og-image.jpg">
 
-  <!-- Datos Estructurados JSON-LD para Google (Schema.org) -->
+  <!-- Datos Estructurados JSON-LD -->
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -48,12 +51,6 @@
 
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
     body { background-color: var(--light-bg); color: var(--dark); line-height: 1.6; }
-
-    /* Header */
-    header { background: #fff; border-bottom: 1px solid var(--border-color); padding: 15px 20px; position: sticky; top: 0; z-index: 100; display: flex; justify-content: space-between; align-items: center; }
-    .logo { font-size: 1.8rem; font-weight: 800; color: var(--primary); text-decoration: none; }
-    .nav-btn { background: var(--primary); color: white; padding: 8px 16px; border-radius: 20px; text-decoration: none; font-weight: bold; font-size: 0.9rem; transition: background 0.2s; }
-    .nav-btn:hover { background: var(--primary-dark); }
 
     /* Hero Section */
     .hero { text-align: center; padding: 60px 20px 40px; max-width: 850px; margin: 0 auto; }
@@ -100,7 +97,7 @@
 
     footer { text-align: center; padding: 25px; color: var(--gray-text); font-size: 0.85rem; border-top: 1px solid var(--border-color); background: #fff; }
 
-/* Selector de pestañas por usuario */
+    /* Selector de pestañas por usuario */
     .user-type-selector {
       display: flex;
       justify-content: center;
@@ -153,10 +150,8 @@
 </head>
 <body>
 
-  <!-- Encabezado Semántico -->
-<header class="main-navbar">
+  <!-- Contenedor Único donde se Inyecta la Barra de Navegación -->
   <div id="navbar-container"></div>
-</header>
 
   <main>
     <!-- Hero / Sección Principal -->
@@ -187,8 +182,7 @@
       </article>
     </section>
 
-    <!-- Planes de Suscripción ($99 MXN) -->
-<!-- Sección de Pricing y Beneficios por Usuario -->
+    <!-- Sección de Pricing y Beneficios por Usuario -->
     <section class="pricing-section">
       <div class="pricing-title">
         <h2>Planes y Beneficios a tu Medida</h2>
@@ -338,6 +332,9 @@
     <p>&copy; 2026 Platt Menú Digital. Todos los derechos reservados.</p>
   </footer>
 
+  <!-- Script que Carga la Barra de Navegación Global -->
+  <script src="navbar.js"></script>
+
   <script>
     function seleccionarPlan(rol) {
       const select = document.getElementById("tipoUsuario");
@@ -355,18 +352,14 @@
       alert(`¡Gracias ${nombre}! Hemos registrado tu interés como ${rol}. Te enviaremos un mensaje por WhatsApp al número ${telefono} cuando abramos inscripciones.`);
       document.getElementById("registroForm").reset();
     }
-function switchUserType(type, btnElement) {
-      // Remover clase 'active' de todos los botones
+
+    function switchUserType(type, btnElement) {
       document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-      
-      // Ocultar todos los grupos de precios
       document.querySelectorAll('.pricing-group').forEach(group => group.classList.remove('active'));
 
-      // Activar el botón presionado y mostrar el grupo correspondiente
       btnElement.classList.add('active');
       document.getElementById(`pricing-${type}`).classList.add('active');
     }
-
   </script>
 </body>
 </html>
