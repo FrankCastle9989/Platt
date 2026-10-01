@@ -29,10 +29,13 @@
       background-color: var(--bg-color); 
       color: var(--text-color); 
       min-height: 100vh;
+      display: flex;
+      flex-direction: column;
     }
 
     /* Envoltorio para centrar el formulario debajo del menú */
     .page-wrapper {
+      flex: 1;
       display: flex;
       justify-content: center;
       align-items: center;
@@ -110,10 +113,39 @@
     .form-group label { display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 5px; }
     .form-group input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 0.95rem; }
 
+    .input-geo-group {
+      display: flex;
+      gap: 8px;
+    }
+
+    .btn-geo {
+      background-color: #fff3e0;
+      color: var(--primary-color);
+      border: 1px solid var(--primary-color);
+      padding: 10px 12px;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      font-weight: bold;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background 0.2s;
+    }
+
+    .btn-geo:hover {
+      background-color: #ffe0b2;
+    }
+
     .btn-group { display: flex; gap: 10px; margin-top: 20px; }
     .btn { flex: 1; padding: 12px; border-radius: 6px; font-weight: bold; cursor: pointer; border: none; font-size: 0.95rem; }
     .btn-primary { background-color: var(--primary-color); color: white; }
     .btn-secondary { background-color: var(--gray-light); color: #333; }
+
+    .info-geo {
+      font-size: 0.75rem;
+      color: #666;
+      margin-top: 4px;
+      display: block;
+    }
   </style>
 </head>
 <body>
@@ -133,16 +165,28 @@
     </div>
 
     <form id="formRegistro">
-      <!-- PASO 1: Datos Generales -->
+      <!-- PASO 1: Datos Generales y Ubicación -->
       <div class="form-step active" id="step-1">
         <div class="form-group">
           <label for="nombre">Nombre del Restaurante *</label>
           <input type="text" id="nombre" placeholder="Ej. Taquería El Paisa" required>
         </div>
+
         <div class="form-group">
-          <label for="direccion">Dirección o Ciudad *</label>
-          <input type="text" id="direccion" placeholder="Ej. Av. Hidalgo #123, Monterrey" required>
+          <label for="direccion">Dirección Física del Local *</label>
+          <div class="input-geo-group">
+            <input type="text" id="direccion" placeholder="Ej. Av. Hidalgo #123, Monterrey" required>
+            <button type="button" id="btnGeoNegocio" class="btn-geo" onclick="obtenerUbicacionNegocio()">
+              📍 Mi ubicación actual
+            </button>
+          </div>
+          <small id="geoStatus" class="info-geo">Presiona el botón mientras estés en el negocio para guardar las coordenadas exactas de envío.</small>
+          
+          <!-- Campos Ocultos para Guardar Coordenadas -->
+          <input type="hidden" id="latitud">
+          <input type="hidden" id="longitud">
         </div>
+
         <div class="btn-group">
           <button type="button" class="btn btn-primary" onclick="nextStep(2)">Siguiente ➔</button>
         </div>
@@ -163,7 +207,7 @@
         </div>
       </div>
 
-      <!-- PASO 3: Cuenta de Acceso (Email y Password) -->
+      <!-- PASO 3: Cuenta de Acceso -->
       <div class="form-step" id="step-3">
         <div class="form-group">
           <label for="email">Correo Electrónico de Acceso *</label>
@@ -191,6 +235,46 @@
   const SUPABASE_URL = "https://dfunaefzrkjodyawjflw.supabase.co";
   const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRmdW5hZWZ6cmtqb2R5YXdqZmx3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk5NTM0MjIsImV4cCI6MjEwNTUyOTQyMn0.9WfEPYPyUKxvxMp1YHrdJ0F2VhuwnZpFqJb0v3dnax0";
   const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  // Función para obtener la ubicación GPS del negocio
+  function obtenerUbicacionNegocio() {
+    const btn = document.getElementById('btnGeoNegocio');
+    const statusText = document.getElementById('geoStatus');
+
+    if (!navigator.geolocation) {
+      alert("Tu navegador no soporta geolocalización.");
+      return;
+    }
+
+    btn.disabled = true;
+    btn.innerText = "⏳ Capturando...";
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const lat = position.coords.latitude;
+        const lon = position.coords.longitude;
+
+        document.getElementById('latitud').value = lat;
+        document.getElementById('longitud').value = lon;
+
+        statusText.innerText = `✅ Coordenadas capturadas correctamente (${lat.toFixed(4)}, ${lon.toFixed(4)})`;
+        statusText.style.color = "#2e7d32"; // Verde
+
+        btn.disabled = false;
+        btn.innerText = "📍 Ubicación Capturada";
+      },
+      (error) => {
+        console.error("Error al obtener la ubicación:", error);
+        alert("No se pudo obtener la ubicación GPS. Puedes continuar ingresando la dirección manualmente.");
+        statusText.innerText = "⚠️ No se obtuvieron coordenadas GPS. Puedes continuar manualmente.";
+        statusText.style.color = "#d32f2f"; // Rojo
+
+        btn.disabled = false;
+        btn.innerText = "📍 Mi ubicación actual";
+      },
+      { enableHighAccuracy: true, timeout: 10000 }
+    );
+  }
 
   function nextStep(step) {
     if (step === 2 && !document.getElementById('nombre').value.trim()) {
@@ -220,6 +304,8 @@
 
     const nombre = document.getElementById('nombre').value.trim();
     const direccion = document.getElementById('direccion').value.trim();
+    const latitud = document.getElementById('latitud').value ? parseFloat(document.getElementById('latitud').value) : null;
+    const longitud = document.getElementById('longitud').value ? parseFloat(document.getElementById('longitud').value) : null;
     const numWhatsapp = document.getElementById('whatsapp').value.trim();
     const email = document.getElementById('email').value.trim();
     const password = document.getElementById('password').value.trim();
@@ -236,7 +322,7 @@
       const newUser = authData.user;
       if (!newUser) throw new Error("No se pudo crear el usuario.");
 
-      // 2. Vincular el negocio con el user_id recién creado
+      // 2. Vincular el negocio con las coordenadas en la tabla 'restaurantes'
       const { data: restData, error: restError } = await _supabase
         .from('restaurantes')
         .insert([
@@ -244,6 +330,8 @@
             user_id: newUser.id,
             nombre: nombre,
             direccion: direccion,
+            latitud: latitud,
+            longitud: longitud,
             whatsapp: numWhatsapp
           }
         ])
