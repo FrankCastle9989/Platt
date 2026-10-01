@@ -307,7 +307,20 @@
       <p id="restAddress">Obteniendo dirección...</p>
     </div>
     <div class="user-actions">
-      <button class="btn-logout" onclick="handleLogout()">Cerrar Sesión</button>
+
+    
+        <button class="dropdown-btn" onclick="toggleDropdown(event)">
+          Menú <span class="arrow">▾</span>
+        </button>
+        <div class="dropdown-content" id="restaurantDropdown">
+          <a href="nosotros.html">👥 Nosotros</a>
+          <a href="login.html">🔑 Iniciar Sesión</a>
+          <a href="nosotros.html#pricing-restaurante">💳 Ver Planes y Precios</a>
+          <a href="registro-restaurante.html">🚀 Registrar mi Negocio</a>
+          <a href="index.html">🏠 Regresar al Inicio</a>
+        </div>
+    
+      <!-- <button class="btn-logout" onclick="handleLogout()">Cerrar Sesión</button> -->
     </div>
   </div>
 
