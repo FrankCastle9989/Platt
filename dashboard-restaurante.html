@@ -180,7 +180,7 @@
       background-color: var(--primary-hover);
     }
 
-    /* Lista de Platillos Mejorada */
+    /* Lista de Platillos */
     .platillos-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
@@ -296,7 +296,7 @@
   <!-- Pestañas para Limpieza Visual -->
   <div class="tabs-container">
     <button class="tab-btn active" onclick="switchTab('tab-menu')">🍕 Gestión del Menú</button>
-    <button class="tab-btn" onclick="switchTab('tab-perfil')">⚙️ Perfil y Ubicación</button>
+    <button class="tab-btn" onclick="switchTab('tab-perfil')">⚙️️ Perfil y Ubicación</button>
     <button class="tab-btn" onclick="switchTab('tab-qr')">📱 Código QR</button>
   </div>
 
@@ -370,7 +370,20 @@
           <input type="hidden" id="dashLongitud">
         </div>
 
-        <button type="submit" id="btnGuardarPerfil" class="btn-primary" style="margin-top: 10px;">💾 Guardar Cambios</button>
+        <!-- Campos Bancarios Recuperados -->
+        <h2 style="margin-top: 25px; margin-bottom: 15px;">🏦 Datos Bancarios para Depósitos</h2>
+
+        <div class="form-group">
+          <label for="dashBanco">Banco / Institución Financiera</label>
+          <input type="text" id="dashBanco" placeholder="Ej. BBVA, Banorte, Nu, Santander">
+        </div>
+
+        <div class="form-group">
+          <label for="dashClabe">CLABE Interbancaria (18 dígitos)</label>
+          <input type="text" id="dashClabe" maxlength="18" placeholder="Ej. 012180000000000000">
+        </div>
+
+        <button type="submit" id="btnGuardarPerfil" class="btn-primary" style="margin-top: 15px;">💾 Guardar Cambios de Perfil</button>
       </form>
     </div>
   </div>
@@ -437,7 +450,7 @@
       reader.onload = function(e) {
         preview.src = e.target.result;
         preview.style.display = 'block';
-        imagenBase64 = e.target.result; // Guardar imagen en base64
+        imagenBase64 = e.target.result;
       };
       reader.readAsDataURL(file);
     } else {
@@ -484,14 +497,14 @@
     );
   }
 
-  // CARGAR PERFIL
+  // CARGAR PERFIL COMPLETO (INCLUYE BANCO Y CLABE)
   async function cargarPerfilRestaurante() {
     if (!restauranteId) return;
 
     try {
       const { data, error } = await _supabase
         .from('restaurantes')
-        .select('nombre, direccion, latitud, longitud, whatsapp')
+        .select('nombre, direccion, latitud, longitud, whatsapp, banco, clabe')
         .eq('id', restauranteId)
         .single();
 
@@ -502,6 +515,10 @@
         document.getElementById('dashNombre').value = data.nombre || '';
         document.getElementById('dashWhatsapp').value = data.whatsapp || '';
         document.getElementById('dashDireccion').value = data.direccion || '';
+        
+        // Rellenar Banco y CLABE
+        document.getElementById('dashBanco').value = data.banco || '';
+        document.getElementById('dashClabe').value = data.clabe || '';
 
         if (data.latitud && data.longitud) {
           document.getElementById('dashLatitud').value = data.latitud;
@@ -517,7 +534,7 @@
     }
   }
 
-  // GUARDAR PERFIL
+  // GUARDAR PERFIL COMPLETO (INCLUYE BANCO Y CLABE)
   async function guardarPerfilRestaurante(e) {
     e.preventDefault();
 
@@ -527,6 +544,9 @@
     const nombre = document.getElementById('dashNombre').value.trim();
     const direccion = document.getElementById('dashDireccion').value.trim();
     const whatsapp = document.getElementById('dashWhatsapp').value.trim();
+    const banco = document.getElementById('dashBanco').value.trim();
+    const clabe = document.getElementById('dashClabe').value.trim();
+    
     const latitudRaw = document.getElementById('dashLatitud').value;
     const longitudRaw = document.getElementById('dashLongitud').value;
 
@@ -537,6 +557,8 @@
           nombre: nombre,
           direccion: direccion,
           whatsapp: whatsapp,
+          banco: banco,
+          clabe: clabe,
           latitud: latitudRaw ? parseFloat(latitudRaw) : null,
           longitud: longitudRaw ? parseFloat(longitudRaw) : null
         })
@@ -545,8 +567,8 @@
       if (error) throw error;
 
       document.getElementById('lblNombreRestaurante').innerText = nombre;
-      alert("¡Perfil actualizado con éxito!");
-      generarCodigoQR(); // Actualizar enlace QR si cambió algo
+      alert("¡Perfil y datos bancarios actualizados con éxito!");
+      generarCodigoQR();
     } catch (err) {
       alert("Error al actualizar perfil: " + err.message);
     } finally {
@@ -612,7 +634,7 @@
             nombre: nombre,
             precio: precio,
             descripcion: descripcion,
-            imagen_url: imagenBase64 // Guarda la foto cargada
+            imagen_url: imagenBase64
           }
         ]);
 
@@ -647,7 +669,6 @@
     const qrDiv = document.getElementById("qrcode");
     qrDiv.innerHTML = "";
 
-    // Construir la URL pública del menú del restaurante
     const baseUrl = window.location.origin + window.location.pathname.replace("dashboard-restaurante.html", "index.html");
     const menuUrl = `${baseUrl}?id=${restauranteId}`;
 
