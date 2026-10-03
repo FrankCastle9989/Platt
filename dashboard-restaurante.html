@@ -3,11 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Platt - Dashboard del Restaurante</title>
+  <title>Platt - Dashboard Restaurante</title>
+
+  <!-- Hoja de estilos del Navbar Global -->
+  <link rel="stylesheet" href="navbar.css">
+
   <!-- CDN Oficial de Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <!-- CDN para generación de Código QR -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
   <style>
     :root {
       --primary-color: #ff5722;
@@ -16,518 +19,357 @@
       --card-bg: #ffffff;
       --text-color: #333333;
       --gray-light: #e0e0e0;
+      --danger-color: #d32f2f;
       --success-color: #2e7d32;
-      --danger-color: #c62828;
     }
 
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     }
 
     body {
       background-color: var(--bg-color);
       color: var(--text-color);
-      padding: 15px;
+      min-height: 100vh;
       display: flex;
-      justify-content: center;
+      flex-direction: column;
     }
 
-    .dashboard-container {
+    .page-wrapper {
+      flex: 1;
+      max-width: 1000px;
       width: 100%;
-      max-width: 650px;
-      background: var(--card-bg);
-      border-radius: 12px;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-      padding: 20px;
+      margin: 0 auto;
+      padding: 30px 20px;
     }
 
     .dashboard-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border-bottom: 2px solid var(--gray-light);
-      padding-bottom: 15px;
-      margin-bottom: 20px;
+      margin-bottom: 25px;
     }
 
-    .restaurant-info h2 {
+    .dashboard-header h1 {
       color: var(--primary-color);
-      font-size: 1.4rem;
+      font-size: 1.8rem;
     }
 
-    .restaurant-info p {
-      font-size: 0.85rem;
-      color: #666;
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 25px;
     }
 
-    .user-actions {
-      display: flex;
-      align-items: center;
-      gap: 10px;
+    @media (max-width: 768px) {
+      .dashboard-grid {
+        grid-template-columns: 1fr;
+      }
     }
 
-    .btn-logout {
-      background-color: #fff;
-      color: var(--danger-color);
-      border: 1px solid var(--danger-color);
-      padding: 6px 12px;
-      border-radius: 6px;
-      font-size: 0.85rem;
-      font-weight: bold;
-      cursor: pointer;
-      transition: all 0.2s;
+    .card {
+      background: var(--card-bg);
+      border-radius: 12px;
+      padding: 25px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.06);
     }
 
-    .btn-logout:hover {
-      background-color: var(--danger-color);
-      color: #fff;
+    .card h2 {
+      font-size: 1.2rem;
+      margin-bottom: 18px;
+      color: var(--text-color);
+      border-bottom: 2px solid var(--bg-color);
+      padding-bottom: 8px;
     }
 
-    /* Navegación por Pestañas */
-    .tabs-nav {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 20px;
-      border-bottom: 1px solid var(--gray-light);
-      overflow-x: auto;
-    }
-
-    .tab-btn {
-      padding: 10px 15px;
-      border: none;
-      background: none;
-      font-weight: bold;
-      color: #666;
-      cursor: pointer;
-      border-bottom: 3px solid transparent;
-      white-space: nowrap;
-    }
-
-    .tab-btn.active {
-      color: var(--primary-color);
-      border-bottom-color: var(--primary-color);
-    }
-
-    .tab-content {
-      display: none;
-    }
-
-    .tab-content.active {
-      display: block;
-    }
-
-    .section-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 15px;
-    }
-
-    .btn-add {
-      background-color: var(--primary-color);
-      color: white;
-      border: none;
-      padding: 8px 14px;
-      border-radius: 6px;
-      font-weight: bold;
-      cursor: pointer;
-    }
-
-    /* Lista de Platillos */
-    .dish-item {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 12px;
-      border: 1px solid var(--gray-light);
-      border-radius: 8px;
-      margin-bottom: 10px;
-      background: #fafafa;
-    }
-
-    .dish-details {
-      flex: 1;
-      margin-left: 10px;
-    }
-
-    .dish-title {
-      font-size: 1rem;
-      font-weight: bold;
-    }
-
-    .dish-desc {
-      font-size: 0.8rem;
-      color: #666;
-    }
-
-    .dish-price {
-      font-weight: bold;
-      color: var(--primary-color);
-      font-size: 0.9rem;
-    }
-
-    .dish-actions {
-      display: flex;
-      align-items: center;
-      gap: 15px;
-    }
-
-    /* Switch Disponible */
-    .switch-container {
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      font-size: 0.75rem;
-    }
-
-    .switch {
-      position: relative;
-      display: inline-block;
-      width: 36px;
-      height: 20px;
-    }
-
-    .switch input {
-      opacity: 0;
-      width: 0;
-      height: 0;
-    }
-
-    .slider {
-      position: absolute;
-      cursor: pointer;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background-color: #ccc;
-      transition: .3s;
-      border-radius: 20px;
-    }
-
-    .slider:before {
-      position: absolute;
-      content: "";
-      height: 14px;
-      width: 14px;
-      left: 3px;
-      bottom: 3px;
-      background-color: white;
-      transition: .3s;
-      border-radius: 50%;
-    }
-
-    input:checked + .slider {
-      background-color: var(--success-color);
-    }
-
-    input:checked + .slider:before {
-      transform: translateX(16px);
-    }
-
-    .btn-icon {
-      background: none;
-      border: 1px solid var(--gray-light);
-      padding: 5px 8px;
-      border-radius: 5px;
-      cursor: pointer;
-      font-size: 0.85rem;
-    }
-
-    /* Form Grupos Modal y Secciones */
     .form-group {
-      margin-bottom: 12px;
+      margin-bottom: 15px;
     }
 
     .form-group label {
       display: block;
-      font-size: 0.8rem;
+      font-size: 0.85rem;
       font-weight: bold;
-      margin-bottom: 4px;
+      margin-bottom: 5px;
     }
 
     .form-group input, .form-group textarea, .form-group select {
       width: 100%;
-      padding: 8px;
-      border: 1px solid #ccc;
+      padding: 10px;
+      border: 1px solid var(--gray-light);
       border-radius: 6px;
+      font-size: 0.95rem;
+      outline: none;
     }
 
-    /* Modal Overlay */
-    .modal-overlay {
-      display: none;
-      position: fixed;
-      top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0,0,0,0.5);
-      z-index: 1000;
-      justify-content: center;
-      align-items: center;
-      padding: 15px;
+    .form-group input:focus, .form-group textarea:focus {
+      border-color: var(--primary-color);
     }
 
-    .modal-overlay.active {
-      display: flex;
+    .btn-geo {
+      background-color: #fff3e0;
+      color: var(--primary-color);
+      border: 1px solid var(--primary-color);
+      padding: 10px 12px;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      font-weight: bold;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background 0.2s;
     }
 
-    .modal-card {
-      background: #fff;
+    .btn-geo:hover {
+      background-color: #ffe0b2;
+    }
+
+    .btn-primary {
       width: 100%;
-      max-width: 450px;
-      border-radius: 12px;
-      padding: 20px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+      background-color: var(--primary-color);
+      color: white;
+      border: none;
+      padding: 12px;
+      border-radius: 6px;
+      font-size: 0.95rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.2s;
     }
 
-    .modal-header {
+    .btn-primary:hover {
+      background-color: var(--primary-hover);
+    }
+
+    /* Lista de Platillos */
+    .platillos-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 15px;
+      max-height: 400px;
+      overflow-y: auto;
+    }
+
+    .platillo-item {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 15px;
+      padding: 12px;
+      background: #fafafa;
+      border: 1px solid var(--gray-light);
+      border-radius: 8px;
     }
 
-    .modal-close {
-      background: none;
+    .platillo-info h4 {
+      font-size: 0.95rem;
+      color: var(--text-color);
+    }
+
+    .platillo-info p {
+      font-size: 0.8rem;
+      color: #666;
+    }
+
+    .platillo-precio {
+      font-weight: bold;
+      color: var(--primary-color);
+      font-size: 0.95rem;
+    }
+
+    .btn-delete {
+      background: transparent;
+      color: var(--danger-color);
       border: none;
-      font-size: 1.2rem;
+      font-size: 1.1rem;
       cursor: pointer;
+      margin-left: 10px;
+      padding: 4px 8px;
+    }
+
+    .info-geo {
+      font-size: 0.75rem;
+      color: #666;
+      margin-top: 4px;
+      display: block;
     }
   </style>
 </head>
 <body>
 
-<header class="main-navbar">
-  <div id="navbar-container"></div>
-</header>
+<!-- Contenedor del Navbar Modular -->
+<div id="navbar-container"></div>
 
-  <div class="dashboard-container">
-    
+<div class="page-wrapper">
   <div class="dashboard-header">
-    <div class="restaurant-info">
-      <h2 id="restName">Cargando Restaurante...</h2>
-      <p id="restAddress">Obteniendo dirección...</p>
-    </div>
-    <div class="user-actions">
-
-
-      <button class="btn-logout" onclick="handleLogout()">Cerrar Sesión</button>
-    </div>
+    <h1 id="lblNombreRestaurante">Cargando Administrador...</h1>
+    <p style="color: #666; font-size: 0.9rem;">Gestiona la información de tu negocio, ubicación y menú digital.</p>
   </div>
 
-  <!-- PESTAÑAS INTEGRADAS -->
-  <div class="tabs-nav">
-    <button class="tab-btn active" onclick="switchTab('menu')">Menú y Platillos</button>
-    <button class="tab-btn" onclick="switchTab('config')">⚙️ Configuración y Banco</button>
-    <button class="tab-btn" onclick="switchTab('qr')"> Código QR y Enlace</button>
-  </div>
-
-  <!-- PESTAÑA 1: GESTIÓN DE MENÚ -->
-  <div class="tab-content active" id="tab-menu">
-    <div class="section-header">
-      <h3>Platillos (<span id="countDishes">0</span>)</h3>
-      <button class="btn-add" onclick="openDishModal('add')">+ Agregar Platillo</button>
-    </div>
-
-    <div id="dishesList">
-      <p style="text-align: center; color: #888; margin-top: 20px;">Cargando platillos de Supabase...</p>
-    </div>
-  </div>
-
-  <!-- PESTAÑA 2: CONFIGURACIÓN Y BANCO -->
-  <div class="tab-content" id="tab-config">
-    <div style="background: #fafafa; padding: 20px; border-radius: 12px; border: 1px solid var(--gray-light);">
-      <form id="formPerfilRestaurante" onsubmit="guardarPerfilRestaurante(event)">
-        <h4 style="font-size: 0.95rem; color: var(--primary-color); margin-bottom: 12px;">Datos Generales del Negocio</h4>
-        
+  <div class="dashboard-grid">
+    <!-- COLUMNA 1: Configuración de Perfil y Dirección -->
+    <div class="card">
+      <h2>⚙️ Datos del Restaurante</h2>
+      <form id="formPerfil" onsubmit="guardarPerfilRestaurante(event)">
         <div class="form-group">
-          <label for="editNombre">Nombre del Restaurante *</label>
-          <input type="text" id="editNombre" required>
+          <label for="dashNombre">Nombre del Restaurante *</label>
+          <input type="text" id="dashNombre" required placeholder="Ej. Taquería El Paisa">
         </div>
 
         <div class="form-group">
-          <label for="editDireccion">Dirección *</label>
-          <input type="text" id="editDireccion" required>
+          <label for="dashWhatsapp">WhatsApp de Pedidos *</label>
+          <input type="tel" id="dashWhatsapp" required placeholder="10 dígitos (Ej. 8112345678)">
         </div>
 
         <div class="form-group">
-          <label for="editWhatsapp">WhatsApp para Pedidos (10 dígitos) *</label>
-          <input type="tel" id="editWhatsapp" placeholder="Ej. 8112345678" required>
+          <label for="dashDireccion">Dirección Física del Local *</label>
+          <div style="display: flex; gap: 8px;">
+            <input type="text" id="dashDireccion" placeholder="Ej. Av. Hidalgo #123, Monterrey" required style="flex: 1;">
+            <button type="button" id="btnGeoDash" onclick="obtenerUbicacionDashboard()" class="btn-geo">
+              📍 Usar mi ubicación
+            </button>
+          </div>
+          <small id="dashGeoStatus" class="info-geo">
+            Actualiza tu ubicación GPS para que el cálculo automático de envío sea exacto.
+          </small>
+
+          <!-- Campos Ocultos de Coordenadas -->
+          <input type="hidden" id="dashLatitud">
+          <input type="hidden" id="dashLongitud">
         </div>
 
-        <hr style="margin: 20px 0; border: none; border-top: 1px solid var(--gray-light);">
-
-        <h4 style="font-size: 0.95rem; color: var(--primary-color); margin-bottom: 12px;">Datos Bancarios (Para Transferencias)</h4>
-        
-        <div class="form-group">
-          <label for="editBanco">Banco</label>
-          <select id="editBanco">
-            <option value="">-- Selecciona un banco --</option>
-            <option value="BBVA">BBVA</option>
-            <option value="Banorte">Banorte</option>
-            <option value="Santander">Santander</option>
-            <option value="Citibanamex">Citibanamex</option>
-            <option value="HSBC">HSBC</option>
-            <option value="Scotiabank">Scotiabank</option>
-            <option value="Mercado Pago">Mercado Pago</option>
-            <option value="STP">STP</option>
-            <option value="Otro">Otro</option>
-          </select>
-        </div>
-
-        <div class="form-group">
-          <label for="editClabe">CLABE Interbancaria (18 dígitos)</label>
-          <input type="text" id="editClabe" maxlength="18" placeholder="Ej. 012180000000000000">
-        </div>
-
-        <button type="submit" id="btnGuardarPerfil" class="btn-add" style="width: 100%; padding: 12px; margin-top: 15px; font-size: 1rem;">
-          💾 Guardar Configuración
-        </button>
+        <button type="submit" id="btnGuardarPerfil" class="btn-primary" style="margin-top: 10px;">💾 Guardar Cambios de Perfil</button>
       </form>
     </div>
-  </div>
 
-  <!-- PESTAÑA 3: CÓDIGO QR -->
-  <div class="tab-content" id="tab-qr">
-    <div style="text-align: center; padding: 20px; background: #fafafa; border-radius: 12px; border: 1px solid var(--gray-light);">
-      <h3>Tu Código QR de Menú Digital</h3>
-      <p style="font-size: 0.85rem; color: #666; margin: 8px 0 20px;">
-        Descarga e imprime este código para colocarlo en las mesas o mostrador de tu negocio.
-      </p>
-      
-      <div id="qrcode" style="display: flex; justify-content: center; margin-bottom: 20px;"></div>
-      
-      <div class="form-group" style="max-width: 400px; margin: 0 auto 15px;">
-        <label>Enlace Directo a tu Menú:</label>
-        <input type="text" id="menuUrlInput" readonly style="text-align: center; font-weight: bold; background: #fff;">
-      </div>
+    <!-- COLUMNA 2: Agregar y Gestionar Menú -->
+    <div class="card">
+      <h2>🍕 Agregar Nuevo Platillo</h2>
+      <form id="formPlatillo" onsubmit="agregarPlatillo(event)">
+        <div class="form-group">
+          <label for="platilloNombre">Nombre del Platillo *</label>
+          <input type="text" id="platilloNombre" placeholder="Ej. Tacos al Pastor (Orden de 5)" required>
+        </div>
 
-      <div style="display: flex; gap: 10px; justify-content: center; max-width: 400px; margin: 0 auto;">
-        <button class="btn-add" onclick="copyMenuLink()">📋 Copiar Link</button>
-        <button class="btn-add" style="background-color: #333;" onclick="window.print()">🖨️ Imprimir QR</button>
+        <div class="form-group">
+          <label for="platilloPrecio">Precio ($ MXN) *</label>
+          <input type="number" step="0.5" id="platilloPrecio" placeholder="Ej. 85.00" required>
+        </div>
+
+        <div class="form-group">
+          <label for="platilloDescripcion">Descripción / Ingredientes</label>
+          <textarea id="platilloDescripcion" rows="2" placeholder="Ej. Incluye piña, cilantro, cebolla y salsas"></textarea>
+        </div>
+
+        <button type="submit" id="btnAgregarPlatillo" class="btn-primary">➕ Guardar Platillo</button>
+      </form>
+
+      <h2 style="margin-top: 25px;">📋 Menú Actual</h2>
+      <div class="platillos-list" id="listaPlatillos">
+        <p style="text-align: center; color: #888; font-size: 0.85rem;">Cargando platillos...</p>
       </div>
     </div>
   </div>
-
 </div>
 
-<!-- MODAL PARA PLATILLOS -->
-<div class="modal-overlay" id="dishModal">
-  <div class="modal-card">
-    <div class="modal-header">
-      <h3 id="modalTitle">Agregar Nuevo Platillo</h3>
-      <button class="modal-close" onclick="closeDishModal()">✕</button>
-    </div>
-
-    <form id="dishForm" onsubmit="saveDish(event)">
-      <input type="hidden" id="editDishId">
-
-      <div class="form-group">
-        <label for="modalDishName">Nombre del Platillo *</label>
-        <input type="text" id="modalDishName" placeholder="Ej. Torta Ahogada" required>
-      </div>
-
-      <div class="form-group">
-        <label for="modalDishImage">Fotografía del Platillo (Opcional)</label>
-        <input type="file" id="modalDishImage" accept="image/*" style="padding: 8px; border: 1px dashed var(--primary-color); border-radius: 6px; width: 100%;">
-        <small style="color: #666; font-size: 0.75rem;">Formatos recomendados: JPG, PNG o WEBP.</small>
-      </div>
-
-      <div class="form-group">
-        <label for="modalDishPrice">Precio ($ MXN) *</label>
-        <input type="number" id="modalDishPrice" step="0.5" placeholder="85.00" required>
-      </div>
-
-      <div class="form-group">
-        <label for="modalDishCategory">Categoría *</label>
-        <select id="modalDishCategory" required>
-          <option value="">Selecciona una categoría...</option>
-          <option value="Tacos">Tacos</option>
-          <option value="Hamburguesas">Hamburguesas</option>
-          <option value="Tortas y Lonches">Tortas y Lonches</option>
-          <option value="Pizzas">Pizzas</option>
-          <option value="Sushi y Asiática">Sushi y Asiática</option>
-          <option value="Entradas y Botanas">Entradas y Botanas</option>
-          <option value="Bebidas">Bebidas</option>
-          <option value="Postres">Postres</option>
-          <option value="Otros">Otros</option>
-        </select>
-      </div>
-
-      <div class="form-group">
-        <label for="modalDishDesc">Descripción Corta</label>
-        <textarea id="modalDishDesc" rows="2" placeholder="Ingredientes o detalles del platillo"></textarea>
-      </div>
-
-      <div style="display: flex; gap: 10px; margin-top: 20px;">
-        <button type="button" class="btn-icon" style="flex: 1; padding: 10px;" onclick="closeDishModal()">Cancelar</button>
-        <button type="submit" id="modalSaveBtn" class="btn-add" style="flex: 1; padding: 10px;">Guardar Platillo</button>
-      </div>
-    </form>
-  </div>
-</div>
+<!-- Script del Navbar Global -->
+<script src="navbar.js"></script>
 
 <script>
-  // Conexión con Supabase
+  // Inicialización de Supabase
   const SUPABASE_URL = "https://dfunaefzrkjodyawjflw.supabase.co";
   const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRmdW5hZWZ6cmtqb2R5YXdqZmx3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk5NTM0MjIsImV4cCI6MjEwNTUyOTQyMn0.9WfEPYPyUKxvxMp1YHrdJ0F2VhuwnZpFqJb0v3dnax0";
   const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-  let restaurantId = null;
+  let restauranteId = null;
 
-  // Verificación de Autenticación al cargar
   window.onload = async function() {
+    restauranteId = localStorage.getItem("platt_restaurante_id");
+
+    // Verificar si hay sesión o ID activo
     const { data: { session } } = await _supabase.auth.getSession();
-    
-    if (!session) {
+    if (!session && !restauranteId) {
       window.location.href = "login.html";
       return;
     }
 
-    const { data: restData, error } = await _supabase
-      .from('restaurantes')
-      .select('*')
-      .eq('user_id', session.user.id)
-      .single();
-
-    if (restData) {
-      restaurantId = restData.id;
-      localStorage.setItem("platt_restaurante_id", restaurantId);
-      
-      // Mostrar información básica en cabecera
-      document.getElementById('restName').innerText = restData.nombre;
-      document.getElementById('restAddress').innerText = restData.direccion || "Sin dirección registrada";
-      
-      // Llenar formulario de Configuración
-      document.getElementById('editNombre').value = restData.nombre || '';
-      document.getElementById('editDireccion').value = restData.direccion || '';
-      document.getElementById('editWhatsapp').value = restData.whatsapp || '';
-      document.getElementById('editBanco').value = restData.banco || '';
-      document.getElementById('editClabe').value = restData.clabe || '';
-
-      loadDishes();
-    } else {
-      alert("No se encontró un restaurante asociado a esta cuenta.");
-    }
+    await cargarPerfilRestaurante();
+    await cargarPlatillos();
   };
 
-  // Cambiar entre Pestañas
-  function switchTab(tabName) {
-    document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-    document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+  // --- 1. CAPTURA DE UBICACIÓN GPS ---
+  function obtenerUbicacionDashboard() {
+    const btn = document.getElementById('btnGeoDash');
+    const statusText = document.getElementById('dashGeoStatus');
 
-    if (tabName === 'menu') {
-      document.querySelectorAll('.tab-btn')[0].classList.add('active');
-      document.getElementById('tab-menu').classList.add('active');
-    } else if (tabName === 'config') {
-      document.querySelectorAll('.tab-btn')[1].classList.add('active');
-      document.getElementById('tab-config').classList.add('active');
-    } else if (tabName === 'qr') {
-      document.querySelectorAll('.tab-btn')[2].classList.add('active');
-      document.getElementById('tab-qr').classList.add('active');
-      generateQRCode();
+    if (!navigator.geolocation) {
+      alert("Tu navegador no soporta geolocalización.");
+      return;
+    }
+
+    btn.disabled = true;
+    btn.innerText = "⏳ Capturando...";
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const lat = position.coords.latitude;
+        const lon = position.coords.longitude;
+
+        document.getElementById('dashLatitud').value = lat;
+        document.getElementById('dashLongitud').value = lon;
+
+        statusText.innerText = `✅ Coordenadas GPS capturadas (${lat.toFixed(4)}, ${lon.toFixed(4)})`;
+        statusText.style.color = "var(--success-color)";
+
+        btn.disabled = false;
+        btn.innerText = "📍 Ubicación Capturada";
+      },
+      (error) => {
+        console.error("Error al obtener la ubicación:", error);
+        alert("No se pudo obtener la ubicación GPS.");
+        statusText.innerText = "⚠️ Error al obtener coordenadas GPS.";
+        statusText.style.color = "var(--danger-color)";
+
+        btn.disabled = false;
+        btn.innerText = "📍 Usar mi ubicación";
+      },
+      { enableHighAccuracy: true, timeout: 10000 }
+    );
+  }
+
+  // --- 2. CARGAR PERFIL DE RESTAURANTE ---
+  async function cargarPerfilRestaurante() {
+    if (!restauranteId) return;
+
+    try {
+      const { data, error } = await _supabase
+        .from('restaurantes')
+        .select('nombre, direccion, latitud, longitud, whatsapp')
+        .eq('id', restauranteId)
+        .single();
+
+      if (error) throw error;
+
+      if (data) {
+        document.getElementById('lblNombreRestaurante').innerText = data.nombre || "Mi Restaurante";
+        document.getElementById('dashNombre').value = data.nombre || '';
+        document.getElementById('dashWhatsapp').value = data.whatsapp || '';
+        document.getElementById('dashDireccion').value = data.direccion || '';
+
+        if (data.latitud && data.longitud) {
+          document.getElementById('dashLatitud').value = data.latitud;
+          document.getElementById('dashLongitud').value = data.longitud;
+
+          const statusText = document.getElementById('dashGeoStatus');
+          statusText.innerText = `📍 Ubicación guardada (${parseFloat(data.latitud).toFixed(4)}, ${parseFloat(data.longitud).toFixed(4)})`;
+          statusText.style.color = "var(--success-color)";
+        }
+      }
+    } catch (err) {
+      console.error("Error cargando perfil:", err);
     }
   }
 
-  // Guardar Cambios del Perfil y Banco
+  // --- 3. GUARDAR CAMBIOS DE PERFIL Y COORDENADAS ---
   async function guardarPerfilRestaurante(e) {
     e.preventDefault();
 
@@ -535,225 +377,124 @@
     btn.disabled = true;
     btn.innerText = "Guardando...";
 
-    const updatedData = {
-      nombre: document.getElementById('editNombre').value.trim(),
-      direccion: document.getElementById('editDireccion').value.trim(),
-      whatsapp: document.getElementById('editWhatsapp').value.trim(),
-      banco: document.getElementById('editBanco').value,
-      clabe: document.getElementById('editClabe').value.trim()
-    };
+    const nombre = document.getElementById('dashNombre').value.trim();
+    const direccion = document.getElementById('dashDireccion').value.trim();
+    const whatsapp = document.getElementById('dashWhatsapp').value.trim();
+    
+    const latitudRaw = document.getElementById('dashLatitud').value;
+    const longitudRaw = document.getElementById('dashLongitud').value;
+
+    const latitud = latitudRaw ? parseFloat(latitudRaw) : null;
+    const longitud = longitudRaw ? parseFloat(longitudRaw) : null;
 
     try {
       const { error } = await _supabase
         .from('restaurantes')
-        .update(updatedData)
-        .eq('id', restaurantId);
+        .update({
+          nombre: nombre,
+          direccion: direccion,
+          whatsapp: whatsapp,
+          latitud: latitud,
+          longitud: longitud
+        })
+        .eq('id', restauranteId);
 
       if (error) throw error;
 
-      alert("¡Configuración guardada con éxito!");
-      
-      // Actualizar cabecera
-      document.getElementById('restName').innerText = updatedData.nombre;
-      document.getElementById('restAddress').innerText = updatedData.direccion;
-
+      document.getElementById('lblNombreRestaurante').innerText = nombre;
+      alert("¡Perfil e información de envío actualizados correctamente!");
     } catch (err) {
-      console.error("Error al actualizar:", err);
-      alert("Ocurrió un error al guardar: " + (err.message || err));
+      alert("Error al actualizar perfil: " + err.message);
     } finally {
       btn.disabled = false;
-      btn.innerText = "💾 Guardar Configuración";
+      btn.innerText = "💾 Guardar Cambios de Perfil";
     }
   }
 
-  // Cargar Platillos
-  async function loadDishes() {
-    const { data: dishes, error } = await _supabase
-      .from('platillos')
-      .select('*')
-      .eq('restaurante_id', restaurantId)
-      .order('creado_en', { ascending: true });
-
-    const container = document.getElementById('dishesList');
-    container.innerHTML = "";
-
-    if (!dishes || dishes.length === 0) {
-      container.innerHTML = `<p style="text-align: center; color: #888;">Aún no tienes platillos registrados.</p>`;
-      document.getElementById('countDishes').innerText = "0";
-      return;
-    }
-
-    document.getElementById('countDishes').innerText = dishes.length;
-
-    dishes.forEach(dish => {
-      const card = document.createElement('div');
-      card.className = 'dish-item';
-      card.id = `dish-${dish.id}`;
-      card.innerHTML = `
-        ${dish.imagen_url ? `<img src="${dish.imagen_url}" alt="${dish.nombre}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 6px; margin-right: 10px;">` : ''}
-        <div class="dish-details">
-          <h4 class="dish-title">${dish.nombre}</h4>
-          <p class="dish-desc">${dish.descripcion || ''}</p>
-          <span class="dish-price">$${parseFloat(dish.precio).toFixed(2)} MXN</span>
-        </div>
-        <div class="dish-actions">
-          <div class="switch-container">
-            <span>Disponible</span>
-            <label class="switch">
-              <input type="checkbox" ${dish.disponible ? 'checked' : ''} onchange="toggleAvailability('${dish.id}', this.checked)">
-              <span class="slider"></span>
-            </label>
-          </div>
-          <button class="btn-icon" onclick="openDishModal('edit', '${dish.id}', '${escapeHtml(dish.nombre)}', ${dish.precio}, '${escapeHtml(dish.descripcion || '')}', '${escapeHtml(dish.categoria || '')}')">✏️ Editar</button>
-        </div>
-      `;
-      container.appendChild(card);
-    });
-  }
-
-  // Cambiar disponibilidad
-  async function toggleAvailability(dishId, isAvailable) {
-    await _supabase
-      .from('platillos')
-      .update({ disponible: isAvailable })
-      .eq('id', dishId);
-  }
-
-  // Abrir Modal de Platillo
-  function openDishModal(mode, id = null, name = '', price = '', desc = '', cat = '') {
-    const modal = document.getElementById('dishModal');
-    const title = document.getElementById('modalTitle');
-
-    modal.classList.add('active');
-
-    if (mode === 'add') {
-      title.innerText = "Agregar Nuevo Platillo";
-      document.getElementById('dishForm').reset();
-      document.getElementById('editDishId').value = "";
-    } else {
-      title.innerText = "Editar Platillo";
-      document.getElementById('editDishId').value = id;
-      document.getElementById('modalDishName').value = name;
-      document.getElementById('modalDishPrice').value = price;
-      document.getElementById('modalDishDesc').value = desc;
-      document.getElementById('modalDishCategory').value = cat;
-    }
-  }
-
-  function closeDishModal() {
-    document.getElementById('dishModal').classList.remove('active');
-  }
-
-  // Guardar Platillo
-  async function saveDish(e) {
-    e.preventDefault();
-
-    const btn = document.getElementById('modalSaveBtn');
-    btn.disabled = true;
-    btn.innerText = "Guardando...";
-
-    const id = document.getElementById('editDishId').value;
-    const name = document.getElementById('modalDishName').value.trim();
-    const price = parseFloat(document.getElementById('modalDishPrice').value);
-    const desc = document.getElementById('modalDishDesc').value.trim();
-    const cat = document.getElementById('modalDishCategory').value;
-    const fileInput = document.getElementById('modalDishImage');
-    const file = fileInput ? fileInput.files[0] : null;
-
-    let imagenUrl = null;
+  // --- 4. GESTIÓN DE PLATILLOS (MENÚ) ---
+  async function cargarPlatillos() {
+    const contenedor = document.getElementById('listaPlatillos');
+    if (!restauranteId) return;
 
     try {
-      if (file) {
-        const fileExt = file.name.split('.').pop();
-        const fileName = `${restaurantId}/${Date.now()}.${fileExt}`;
+      const { data, error } = await _supabase
+        .from('platillos')
+        .select('*')
+        .eq('restaurante_id', restauranteId);
 
-        const { data: uploadData, error: uploadError } = await _supabase.storage
-          .from('platillos')
-          .upload(fileName, file, { upsert: true });
+      if (error) throw error;
 
-        if (uploadError) throw uploadError;
-
-        const { data: urlData } = _supabase.storage
-          .from('platillos')
-          .getPublicUrl(fileName);
-
-        imagenUrl = urlData.publicUrl;
+      if (!data || data.length === 0) {
+        contenedor.innerHTML = `<p style="text-align: center; color: #888; font-size: 0.85rem;">No has agregado ningún platillo todavía.</p>`;
+        return;
       }
 
-      const dishData = {
-        restaurante_id: restaurantId,
-        nombre: name,
-        precio: price,
-        categoria: cat,
-        descripcion: desc
-      };
-
-      if (imagenUrl) {
-        dishData.imagen_url = imagenUrl;
-      }
-
-      let result;
-      if (id) {
-        result = await _supabase.from('platillos').update(dishData).eq('id', id);
-      } else {
-        dishData.disponible = true;
-        result = await _supabase.from('platillos').insert([dishData]);
-      }
-
-      if (result.error) throw result.error;
-
-      closeDishModal();
-      loadDishes();
-      alert("¡Platillo guardado correctamente!");
+      contenedor.innerHTML = data.map(item => `
+        <div class="platillo-item">
+          <div class="platillo-info">
+            <h4>${item.nombre}</h4>
+            <p>${item.descripcion || 'Sin descripción'}</p>
+          </div>
+          <div style="display: flex; align-items: center;">
+            <span class="platillo-precio">$${parseFloat(item.precio).toFixed(2)}</span>
+            <button class="btn-delete" onclick="eliminarPlatillo('${item.id}')" title="Eliminar Platillo">🗑️</button>
+          </div>
+        </div>
+      `).join('');
 
     } catch (err) {
-      console.error("Error al guardar platillo:", err);
-      alert("Ocurrió un error al guardar: " + (err.message || err));
-    } finally {
-      btn.disabled = false;
-      btn.innerText = "Guardar Platillo";
+      contenedor.innerHTML = `<p style="color: var(--danger-color); font-size: 0.85rem;">Error al cargar platillos.</p>`;
     }
   }
 
-  // Generar QR
-  async function generateQRCode() {
-    const qrContainer = document.getElementById('qrcode');
-    const inputUrl = document.getElementById('menuUrlInput');
+  async function agregarPlatillo(e) {
+    e.preventDefault();
 
-    if (!restaurantId) return;
+    const btn = document.getElementById('btnAgregarPlatillo');
+    btn.disabled = true;
 
-    const currentPath = window.location.pathname;
-    const basePath = currentPath.substring(0, currentPath.lastIndexOf('/'));
-    const menuUrl = `${window.location.origin}${basePath}/menu.html?id=${restaurantId}`;
+    const nombre = document.getElementById('platilloNombre').value.trim();
+    const precio = parseFloat(document.getElementById('platilloPrecio').value);
+    const descripcion = document.getElementById('platilloDescripcion').value.trim();
 
-    inputUrl.value = menuUrl;
+    try {
+      const { error } = await _supabase
+        .from('platillos')
+        .insert([
+          {
+            restaurante_id: restauranteId,
+            nombre: nombre,
+            precio: precio,
+            descripcion: descripcion
+          }
+        ]);
 
-    qrContainer.innerHTML = "";
-    new QRCode(qrContainer, {
-      text: menuUrl,
-      width: 200,
-      height: 200,
-      colorDark: "#ff5722",
-      colorLight: "#ffffff",
-      correctLevel: QRCode.CorrectLevel.H
-    });
+      if (error) throw error;
+
+      document.getElementById('formPlatillo').reset();
+      await cargarPlatillos();
+    } catch (err) {
+      alert("Error al agregar platillo: " + err.message);
+    } finally {
+      btn.disabled = false;
+    }
   }
 
-  function copyMenuLink() {
-    const copyText = document.getElementById("menuUrlInput");
-    copyText.select();
-    document.execCommand("copy");
-    alert("¡Enlace copiado al portapapeles!");
-  }
+  async function eliminarPlatillo(id) {
+    if (!confirm("¿Estás seguro de que deseas eliminar este platillo de tu menú?")) return;
 
-  async function handleLogout() {
-    await _supabase.auth.signOut();
-    localStorage.removeItem("platt_restaurante_id");
-    window.location.href = "login.html";
-  }
+    try {
+      const { error } = await _supabase
+        .from('platillos')
+        .delete()
+        .eq('id', id);
 
-  function escapeHtml(text) {
-    return text.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+      if (error) throw error;
+
+      await cargarPlatillos();
+    } catch (err) {
+      alert("Error al eliminar platillo: " + err.message);
+    }
   }
 </script>
 
