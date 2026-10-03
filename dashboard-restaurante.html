@@ -23,6 +23,7 @@
       --text-color: #333333;
       --gray-light: #e0e0e0;
       --danger-color: #d32f2f;
+      --danger-hover: #b71c1c;
       --success-color: #2e7d32;
     }
 
@@ -73,6 +74,7 @@
       margin-bottom: 20px;
       border-bottom: 2px solid var(--gray-light);
       padding-bottom: 10px;
+      flex-wrap: wrap;
     }
 
     .tab-btn {
@@ -180,6 +182,23 @@
       background-color: var(--primary-hover);
     }
 
+    /* Botón de Cierre de Sesión */
+    .btn-logout {
+      background-color: var(--danger-color);
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .btn-logout:hover {
+      background-color: var(--danger-hover);
+    }
+
     /* Lista de Platillos */
     .platillos-grid {
       display: grid;
@@ -256,8 +275,8 @@
       border: 1px solid var(--gray-light);
     }
 
-    /* Sección Código QR */
-    .qr-container {
+    /* Contenedores Específicos */
+    .qr-container, .logout-container {
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -293,11 +312,12 @@
     <p>Administra tu menú, información comercial y código QR</p>
   </div>
 
-  <!-- Pestañas para Limpieza Visual -->
+  <!-- Pestañas de Navegación -->
   <div class="tabs-container">
-    <button class="tab-btn active" onclick="switchTab('tab-menu')">🍕 Gestión del Menú</button>
-    <button class="tab-btn" onclick="switchTab('tab-perfil')">⚙️️ Perfil y Ubicación</button>
-    <button class="tab-btn" onclick="switchTab('tab-qr')">📱 Código QR</button>
+    <button class="tab-btn active" onclick="switchTab('tab-menu', event)">🍕 Gestión del Menú</button>
+    <button class="tab-btn" onclick="switchTab('tab-perfil', event)">⚙️ Perfil y Ubicación</button>
+    <button class="tab-btn" onclick="switchTab('tab-qr', event)">📱 Código QR</button>
+    <button class="tab-btn" onclick="switchTab('tab-logout', event)">🚪 Cerrar Sesión</button>
   </div>
 
   <!-- PESTAÑA 1: GESTIÓN DEL MENÚ -->
@@ -370,7 +390,7 @@
           <input type="hidden" id="dashLongitud">
         </div>
 
-        <!-- Campos Bancarios Recuperados -->
+        <!-- Campos Bancarios -->
         <h2 style="margin-top: 25px; margin-bottom: 15px;">🏦 Datos Bancarios para Depósitos</h2>
 
         <div class="form-group">
@@ -403,6 +423,17 @@
       <button class="btn-primary" style="max-width: 300px;" onclick="window.print()">🖨️ Imprimir Código QR</button>
     </div>
   </div>
+
+  <!-- PESTAÑA 4: CERRAR SESIÓN -->
+  <div id="tab-logout" class="tab-content">
+    <div class="card logout-container">
+      <h2 style="margin-bottom: 15px; border: none;">🔒 Cierre de Sesión</h2>
+      <button type="button" class="btn-logout" onclick="cerrarSesion()">Cerrar sesión</button>
+      <p style="color: #666; font-size: 0.85rem; margin-top: 12px;">
+        Puedes regresar a tu cuenta cuando lo desees.
+      </p>
+    </div>
+  </div>
 </div>
 
 <!-- Script del Navbar Global -->
@@ -432,12 +463,26 @@
   };
 
   // NAVEGACIÓN ENTRE PESTAÑAS
-  function switchTab(tabId) {
+  function switchTab(tabId, event) {
     document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
     document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
 
     document.getElementById(tabId).classList.add('active');
-    event.currentTarget.classList.add('active');
+    if (event && event.currentTarget) {
+      event.currentTarget.classList.add('active');
+    }
+  }
+
+  // CERRAR SESIÓN
+  async function cerrarSesion() {
+    try {
+      await _supabase.auth.signOut();
+    } catch (err) {
+      console.error("Error al cerrar sesión en Supabase:", err);
+    } finally {
+      localStorage.removeItem("platt_restaurante_id");
+      window.location.href = "login.html";
+    }
   }
 
   // PREVISUALIZAR Y CONVERTIR IMAGEN
@@ -516,7 +561,6 @@
         document.getElementById('dashWhatsapp').value = data.whatsapp || '';
         document.getElementById('dashDireccion').value = data.direccion || '';
         
-        // Rellenar Banco y CLABE
         document.getElementById('dashBanco').value = data.banco || '';
         document.getElementById('dashClabe').value = data.clabe || '';
 
@@ -534,7 +578,7 @@
     }
   }
 
-  // GUARDAR PERFIL COMPLETO (INCLUYE BANCO Y CLABE)
+  // GUARDAR PERFIL COMPLETO
   async function guardarPerfilRestaurante(e) {
     e.preventDefault();
 
