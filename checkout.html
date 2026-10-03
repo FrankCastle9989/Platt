@@ -462,6 +462,8 @@
 
   // --- 3. ENVÍO DE ORDEN POR WHATSAPP ---
 
+// --- 3. ENVÍO DE ORDEN POR WHATSAPP ---
+
   function enviarPedidoWhatsApp(e) {
     e.preventDefault();
 
@@ -478,6 +480,9 @@
       return;
     }
 
+    // Asegurar que el número no contenga el signo '+' ni espacios/guiones
+    const numLimpio = negocioWhatsapp.toString().replace(/\D/g, '');
+
     // Construir mensaje detallado para WhatsApp
     let mensaje = `*¡Nuevo Pedido - Platt!* 🍕\n\n`;
     mensaje += `*Restaurante:* ${orderData.restauranteNombre || ''}\n`;
@@ -486,9 +491,11 @@
     mensaje += `*Dirección:* ${direccion}\n\n`;
 
     mensaje += `*--- Detalle del Pedido ---*\n`;
-    orderData.items.forEach(item => {
-      mensaje += `• ${item.qty}x ${item.name} - $${(item.price * item.qty).toFixed(2)} MXN\n`;
-    });
+    if (orderData.items && orderData.items.length > 0) {
+      orderData.items.forEach(item => {
+        mensaje += `• ${item.qty}x ${item.name} - $${(item.price * item.qty).toFixed(2)} MXN\n`;
+      });
+    }
 
     mensaje += `\n*Subtotal:* $${subtotalProductos.toFixed(2)} MXN\n`;
     mensaje += `*Envío:* $${costoEnvioCalculado.toFixed(2)} MXN\n`;
@@ -503,9 +510,11 @@
       mensaje += `*Notas:* ${notas}\n`;
     }
 
-    // Abrir enlace directo a WhatsApp
-    const url = `https://wa.me/${negocioWhatsapp}?text=${encodeURIComponent(mensaje)}`;
-    window.open(url, '_blank');
+    // Enlace universal compatible con redes corporativas y bloqueadores
+    const url = `https://api.whatsapp.com/send?phone=${numLimpio}&text=${encodeURIComponent(mensaje)}`;
+    
+    // Abrir directamente en el navegador
+    window.location.href = url;
   }
 </script>
 
