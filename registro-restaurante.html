@@ -4,29 +4,154 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Platt - Registro de Restaurante</title>
+
+  <!-- Hoja de estilos del Navbar Global -->
   <link rel="stylesheet" href="navbar.css">
+
+  <!-- CDN Oficial de Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
   <style>
-    :root { --primary-color: #ff5722; --primary-hover: #e64a19; --bg-color: #f4f6f8; --card-bg: #ffffff; --text-color: #333; --gray-light: #e0e0e0; --error-color: #d32f2f; --success-color: #2e7d32; }
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-    body { background-color: var(--bg-color); color: var(--text-color); min-height: 100vh; display: flex; flex-direction: column; }
-    .page-wrapper { flex: 1; display: flex; justify-content: center; align-items: center; padding: 40px 20px; }
-    .register-container { width: 100%; max-width: 450px; background: var(--card-bg); border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); padding: 30px 25px; }
-    .logo-container { text-align: center; margin-bottom: 25px; }
-    .logo-container h1 { color: var(--primary-color); font-size: 2rem; }
-    .logo-container p { font-size: 0.9rem; color: #666; margin-top: 5px; }
-    .form-group { margin-bottom: 16px; }
-    .form-group label { display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 6px; }
-    .form-group input { width: 100%; padding: 12px; border: 1px solid var(--gray-light); border-radius: 8px; font-size: 0.95rem; outline: none; }
-    .form-group input:focus { border-color: var(--primary-color); }
-    .alert-msg { padding: 10px; border-radius: 6px; font-size: 0.85rem; margin-bottom: 15px; display: none; text-align: center; }
-    .alert-error { background-color: #ffebee; color: var(--error-color); }
-    .alert-success { background-color: #e8f5e9; color: var(--success-color); }
-    .btn-submit { width: 100%; background-color: var(--primary-color); color: white; border: none; padding: 14px; border-radius: 8px; font-size: 1rem; font-weight: bold; cursor: pointer; transition: background-color 0.2s; }
-    .btn-submit:hover { background-color: var(--primary-hover); }
-    .btn-submit:disabled { background-color: #ccc; cursor: not-allowed; }
-    .login-link { text-align: center; margin-top: 20px; font-size: 0.85rem; color: #666; }
-    .login-link a { color: var(--primary-color); text-decoration: none; font-weight: bold; }
+    :root {
+      --primary-color: #ff5722;
+      --primary-hover: #e64a19;
+      --bg-color: #f4f6f8;
+      --card-bg: #ffffff;
+      --text-color: #333333;
+      --gray-light: #e0e0e0;
+      --error-color: #d32f2f;
+      --success-color: #2e7d32;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .page-wrapper {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 40px 20px;
+    }
+
+    .register-container {
+      width: 100%;
+      max-width: 450px;
+      background: var(--card-bg);
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+      padding: 30px 25px;
+    }
+
+    .logo-container {
+      text-align: center;
+      margin-bottom: 25px;
+    }
+
+    .logo-container h1 {
+      color: var(--primary-color);
+      font-size: 2rem;
+    }
+
+    .logo-container p {
+      font-size: 0.9rem;
+      color: #666;
+      margin-top: 5px;
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: bold;
+      margin-bottom: 6px;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid var(--gray-light);
+      border-radius: 8px;
+      font-size: 0.95rem;
+      outline: none;
+    }
+
+    .form-group input:focus {
+      border-color: var(--primary-color);
+    }
+
+    .alert-msg {
+      padding: 10px;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      margin-bottom: 15px;
+      display: none;
+      text-align: center;
+    }
+
+    .alert-error {
+      background-color: #ffebee;
+      color: var(--error-color);
+    }
+
+    .alert-success {
+      background-color: #e8f5e9;
+      color: var(--success-color);
+    }
+
+    .btn-submit {
+      width: 100%;
+      background-color: var(--primary-color);
+      color: white;
+      border: none;
+      padding: 14px;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    .btn-submit:hover {
+      background-color: var(--primary-hover);
+    }
+
+    .btn-submit:disabled {
+      background-color: #ccc;
+      cursor: not-allowed;
+    }
+
+    .login-link {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 0.85rem;
+      color: #666;
+    }
+
+    .login-link a {
+      color: var(--primary-color);
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    .login-link a:hover {
+      text-decoration: underline;
+    }
   </style>
 </head>
 <body>
@@ -98,36 +223,47 @@
     submitBtn.innerText = "Registrando...";
 
     try {
-      // 1. Crear el usuario en Auth pasándole metadatos
+      // 1. Construir dinámicamente la URL de redirección hacia login.html
+      const redirectUrl = window.location.origin + window.location.pathname.replace('registro-restaurante.html', 'login.html');
+
+      // 2. Registrar el usuario en Auth configurando emailRedirectTo
       const { data: authData, error: authError } = await _supabase.auth.signUp({
         email: email,
         password: password,
         options: {
-          data: { nombre_restaurante: nombre, whatsapp: whatsapp }
+          emailRedirectTo: redirectUrl,
+          data: {
+            nombre_restaurante: nombre,
+            whatsapp: whatsapp
+          }
         }
       });
 
       if (authError) throw authError;
 
-      // 2. Garantizar que la sesión esté iniciada
-      let session = authData.session;
-      let user = authData.user;
+      const user = authData.user;
+      if (!user) throw new Error("No se pudo crear el usuario.");
 
+      // 3. Garantizar sesión activa o intentar inicio de sesión
+      let session = authData.session;
       if (!session) {
-        // Forzamos el login inmediato para obtener el token JWT que exige RLS
         const { data: loginData, error: loginError } = await _supabase.auth.signInWithPassword({
           email: email,
           password: password
         });
 
         if (loginError) {
-          throw new Error("Revisa tu correo para confirmar la cuenta antes de ingresar.");
+          // Caso en que la confirmación de correo esté activada obligatoriamente en Supabase
+          successMsg.innerText = "¡Registro recibido! Revisa tu correo electrónico para confirmar tu cuenta. Serás redirigido a iniciar sesión al hacer clic en el enlace.";
+          successMsg.style.display = 'block';
+          submitBtn.disabled = false;
+          submitBtn.innerText = "Crear Cuenta";
+          return;
         }
         session = loginData.session;
-        user = loginData.user;
       }
 
-      // 3. Insertar restaurante en la base de datos con autenticación confirmada
+      // 4. Insertar el restaurante en la tabla con la sesión autenticada
       const { data: restData, error: restError } = await _supabase
         .from('restaurantes')
         .insert([
@@ -143,7 +279,7 @@
 
       if (restError) throw restError;
 
-      // 4. Guardar ID y redirigir
+      // 5. Guardar ID en localStorage y redirigir al panel
       if (restData) {
         localStorage.setItem("platt_restaurante_id", restData.id);
       }
@@ -153,7 +289,7 @@
 
       setTimeout(() => {
         window.location.href = "dashboard-restaurante.html";
-      }, 800);
+      }, 1000);
 
     } catch (err) {
       console.error("Error en el registro:", err);
