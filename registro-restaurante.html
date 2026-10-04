@@ -1,31 +1,3 @@
-const { data: restData, error: restError } = await _supabase
-  .from('restaurantes')
-  .insert([
-    {
-      user_id: user.id,
-      nombre: nombre,
-      whatsapp: whatsapp
-    }
-  ])
-```[cite: 7]
-
-La base de datos en Supabase tiene configurada la columna **`direccion`** en la tabla `restaurantes` con una restricción obligatoria (**`NOT NULL`**). Como el formulario de registro solo pide Nombre, WhatsApp, Correo y Contraseña, no se está enviando el campo `direccion`, lo que hace que Supabase rechace la inserción lanzando el mensaje:
-
-> `null value in column "direccion" of relation "restaurantes" violates not-null constraint`
-
----
-
-### Solución Aplicada
-
-Se agregó un valor por defecto temporal (`"Pendiente de capturar"`) al insertar el restaurante, además de un campo opcional para la Dirección en el formulario por si el usuario desea ingresarla desde el primer momento.
-
----
-
-### Código Completo y Corregido (`registro-restaurante.html`)
-
-Reemplaza todo el contenido de tu archivo por el siguiente código:
-
-```html
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -208,11 +180,6 @@ Reemplaza todo el contenido de tu archivo por el siguiente código:
       </div>
 
       <div class="form-group">
-        <label for="direccion">Dirección (Opcional)</label>
-        <input type="text" id="direccion" placeholder="Ej. Av. Hidalgo #123, Centro">
-      </div>
-
-      <div class="form-group">
         <label for="email">Correo Electrónico *</label>
         <input type="email" id="email" placeholder="ejemplo@restaurante.com" required>
       </div>
@@ -243,7 +210,6 @@ Reemplaza todo el contenido de tu archivo por el siguiente código:
 
     const nombre = document.getElementById('nombreRestaurante').value.trim();
     const whatsapp = document.getElementById('whatsapp').value.trim();
-    const direccionIngresada = document.getElementById('direccion').value.trim();
     const email = document.getElementById('email').value.trim();
     const password = document.getElementById('password').value;
 
@@ -257,7 +223,7 @@ Reemplaza todo el contenido de tu archivo por el siguiente código:
     submitBtn.innerText = "Registrando...";
 
     try {
-      // 1. Crear usuario en Supabase Auth
+      // 1. Crear el usuario en Supabase Auth
       const { data: authData, error: authError } = await _supabase.auth.signUp({
         email: email,
         password: password
@@ -268,10 +234,7 @@ Reemplaza todo el contenido de tu archivo por el siguiente código:
       const user = authData.user;
       if (!user) throw new Error("No se pudo crear el usuario.");
 
-      // Si no ingresó dirección, enviamos una por defecto para cumplir el NOT NULL
-      const direccionFinal = direccionIngresada !== "" ? direccionIngresada : "Pendiente de capturar";
-
-      // 2. Insertar los datos en la tabla 'restaurantes'
+      // 2. Guardar en la tabla 'restaurantes' enviando una dirección por defecto para evitar bloqueos
       const { data: restData, error: restError } = await _supabase
         .from('restaurantes')
         .insert([
@@ -279,7 +242,7 @@ Reemplaza todo el contenido de tu archivo por el siguiente código:
             user_id: user.id,
             nombre: nombre,
             whatsapp: whatsapp,
-            direccion: direccionFinal
+            direccion: "Por definir"
           }
         ])
         .select()
@@ -287,21 +250,20 @@ Reemplaza todo el contenido de tu archivo por el siguiente código:
 
       if (restError) throw restError;
 
-      // 3. Guardar ID local y redirigir
+      // 3. Guardar el ID e ir al Dashboard
       if (restData) {
         localStorage.setItem("platt_restaurante_id", restData.id);
       }
 
-      successMsg.innerText = "¡Registro exitoso! Redirigiendo a tu panel...";
+      successMsg.innerText = "¡Registro exitoso! Entrando a tu panel...";
       successMsg.style.display = 'block';
 
       setTimeout(() => {
         window.location.href = "dashboard-restaurante.html";
-      }, 1500);
+      }, 1000);
 
     } catch (err) {
-      console.error("Error en el registro:", err);
-      errorMsg.innerText = err.message || "Ocurrió un error al registrar la cuenta.";
+      errorMsg.innerText = err.message || "Ocurrió un error al registrar.";
       errorMsg.style.display = 'block';
       submitBtn.disabled = false;
       submitBtn.innerText = "Crear Cuenta";
