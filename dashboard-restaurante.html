@@ -8,7 +8,16 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <style>
-    :root { --primary-color: #ff5722; --primary-hover: #e64a19; --bg-color: #f4f6f8; --card-bg: #ffffff; --text-color: #333; --gray-light: #e0e0e0; --danger-color: #d32f2f; --success-color: #2e7d32; }
+    :root { 
+      --primary-color: #ff5722; 
+      --primary-hover: #e64a19; 
+      --bg-color: #f4f6f8; 
+      --card-bg: #ffffff; 
+      --text-color: #333; 
+      --gray-light: #e0e0e0; 
+      --danger-color: #d32f2f; 
+      --success-color: #2e7d32; 
+    }
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
     body { background-color: var(--bg-color); color: var(--text-color); min-height: 100vh; display: flex; flex-direction: column; }
     .page-wrapper { flex: 1; max-width: 900px; width: 100%; margin: 0 auto; padding: 25px 20px; }
@@ -25,12 +34,14 @@
     .card h2 { font-size: 1.2rem; margin-bottom: 15px; color: var(--text-color); border-bottom: 1px solid var(--gray-light); padding-bottom: 8px; }
     .form-group { margin-bottom: 16px; }
     .form-group label { display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 6px; }
-    .form-group input, .form-group textarea { width: 100%; padding: 11px; border: 1px solid var(--gray-light); border-radius: 8px; font-size: 0.95rem; outline: none; }
+    .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 11px; border: 1px solid var(--gray-light); border-radius: 8px; font-size: 0.95rem; outline: none; background-color: #fff; }
+    .form-group input:focus, .form-group textarea:focus, .form-group select:focus { border-color: var(--primary-color); }
     .btn-geo { background-color: #fff3e0; color: var(--primary-color); border: 1px solid var(--primary-color); padding: 11px 14px; border-radius: 8px; font-size: 0.85rem; font-weight: bold; cursor: pointer; }
     .btn-primary { width: 100%; background-color: var(--primary-color); color: white; border: none; padding: 13px; border-radius: 8px; font-size: 1rem; font-weight: bold; cursor: pointer; }
     .btn-logout { background-color: var(--danger-color); color: white; border: none; padding: 10px 20px; border-radius: 8px; font-size: 0.9rem; font-weight: bold; cursor: pointer; }
     .platillos-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 15px; margin-top: 15px; }
-    .platillo-card { background: #fafafa; border: 1px solid var(--gray-light); border-radius: 10px; overflow: hidden; display: flex; flex-direction: column; }
+    .platillo-card { background: #fafafa; border: 1px solid var(--gray-light); border-radius: 10px; overflow: hidden; display: flex; flex-direction: column; position: relative; }
+    .platillo-badge { position: absolute; top: 10px; right: 10px; background: rgba(0, 0, 0, 0.7); color: #fff; font-size: 0.75rem; padding: 4px 8px; border-radius: 12px; font-weight: 600; }
     .platillo-img { width: 100%; height: 140px; object-fit: cover; background-color: #eee; }
     .platillo-body { padding: 12px; flex: 1; display: flex; flex-direction: column; justify-content: space-between; }
     .platillo-title { font-size: 1rem; font-weight: bold; margin-bottom: 4px; }
@@ -75,6 +86,24 @@
             <input type="number" step="0.5" id="platilloPrecio" placeholder="Ej. 120.00" required>
           </div>
         </div>
+
+        <div class="form-group">
+          <label for="platilloCategoria">Categoría del Alimento *</label>
+          <select id="platilloCategoria" required>
+            <option value="" disabled selected>Selecciona una categoría</option>
+            <option value="Tacos">🌮 Tacos</option>
+            <option value="Hamburguesas">🍔 Hamburguesas</option>
+            <option value="Pizzas">🍕 Pizzas</option>
+            <option value="Desayunos">🍳 Desayunos</option>
+            <option value="Boneless y Alitas">🍗 Boneless y Alitas</option>
+            <option value="Sushi">🍣 Sushi</option>
+            <option value="Comida Mexicana">🇲🇽 Comida Mexicana</option>
+            <option value="Postres y Bebidas">🍰 Postres y Bebidas</option>
+            <option value="Snacks y Antojitos">🍟 Snacks y Antojitos</option>
+            <option value="Mariscos">🦐 Mariscos</option>
+          </select>
+        </div>
+
         <div class="form-group">
           <label for="platilloDescripcion">Descripción / Ingredientes</label>
           <textarea id="platilloDescripcion" rows="2" placeholder="Ej. 200g de carne, queso cheddar, tocino y papas."></textarea>
@@ -118,10 +147,27 @@
           <input type="hidden" id="dashLatitud">
           <input type="hidden" id="dashLongitud">
         </div>
+
         <h2 style="margin-top: 25px; margin-bottom: 15px;">🏦 Datos Bancarios</h2>
         <div class="form-group">
-          <label for="dashBanco">Banco</label>
-          <input type="text" id="dashBanco" placeholder="Ej. BBVA, Banorte, Nu">
+          <label for="dashBanco">Banco Receptor</label>
+          <select id="dashBanco">
+            <option value="">Selecciona un banco</option>
+            <option value="BBVA">BBVA México</option>
+            <option value="Banorte">Banorte</option>
+            <option value="Santander">Santander</option>
+            <option value="Citibanamex">Citibanamex</option>
+            <option value="HSBC">HSBC</option>
+            <option value="Scotiabank">Scotiabank</option>
+            <option value="Banco Azteca">Banco Azteca</option>
+            <option value="Nu Mexico">Nu México</option>
+            <option value="Mercado Pago">Mercado Pago Wallet</option>
+            <option value="Hey Banco">Hey Banco</option>
+            <option value="Inbursa">Inbursa</option>
+            <option value="Banregio">Banregio</option>
+            <option value="Afirme">Afirme</option>
+            <option value="Otro">Otro Banco / Fintech</option>
+          </select>
         </div>
         <div class="form-group">
           <label for="dashClabe">CLABE Interbancaria (18 dígitos)</label>
@@ -205,11 +251,9 @@
   async function cargarPerfil() {
     let query = _supabase.from('restaurantes').select('*');
 
-    // Buscar primero por ID guardado en LocalStorage
     if (restauranteId) {
       query = query.eq('id', restauranteId);
     } else {
-      // Si no hay ID en LocalStorage, buscar por el usuario con sesión activa
       const { data: { session } } = await _supabase.auth.getSession();
       if (session) query = query.eq('user_id', session.user.id);
       else { window.location.href = "login.html"; return; }
@@ -244,7 +288,7 @@
       nombre: document.getElementById('dashNombre').value.trim(),
       whatsapp: document.getElementById('dashWhatsapp').value.trim(),
       direccion: document.getElementById('dashDireccion').value.trim(),
-      banco: document.getElementById('dashBanco').value.trim(),
+      banco: document.getElementById('dashBanco').value,
       clabe: document.getElementById('dashClabe').value.trim(),
       latitud: document.getElementById('dashLatitud').value ? parseFloat(document.getElementById('dashLatitud').value) : null,
       longitud: document.getElementById('dashLongitud').value ? parseFloat(document.getElementById('dashLongitud').value) : null
@@ -270,6 +314,7 @@
 
     contenedor.innerHTML = data.map(item => `
       <div class="platillo-card">
+        ${item.categoria ? `<span class="platillo-badge">${item.categoria}</span>` : ''}
         <img src="${item.imagen_url || 'https://via.placeholder.com/300x180?text=Sin+Imagen'}" class="platillo-img">
         <div class="platillo-body">
           <div>
@@ -293,6 +338,7 @@
       restaurante_id: restauranteId,
       nombre: document.getElementById('platilloNombre').value.trim(),
       precio: parseFloat(document.getElementById('platilloPrecio').value),
+      categoria: document.getElementById('platilloCategoria').value,
       descripcion: document.getElementById('platilloDescripcion').value.trim(),
       imagen_url: imagenBase64
     }]);
