@@ -205,7 +205,7 @@
   const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRmdW5hZWZ6cmtqb2R5YXdqZmx3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk5NTM0MjIsImV4cCI6MjEwNTUyOTQyMn0.9WfEPYPyUKxvxMp1YHrdJ0F2VhuwnZpFqJb0v3dnax0";
   const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-  async function handleRegister(e) {
+async function handleRegister(e) {
     e.preventDefault();
 
     const nombre = document.getElementById('nombreRestaurante').value.trim();
@@ -223,44 +223,57 @@
     submitBtn.innerText = "Registrando...";
 
     try {
-      // 1. Crear el usuario en Supabase Auth
+      // Registrar usuario pasando los datos del restaurante en los metadatos de Auth
       const { data: authData, error: authError } = await _supabase.auth.signUp({
         email: email,
-        password: password
+        password: password,
+        options: {
+          data: {
+            nombre_restaurante: nombre,
+            whatsapp: whatsapp,
+            direccion: "Por definir"
+          }
+        }
       });
 
       if (authError) throw authError;
 
-      const user = authData.user;
-      if (!user) throw new Error("No se pudo crear el usuario.");
+      // Si inició sesión automáticamente (Opción 1 activa en Supabase)
+      if (authData.session && authData.user) {
+        // Guardar en la tabla restaurantes
+        const { data: restData, error: restError } = await _supabase
+          .from('restaurantes')
+          .insert([
+            {
+              user_id: authData.user.id,
+              nombre: nombre,
+              whatsapp: whatsapp,
+              direccion: "Por definir"
+            }
+          ])
+          .select()
+          .single();
 
-      // 2. Guardar en la tabla 'restaurantes' enviando una dirección por defecto para evitar bloqueos
-      const { data: restData, error: restError } = await _supabase
-        .from('restaurantes')
-        .insert([
-          {
-            user_id: user.id,
-            nombre: nombre,
-            whatsapp: whatsapp,
-            direccion: "Por definir"
-          }
-        ])
-        .select()
-        .single();
+        if (restError) throw restError;
 
-      if (restError) throw restError;
+        if (restData) {
+          localStorage.setItem("platt_restaurante_id", restData.id);
+        }
 
-      // 3. Guardar el ID e ir al Dashboard
-      if (restData) {
-        localStorage.setItem("platt_restaurante_id", restData.id);
+        successMsg.innerText = "¡Registro exitoso! Entrando a tu panel...";
+        successMsg.style.display = 'block';
+
+        setTimeout(() => {
+          window.location.href = "dashboard-restaurante.html";
+        }, 1000);
+
+      } else {
+        // Si Supabase pide confirmar el correo primero
+        successMsg.innerText = "¡Cuenta creada! Por favor revisa tu correo electrónico para confirmarla antes de iniciar sesión.";
+        successMsg.style.display = 'block';
+        submitBtn.disabled = false;
+        submitBtn.innerText = "Crear Cuenta";
       }
-
-      successMsg.innerText = "¡Registro exitoso! Entrando a tu panel...";
-      successMsg.style.display = 'block';
-
-      setTimeout(() => {
-        window.location.href = "dashboard-restaurante.html";
-      }, 1000);
 
     } catch (err) {
       errorMsg.innerText = err.message || "Ocurrió un error al registrar.";
@@ -269,6 +282,8 @@
       submitBtn.innerText = "Crear Cuenta";
     }
   }
+
+
 </script>
 
 </body>
