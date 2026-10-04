@@ -98,21 +98,41 @@
     submitBtn.innerText = "Registrando...";
 
     try {
-      // 1. Crear usuario en Auth
+      // 1. Crear el usuario en Auth pasándole metadatos
       const { data: authData, error: authError } = await _supabase.auth.signUp({
         email: email,
-        password: password
+        password: password,
+        options: {
+          data: { nombre_restaurante: nombre, whatsapp: whatsapp }
+        }
       });
 
       if (authError) throw authError;
-      const user = authData.user;
 
-      // 2. Insertar restaurante en la tabla
+      // 2. Garantizar que la sesión esté iniciada
+      let session = authData.session;
+      let user = authData.user;
+
+      if (!session) {
+        // Forzamos el login inmediato para obtener el token JWT que exige RLS
+        const { data: loginData, error: loginError } = await _supabase.auth.signInWithPassword({
+          email: email,
+          password: password
+        });
+
+        if (loginError) {
+          throw new Error("Revisa tu correo para confirmar la cuenta antes de ingresar.");
+        }
+        session = loginData.session;
+        user = loginData.user;
+      }
+
+      // 3. Insertar restaurante en la base de datos con autenticación confirmada
       const { data: restData, error: restError } = await _supabase
         .from('restaurantes')
         .insert([
           {
-            user_id: user ? user.id : null,
+            user_id: user.id,
             nombre: nombre,
             whatsapp: whatsapp,
             direccion: "Por definir"
@@ -123,7 +143,7 @@
 
       if (restError) throw restError;
 
-      // 3. Guardar ID y redirigir
+      // 4. Guardar ID y redirigir
       if (restData) {
         localStorage.setItem("platt_restaurante_id", restData.id);
       }
