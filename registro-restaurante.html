@@ -205,7 +205,7 @@
   const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRmdW5hZWZ6cmtqb2R5YXdqZmx3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk5NTM0MjIsImV4cCI6MjEwNTUyOTQyMn0.9WfEPYPyUKxvxMp1YHrdJ0F2VhuwnZpFqJb0v3dnax0";
   const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-async function handleRegister(e) {
+  async function handleRegister(e) {
     e.preventDefault();
 
     const nombre = document.getElementById('nombreRestaurante').value.trim();
@@ -223,7 +223,7 @@ async function handleRegister(e) {
     submitBtn.innerText = "Registrando...";
 
     try {
-      // Registrar usuario pasando los datos del restaurante en los metadatos de Auth
+      // 1. Registrar usuario guardando metadatos
       const { data: authData, error: authError } = await _supabase.auth.signUp({
         email: email,
         password: password,
@@ -238,9 +238,8 @@ async function handleRegister(e) {
 
       if (authError) throw authError;
 
-      // Si inició sesión automáticamente (Opción 1 activa en Supabase)
+      // 2. Si hay sesión activa (no requiere confirmación previa de email)
       if (authData.session && authData.user) {
-        // Guardar en la tabla restaurantes
         const { data: restData, error: restError } = await _supabase
           .from('restaurantes')
           .insert([
@@ -268,22 +267,21 @@ async function handleRegister(e) {
         }, 1000);
 
       } else {
-        // Si Supabase pide confirmar el correo primero
-        successMsg.innerText = "¡Cuenta creada! Por favor revisa tu correo electrónico para confirmarla antes de iniciar sesión.";
+        // Si Supabase requiere que el usuario confirme su correo primero
+        successMsg.innerText = "¡Cuenta creada! Revisa tu correo electrónico para confirmar la cuenta antes de iniciar sesión.";
         successMsg.style.display = 'block';
         submitBtn.disabled = false;
         submitBtn.innerText = "Crear Cuenta";
       }
 
     } catch (err) {
+      console.error("Error en el registro:", err);
       errorMsg.innerText = err.message || "Ocurrió un error al registrar.";
       errorMsg.style.display = 'block';
       submitBtn.disabled = false;
       submitBtn.innerText = "Crear Cuenta";
     }
   }
-
-
 </script>
 
 </body>
