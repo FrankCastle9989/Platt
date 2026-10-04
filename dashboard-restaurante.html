@@ -182,7 +182,6 @@
       background-color: var(--primary-hover);
     }
 
-    /* Botón de Cierre de Sesión */
     .btn-logout {
       background-color: var(--danger-color);
       color: white;
@@ -199,7 +198,6 @@
       background-color: var(--danger-hover);
     }
 
-    /* Lista de Platillos */
     .platillos-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
@@ -264,7 +262,6 @@
       cursor: pointer;
     }
 
-    /* Previsualizador de Imagen */
     .img-preview {
       width: 100%;
       max-height: 180px;
@@ -275,7 +272,6 @@
       border: 1px solid var(--gray-light);
     }
 
-    /* Contenedores Específicos */
     .qr-container, .logout-container {
       display: flex;
       flex-direction: column;
@@ -303,7 +299,6 @@
 </head>
 <body>
 
-<!-- Contenedor del Navbar Modular -->
 <div id="navbar-container"></div>
 
 <div class="page-wrapper">
@@ -312,7 +307,6 @@
     <p>Administra tu menú, información comercial y código QR</p>
   </div>
 
-  <!-- Pestañas de Navegación -->
   <div class="tabs-container">
     <button class="tab-btn active" onclick="switchTab('tab-menu', event)">🍕 Gestión del Menú</button>
     <button class="tab-btn" onclick="switchTab('tab-perfil', event)">⚙️ Perfil y Ubicación</button>
@@ -390,7 +384,6 @@
           <input type="hidden" id="dashLongitud">
         </div>
 
-        <!-- Campos Bancarios -->
         <h2 style="margin-top: 25px; margin-bottom: 15px;">🏦 Datos Bancarios para Depósitos</h2>
 
         <div class="form-group">
@@ -436,33 +429,33 @@
   </div>
 </div>
 
-<!-- Script del Navbar Global -->
 <script src="navbar.js"></script>
 
 <script>
-  // Supabase Init
   const SUPABASE_URL = "https://dfunaefzrkjodyawjflw.supabase.co";
   const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRmdW5hZWZ6cmtqb2R5YXdqZmx3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk5NTM0MjIsImV4cCI6MjEwNTUyOTQyMn0.9WfEPYPyUKxvxMp1YHrdJ0F2VhuwnZpFqJb0v3dnax0";
   const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
   let restauranteId = null;
+  let currentUser = null;
   let imagenBase64 = null;
 
   window.onload = async function() {
-    restauranteId = localStorage.getItem("platt_restaurante_id");
+    // 1. Obtener sesión activa directamente de Supabase Auth
+    const { data: { session }, error: sessionError } = await _supabase.auth.getSession();
 
-    const { data: { session } } = await _supabase.auth.getSession();
-    if (!session && !restauranteId) {
+    if (sessionError || !session || !session.user) {
       window.location.href = "login.html";
       return;
     }
 
+    currentUser = session.user;
+
+    // 2. Cargar perfil basándonos en el user_id de la sesión
     await cargarPerfilRestaurante();
     await cargarPlatillos();
-    generarCodigoQR();
   };
 
-  // NAVEGACIÓN ENTRE PESTAÑAS
   function switchTab(tabId, event) {
     document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
     document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
@@ -473,19 +466,17 @@
     }
   }
 
-  // CERRAR SESIÓN
   async function cerrarSesion() {
     try {
       await _supabase.auth.signOut();
     } catch (err) {
-      console.error("Error al cerrar sesión en Supabase:", err);
+      console.error("Error al cerrar sesión:", err);
     } finally {
       localStorage.removeItem("platt_restaurante_id");
       window.location.href = "login.html";
     }
   }
 
-  // PREVISUALIZAR Y CONVERTIR IMAGEN
   function previewImage(event) {
     const file = event.target.files[0];
     const preview = document.getElementById('imgPreview');
@@ -504,7 +495,6 @@
     }
   }
 
-  // GEOLOCALIZACIÓN
   function obtenerUbicacionDashboard() {
     const btn = document.getElementById('btnGeoDash');
     const statusText = document.getElementById('dashGeoStatus');
@@ -542,25 +532,28 @@
     );
   }
 
-  // CARGAR PERFIL COMPLETO (INCLUYE BANCO Y CLABE)
+  // CARGAR PERFIL (Filtrando por user_id)
   async function cargarPerfilRestaurante() {
-    if (!restauranteId) return;
+    if (!currentUser) return;
 
     try {
       const { data, error } = await _supabase
         .from('restaurantes')
-        .select('nombre, direccion, latitud, longitud, whatsapp, banco, clabe')
-        .eq('id', restauranteId)
-        .single();
+        .select('id, nombre, direccion, latitud, longitud, whatsapp, banco, clabe')
+        .eq('user_id', currentUser.id)
+        .maybeSingle();
 
       if (error) throw error;
 
       if (data) {
+        // Guardamos y sincronizamos el ID real de la tabla restaurantes
+        restauranteId = data.id;
+        localStorage.setItem("platt_restaurante_id", data.id);
+
         document.getElementById('lblNombreRestaurante').innerText = data.nombre || "Mi Restaurante";
         document.getElementById('dashNombre').value = data.nombre || '';
         document.getElementById('dashWhatsapp').value = data.whatsapp || '';
         document.getElementById('dashDireccion').value = data.direccion || '';
-        
         document.getElementById('dashBanco').value = data.banco || '';
         document.getElementById('dashClabe').value = data.clabe || '';
 
@@ -572,15 +565,25 @@
           statusText.innerText = `📍 Ubicación guardada (${parseFloat(data.latitud).toFixed(4)}, ${parseFloat(data.longitud).toFixed(4)})`;
           statusText.style.color = "var(--success-color)";
         }
+
+        generarCodigoQR();
+      } else {
+        document.getElementById('lblNombreRestaurante').innerText = "Perfil Incompleto";
       }
     } catch (err) {
       console.error("Error al cargar perfil:", err);
+      document.getElementById('lblNombreRestaurante').innerText = "Error al cargar perfil";
     }
   }
 
-  // GUARDAR PERFIL COMPLETO
+  // GUARDAR PERFIL (Filtrando por user_id)
   async function guardarPerfilRestaurante(e) {
     e.preventDefault();
+
+    if (!currentUser) {
+      alert("Sesión no válida. Inicia sesión nuevamente.");
+      return;
+    }
 
     const btn = document.getElementById('btnGuardarPerfil');
     btn.disabled = true;
@@ -606,13 +609,15 @@
           latitud: latitudRaw ? parseFloat(latitudRaw) : null,
           longitud: longitudRaw ? parseFloat(longitudRaw) : null
         })
-        .eq('id', restauranteId);
+        .eq('user_id', currentUser.id);
 
       if (error) throw error;
 
       document.getElementById('lblNombreRestaurante').innerText = nombre;
       alert("¡Perfil y datos bancarios actualizados con éxito!");
-      generarCodigoQR();
+      
+      // Recargar datos para refrescar ID y QR en pantalla
+      await cargarPerfilRestaurante();
     } catch (err) {
       alert("Error al actualizar perfil: " + err.message);
     } finally {
@@ -620,10 +625,13 @@
     }
   }
 
-  // PLATILLOS
+  // CARGAR PLATILLOS
   async function cargarPlatillos() {
     const contenedor = document.getElementById('listaPlatillos');
-    if (!restauranteId) return;
+    if (!restauranteId) {
+      contenedor.innerHTML = `<p style="text-align: center; color: #888; grid-column: 1/-1;">Guarda tu perfil para comenzar a registrar platillos.</p>`;
+      return;
+    }
 
     try {
       const { data, error } = await _supabase
@@ -659,8 +667,14 @@
     }
   }
 
+  // AGREGAR PLATILLO
   async function agregarPlatillo(e) {
     e.preventDefault();
+
+    if (!restauranteId) {
+      alert("Primero debes configurar y guardar el perfil de tu restaurante.");
+      return;
+    }
 
     const btn = document.getElementById('btnAgregarPlatillo');
     btn.disabled = true;
@@ -696,6 +710,7 @@
     }
   }
 
+  // ELIMINAR PLATILLO
   async function eliminarPlatillo(id) {
     if (!confirm("¿Deseas eliminar este platillo?")) return;
 
@@ -708,10 +723,12 @@
     }
   }
 
-  // GENERAR CÓDIGO QR DINÁMICO
+  // GENERAR CÓDIGO QR
   function generarCodigoQR() {
     const qrDiv = document.getElementById("qrcode");
     qrDiv.innerHTML = "";
+
+    if (!restauranteId) return;
 
     const baseUrl = window.location.origin + window.location.pathname.replace("dashboard-restaurante.html", "index.html");
     const menuUrl = `${baseUrl}?id=${restauranteId}`;
