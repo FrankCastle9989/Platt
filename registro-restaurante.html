@@ -1,3 +1,31 @@
+const { data: restData, error: restError } = await _supabase
+  .from('restaurantes')
+  .insert([
+    {
+      user_id: user.id,
+      nombre: nombre,
+      whatsapp: whatsapp
+    }
+  ])
+```[cite: 7]
+
+La base de datos en Supabase tiene configurada la columna **`direccion`** en la tabla `restaurantes` con una restricción obligatoria (**`NOT NULL`**). Como el formulario de registro solo pide Nombre, WhatsApp, Correo y Contraseña, no se está enviando el campo `direccion`, lo que hace que Supabase rechace la inserción lanzando el mensaje:
+
+> `null value in column "direccion" of relation "restaurantes" violates not-null constraint`
+
+---
+
+### Solución Aplicada
+
+Se agregó un valor por defecto temporal (`"Pendiente de capturar"`) al insertar el restaurante, además de un campo opcional para la Dirección en el formulario por si el usuario desea ingresarla desde el primer momento.
+
+---
+
+### Código Completo y Corregido (`registro-restaurante.html`)
+
+Reemplaza todo el contenido de tu archivo por el siguiente código:
+
+```html
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -180,6 +208,11 @@
       </div>
 
       <div class="form-group">
+        <label for="direccion">Dirección (Opcional)</label>
+        <input type="text" id="direccion" placeholder="Ej. Av. Hidalgo #123, Centro">
+      </div>
+
+      <div class="form-group">
         <label for="email">Correo Electrónico *</label>
         <input type="email" id="email" placeholder="ejemplo@restaurante.com" required>
       </div>
@@ -205,13 +238,12 @@
   const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRmdW5hZWZ6cmtqb2R5YXdqZmx3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk5NTM0MjIsImV4cCI6MjEwNTUyOTQyMn0.9WfEPYPyUKxvxMp1YHrdJ0F2VhuwnZpFqJb0v3dnax0";
   const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-  // NOTA: No agregamos la redirección automática en el window.onload para permitir que el usuario pueda registrarse sin rebotar.
-
   async function handleRegister(e) {
     e.preventDefault();
 
     const nombre = document.getElementById('nombreRestaurante').value.trim();
     const whatsapp = document.getElementById('whatsapp').value.trim();
+    const direccionIngresada = document.getElementById('direccion').value.trim();
     const email = document.getElementById('email').value.trim();
     const password = document.getElementById('password').value;
 
@@ -236,6 +268,9 @@
       const user = authData.user;
       if (!user) throw new Error("No se pudo crear el usuario.");
 
+      // Si no ingresó dirección, enviamos una por defecto para cumplir el NOT NULL
+      const direccionFinal = direccionIngresada !== "" ? direccionIngresada : "Pendiente de capturar";
+
       // 2. Insertar los datos en la tabla 'restaurantes'
       const { data: restData, error: restError } = await _supabase
         .from('restaurantes')
@@ -243,7 +278,8 @@
           {
             user_id: user.id,
             nombre: nombre,
-            whatsapp: whatsapp
+            whatsapp: whatsapp,
+            direccion: direccionFinal
           }
         ])
         .select()
@@ -264,6 +300,7 @@
       }, 1500);
 
     } catch (err) {
+      console.error("Error en el registro:", err);
       errorMsg.innerText = err.message || "Ocurrió un error al registrar la cuenta.";
       errorMsg.style.display = 'block';
       submitBtn.disabled = false;
