@@ -4,297 +4,44 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Platt - Dashboard Restaurante</title>
-
-  <!-- Hoja de estilos del Navbar Global -->
   <link rel="stylesheet" href="navbar.css">
-
-  <!-- CDN de Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-  <!-- CDN para Generador de Códigos QR -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-
   <style>
-    :root {
-      --primary-color: #ff5722;
-      --primary-hover: #e64a19;
-      --bg-color: #f4f6f8;
-      --card-bg: #ffffff;
-      --text-color: #333333;
-      --gray-light: #e0e0e0;
-      --danger-color: #d32f2f;
-      --danger-hover: #b71c1c;
-      --success-color: #2e7d32;
-    }
-
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    }
-
-    body {
-      background-color: var(--bg-color);
-      color: var(--text-color);
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .page-wrapper {
-      flex: 1;
-      max-width: 900px;
-      width: 100%;
-      margin: 0 auto;
-      padding: 25px 20px;
-    }
-
-    .dashboard-header {
-      margin-bottom: 20px;
-      text-align: center;
-    }
-
-    .dashboard-header h1 {
-      color: var(--primary-color);
-      font-size: 1.8rem;
-    }
-
-    .dashboard-header p {
-      color: #666;
-      font-size: 0.9rem;
-      margin-top: 4px;
-    }
-
-    /* Pestañas de Navegación */
-    .tabs-container {
-      display: flex;
-      justify-content: center;
-      gap: 10px;
-      margin-bottom: 20px;
-      border-bottom: 2px solid var(--gray-light);
-      padding-bottom: 10px;
-      flex-wrap: wrap;
-    }
-
-    .tab-btn {
-      background: none;
-      border: none;
-      padding: 10px 18px;
-      font-size: 0.95rem;
-      font-weight: bold;
-      color: #666;
-      cursor: pointer;
-      border-radius: 8px;
-      transition: all 0.2s;
-    }
-
-    .tab-btn:hover {
-      background-color: #eaeaea;
-      color: var(--text-color);
-    }
-
-    .tab-btn.active {
-      background-color: var(--primary-color);
-      color: white;
-    }
-
-    /* Secciones / Tab Content */
-    .tab-content {
-      display: none;
-    }
-
-    .tab-content.active {
-      display: block;
-    }
-
-    .card {
-      background: var(--card-bg);
-      border-radius: 12px;
-      padding: 25px;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-      margin-bottom: 20px;
-    }
-
-    .card h2 {
-      font-size: 1.2rem;
-      margin-bottom: 15px;
-      color: var(--text-color);
-      border-bottom: 1px solid var(--gray-light);
-      padding-bottom: 8px;
-    }
-
-    .form-group {
-      margin-bottom: 16px;
-    }
-
-    .form-group label {
-      display: block;
-      font-size: 0.85rem;
-      font-weight: bold;
-      margin-bottom: 6px;
-    }
-
-    .form-group input, .form-group textarea, .form-group select {
-      width: 100%;
-      padding: 11px;
-      border: 1px solid var(--gray-light);
-      border-radius: 8px;
-      font-size: 0.95rem;
-      outline: none;
-    }
-
-    .form-group input:focus, .form-group textarea:focus {
-      border-color: var(--primary-color);
-    }
-
-    .btn-geo {
-      background-color: #fff3e0;
-      color: var(--primary-color);
-      border: 1px solid var(--primary-color);
-      padding: 11px 14px;
-      border-radius: 8px;
-      font-size: 0.85rem;
-      font-weight: bold;
-      cursor: pointer;
-      white-space: nowrap;
-      transition: background 0.2s;
-    }
-
-    .btn-geo:hover {
-      background-color: #ffe0b2;
-    }
-
-    .btn-primary {
-      width: 100%;
-      background-color: var(--primary-color);
-      color: white;
-      border: none;
-      padding: 13px;
-      border-radius: 8px;
-      font-size: 1rem;
-      font-weight: bold;
-      cursor: pointer;
-      transition: background 0.2s;
-    }
-
-    .btn-primary:hover {
-      background-color: var(--primary-hover);
-    }
-
-    .btn-logout {
-      background-color: var(--danger-color);
-      color: white;
-      border: none;
-      padding: 10px 20px;
-      border-radius: 8px;
-      font-size: 0.9rem;
-      font-weight: bold;
-      cursor: pointer;
-      transition: background 0.2s;
-    }
-
-    .btn-logout:hover {
-      background-color: var(--danger-hover);
-    }
-
-    .platillos-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-      gap: 15px;
-      margin-top: 15px;
-    }
-
-    .platillo-card {
-      background: #fafafa;
-      border: 1px solid var(--gray-light);
-      border-radius: 10px;
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .platillo-img {
-      width: 100%;
-      height: 140px;
-      object-fit: cover;
-      background-color: #eee;
-    }
-
-    .platillo-body {
-      padding: 12px;
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-    }
-
-    .platillo-title {
-      font-size: 1rem;
-      font-weight: bold;
-      margin-bottom: 4px;
-    }
-
-    .platillo-desc {
-      font-size: 0.8rem;
-      color: #666;
-      margin-bottom: 10px;
-    }
-
-    .platillo-footer {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border-top: 1px solid #eee;
-      padding-top: 8px;
-    }
-
-    .platillo-price {
-      font-weight: bold;
-      color: var(--primary-color);
-    }
-
-    .btn-delete {
-      background: transparent;
-      color: var(--danger-color);
-      border: none;
-      font-size: 1.1rem;
-      cursor: pointer;
-    }
-
-    .img-preview {
-      width: 100%;
-      max-height: 180px;
-      object-fit: cover;
-      border-radius: 8px;
-      margin-top: 8px;
-      display: none;
-      border: 1px solid var(--gray-light);
-    }
-
-    .qr-container, .logout-container {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-      text-align: center;
-    }
-
-    #qrcode {
-      padding: 15px;
-      background: white;
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-      margin-bottom: 15px;
-    }
-
-    .info-geo {
-      font-size: 0.75rem;
-      color: #666;
-      margin-top: 4px;
-      display: block;
-    }
+    :root { --primary-color: #ff5722; --primary-hover: #e64a19; --bg-color: #f4f6f8; --card-bg: #ffffff; --text-color: #333; --gray-light: #e0e0e0; --danger-color: #d32f2f; --success-color: #2e7d32; }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    body { background-color: var(--bg-color); color: var(--text-color); min-height: 100vh; display: flex; flex-direction: column; }
+    .page-wrapper { flex: 1; max-width: 900px; width: 100%; margin: 0 auto; padding: 25px 20px; }
+    .dashboard-header { margin-bottom: 20px; text-align: center; }
+    .dashboard-header h1 { color: var(--primary-color); font-size: 1.8rem; }
+    .dashboard-header p { color: #666; font-size: 0.9rem; margin-top: 4px; }
+    .tabs-container { display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid var(--gray-light); padding-bottom: 10px; flex-wrap: wrap; }
+    .tab-btn { background: none; border: none; padding: 10px 18px; font-size: 0.95rem; font-weight: bold; color: #666; cursor: pointer; border-radius: 8px; transition: all 0.2s; }
+    .tab-btn:hover { background-color: #eaeaea; color: var(--text-color); }
+    .tab-btn.active { background-color: var(--primary-color); color: white; }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+    .card { background: var(--card-bg); border-radius: 12px; padding: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 20px; }
+    .card h2 { font-size: 1.2rem; margin-bottom: 15px; color: var(--text-color); border-bottom: 1px solid var(--gray-light); padding-bottom: 8px; }
+    .form-group { margin-bottom: 16px; }
+    .form-group label { display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 6px; }
+    .form-group input, .form-group textarea { width: 100%; padding: 11px; border: 1px solid var(--gray-light); border-radius: 8px; font-size: 0.95rem; outline: none; }
+    .btn-geo { background-color: #fff3e0; color: var(--primary-color); border: 1px solid var(--primary-color); padding: 11px 14px; border-radius: 8px; font-size: 0.85rem; font-weight: bold; cursor: pointer; }
+    .btn-primary { width: 100%; background-color: var(--primary-color); color: white; border: none; padding: 13px; border-radius: 8px; font-size: 1rem; font-weight: bold; cursor: pointer; }
+    .btn-logout { background-color: var(--danger-color); color: white; border: none; padding: 10px 20px; border-radius: 8px; font-size: 0.9rem; font-weight: bold; cursor: pointer; }
+    .platillos-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 15px; margin-top: 15px; }
+    .platillo-card { background: #fafafa; border: 1px solid var(--gray-light); border-radius: 10px; overflow: hidden; display: flex; flex-direction: column; }
+    .platillo-img { width: 100%; height: 140px; object-fit: cover; background-color: #eee; }
+    .platillo-body { padding: 12px; flex: 1; display: flex; flex-direction: column; justify-content: space-between; }
+    .platillo-title { font-size: 1rem; font-weight: bold; margin-bottom: 4px; }
+    .platillo-desc { font-size: 0.8rem; color: #666; margin-bottom: 10px; }
+    .platillo-footer { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #eee; padding-top: 8px; }
+    .platillo-price { font-weight: bold; color: var(--primary-color); }
+    .btn-delete { background: transparent; color: var(--danger-color); border: none; font-size: 1.1rem; cursor: pointer; }
+    .img-preview { width: 100%; max-height: 180px; object-fit: cover; border-radius: 8px; margin-top: 8px; display: none; }
+    .qr-container, .logout-container { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; text-align: center; }
+    #qrcode { padding: 15px; background: white; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-bottom: 15px; }
+    .info-geo { font-size: 0.75rem; color: #666; margin-top: 4px; display: block; }
   </style>
 </head>
 <body>
@@ -303,7 +50,7 @@
 
 <div class="page-wrapper">
   <div class="dashboard-header">
-    <h1 id="lblNombreRestaurante">Cargando Panel...</h1>
+    <h1 id="lblNombreRestaurante">Cargando...</h1>
     <p>Administra tu menú, información comercial y código QR</p>
   </div>
 
@@ -314,7 +61,6 @@
     <button class="tab-btn" onclick="switchTab('tab-logout', event)">🚪 Cerrar Sesión</button>
   </div>
 
-  <!-- PESTAÑA 1: GESTIÓN DEL MENÚ -->
   <div id="tab-menu" class="tab-content active">
     <div class="card">
       <h2>➕ Agregar Nuevo Platillo</h2>
@@ -329,18 +75,15 @@
             <input type="number" step="0.5" id="platilloPrecio" placeholder="Ej. 120.00" required>
           </div>
         </div>
-
         <div class="form-group">
           <label for="platilloDescripcion">Descripción / Ingredientes</label>
-          <textarea id="platilloDescripcion" rows="2" placeholder="Ej. 200g de carne, queso cheddar, tocino y papas fritas."></textarea>
+          <textarea id="platilloDescripcion" rows="2" placeholder="Ej. 200g de carne, queso cheddar, tocino y papas."></textarea>
         </div>
-
         <div class="form-group">
-          <label for="platilloImagen">Foto del Platillo (Seleccionar o tomar foto)</label>
-          <input type="file" id="platilloImagen" accept="image/*" capture="environment" onchange="previewImage(event)">
+          <label for="platilloImagen">Foto del Platillo</label>
+          <input type="file" id="platilloImagen" accept="image/*" onchange="previewImage(event)">
           <img id="imgPreview" class="img-preview" alt="Previsualización">
         </div>
-
         <button type="submit" id="btnAgregarPlatillo" class="btn-primary">➕ Guardar Platillo en el Menú</button>
       </form>
     </div>
@@ -353,7 +96,6 @@
     </div>
   </div>
 
-  <!-- PESTAÑA 2: PERFIL Y UBICACIÓN -->
   <div id="tab-perfil" class="tab-content">
     <div class="card">
       <h2>⚙️ Configuración del Negocio</h2>
@@ -362,69 +104,48 @@
           <label for="dashNombre">Nombre del Restaurante *</label>
           <input type="text" id="dashNombre" required placeholder="Ej. Taquería El Paisa">
         </div>
-
         <div class="form-group">
           <label for="dashWhatsapp">WhatsApp de Pedidos *</label>
-          <input type="tel" id="dashWhatsapp" required placeholder="10 dígitos (Ej. 8112345678)">
+          <input type="tel" id="dashWhatsapp" required placeholder="10 dígitos">
         </div>
-
         <div class="form-group">
           <label for="dashDireccion">Dirección Física del Local *</label>
           <div style="display: flex; gap: 8px;">
-            <input type="text" id="dashDireccion" placeholder="Ej. Av. Hidalgo #123, Monterrey" required style="flex: 1;">
-            <button type="button" id="btnGeoDash" onclick="obtenerUbicacionDashboard()" class="btn-geo">
-              📍 Usar mi ubicación
-            </button>
+            <input type="text" id="dashDireccion" placeholder="Ej. Av. Hidalgo #123" required style="flex: 1;">
+            <button type="button" id="btnGeoDash" onclick="obtenerUbicacionDashboard()" class="btn-geo">📍 Usar mi ubicación</button>
           </div>
-          <small id="dashGeoStatus" class="info-geo">
-            Actualiza tus coordenadas GPS para cobrar el envío exacto a tus clientes.
-          </small>
-
+          <small id="dashGeoStatus" class="info-geo">GPS para envío exacto.</small>
           <input type="hidden" id="dashLatitud">
           <input type="hidden" id="dashLongitud">
         </div>
-
-        <h2 style="margin-top: 25px; margin-bottom: 15px;">🏦 Datos Bancarios para Depósitos</h2>
-
+        <h2 style="margin-top: 25px; margin-bottom: 15px;">🏦 Datos Bancarios</h2>
         <div class="form-group">
-          <label for="dashBanco">Banco / Institución Financiera</label>
-          <input type="text" id="dashBanco" placeholder="Ej. BBVA, Banorte, Nu, Santander">
+          <label for="dashBanco">Banco</label>
+          <input type="text" id="dashBanco" placeholder="Ej. BBVA, Banorte, Nu">
         </div>
-
         <div class="form-group">
           <label for="dashClabe">CLABE Interbancaria (18 dígitos)</label>
           <input type="text" id="dashClabe" maxlength="18" placeholder="Ej. 012180000000000000">
         </div>
-
         <button type="submit" id="btnGuardarPerfil" class="btn-primary" style="margin-top: 15px;">💾 Guardar Cambios de Perfil</button>
       </form>
     </div>
   </div>
 
-  <!-- PESTAÑA 3: CÓDIGO QR -->
   <div id="tab-qr" class="tab-content">
     <div class="card qr-container">
       <h2>📱 Código QR para Clientes</h2>
-      <p style="color: #666; font-size: 0.9rem; margin-bottom: 20px;">
-        Imprime este código QR y colócalo en las mesas o mostrador de tu negocio para que tus clientes escaneen y vean tu menú digital.
-      </p>
-
+      <p style="color: #666; font-size: 0.9rem; margin-bottom: 20px;">Imprime este código QR para tus mesas.</p>
       <div id="qrcode"></div>
-
       <p id="qrUrlText" style="font-weight: bold; color: var(--primary-color); word-break: break-all; margin-bottom: 15px; font-size: 0.85rem;"></p>
-
       <button class="btn-primary" style="max-width: 300px;" onclick="window.print()">🖨️ Imprimir Código QR</button>
     </div>
   </div>
 
-  <!-- PESTAÑA 4: CERRAR SESIÓN -->
   <div id="tab-logout" class="tab-content">
     <div class="card logout-container">
       <h2 style="margin-bottom: 15px; border: none;">🔒 Cierre de Sesión</h2>
       <button type="button" class="btn-logout" onclick="cerrarSesion()">Cerrar sesión</button>
-      <p style="color: #666; font-size: 0.85rem; margin-top: 12px;">
-        Puedes regresar a tu cuenta cuando lo desees.
-      </p>
     </div>
   </div>
 </div>
@@ -436,51 +157,30 @@
   const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRmdW5hZWZ6cmtqb2R5YXdqZmx3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk5NTM0MjIsImV4cCI6MjEwNTUyOTQyMn0.9WfEPYPyUKxvxMp1YHrdJ0F2VhuwnZpFqJb0v3dnax0";
   const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-  let restauranteId = null;
-  let currentUser = null;
+  let restauranteId = localStorage.getItem("platt_restaurante_id");
   let imagenBase64 = null;
 
   window.onload = async function() {
-    // 1. Obtener sesión activa directamente de Supabase Auth
-    const { data: { session }, error: sessionError } = await _supabase.auth.getSession();
-
-    if (sessionError || !session || !session.user) {
-      window.location.href = "login.html";
-      return;
-    }
-
-    currentUser = session.user;
-
-    // 2. Cargar perfil basándonos en el user_id de la sesión
-    await cargarPerfilRestaurante();
+    await cargarPerfil();
     await cargarPlatillos();
   };
 
   function switchTab(tabId, event) {
     document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
     document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-
     document.getElementById(tabId).classList.add('active');
-    if (event && event.currentTarget) {
-      event.currentTarget.classList.add('active');
-    }
+    if (event && event.currentTarget) event.currentTarget.classList.add('active');
   }
 
   async function cerrarSesion() {
-    try {
-      await _supabase.auth.signOut();
-    } catch (err) {
-      console.error("Error al cerrar sesión:", err);
-    } finally {
-      localStorage.removeItem("platt_restaurante_id");
-      window.location.href = "login.html";
-    }
+    await _supabase.auth.signOut();
+    localStorage.removeItem("platt_restaurante_id");
+    window.location.href = "login.html";
   }
 
   function previewImage(event) {
     const file = event.target.files[0];
     const preview = document.getElementById('imgPreview');
-
     if (file) {
       const reader = new FileReader();
       reader.onload = function(e) {
@@ -489,250 +189,135 @@
         imagenBase64 = e.target.result;
       };
       reader.readAsDataURL(file);
-    } else {
-      preview.style.display = 'none';
-      imagenBase64 = null;
     }
   }
 
   function obtenerUbicacionDashboard() {
-    const btn = document.getElementById('btnGeoDash');
-    const statusText = document.getElementById('dashGeoStatus');
-
-    if (!navigator.geolocation) {
-      alert("Tu navegador no soporta geolocalización.");
-      return;
-    }
-
-    btn.disabled = true;
-    btn.innerText = "⏳ Capturando...";
-
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const lat = position.coords.latitude;
-        const lon = position.coords.longitude;
-
-        document.getElementById('dashLatitud').value = lat;
-        document.getElementById('dashLongitud').value = lon;
-
-        statusText.innerText = `✅ Ubicación capturada (${lat.toFixed(4)}, ${lon.toFixed(4)})`;
-        statusText.style.color = "var(--success-color)";
-
-        btn.disabled = false;
-        btn.innerText = "📍 Ubicación Capturada";
-      },
-      (error) => {
-        alert("No se pudo obtener la ubicación GPS.");
-        statusText.innerText = "⚠️ Error al obtener coordenadas GPS.";
-        statusText.style.color = "var(--danger-color)";
-        btn.disabled = false;
-        btn.innerText = "📍 Usar mi ubicación";
-      },
-      { enableHighAccuracy: true, timeout: 10000 }
-    );
+    if (!navigator.geolocation) return alert("Navegador sin soporte de GPS");
+    navigator.geolocation.getCurrentPosition(pos => {
+      document.getElementById('dashLatitud').value = pos.coords.latitude;
+      document.getElementById('dashLongitud').value = pos.coords.longitude;
+      document.getElementById('dashGeoStatus').innerText = "✅ Ubicación capturada";
+      document.getElementById('dashGeoStatus').style.color = "var(--success-color)";
+    });
   }
 
-  // CARGAR PERFIL (Filtrando por user_id)
-  async function cargarPerfilRestaurante() {
-    if (!currentUser) return;
+  async function cargarPerfil() {
+    let query = _supabase.from('restaurantes').select('*');
 
-    try {
-      const { data, error } = await _supabase
-        .from('restaurantes')
-        .select('id, nombre, direccion, latitud, longitud, whatsapp, banco, clabe')
-        .eq('user_id', currentUser.id)
-        .maybeSingle();
+    // Buscar primero por ID guardado en LocalStorage
+    if (restauranteId) {
+      query = query.eq('id', restauranteId);
+    } else {
+      // Si no hay ID en LocalStorage, buscar por el usuario con sesión activa
+      const { data: { session } } = await _supabase.auth.getSession();
+      if (session) query = query.eq('user_id', session.user.id);
+      else { window.location.href = "login.html"; return; }
+    }
 
-      if (error) throw error;
+    const { data, error } = await query.maybeSingle();
 
-      if (data) {
-        // Guardamos y sincronizamos el ID real de la tabla restaurantes
-        restauranteId = data.id;
-        localStorage.setItem("platt_restaurante_id", data.id);
+    if (data) {
+      restauranteId = data.id;
+      localStorage.setItem("platt_restaurante_id", data.id);
 
-        document.getElementById('lblNombreRestaurante').innerText = data.nombre || "Mi Restaurante";
-        document.getElementById('dashNombre').value = data.nombre || '';
-        document.getElementById('dashWhatsapp').value = data.whatsapp || '';
-        document.getElementById('dashDireccion').value = data.direccion || '';
-        document.getElementById('dashBanco').value = data.banco || '';
-        document.getElementById('dashClabe').value = data.clabe || '';
+      document.getElementById('lblNombreRestaurante').innerText = data.nombre || "Mi Restaurante";
+      document.getElementById('dashNombre').value = data.nombre || '';
+      document.getElementById('dashWhatsapp').value = data.whatsapp || '';
+      document.getElementById('dashDireccion').value = data.direccion || '';
+      document.getElementById('dashBanco').value = data.banco || '';
+      document.getElementById('dashClabe').value = data.clabe || '';
+      document.getElementById('dashLatitud').value = data.latitud || '';
+      document.getElementById('dashLongitud').value = data.longitud || '';
 
-        if (data.latitud && data.longitud) {
-          document.getElementById('dashLatitud').value = data.latitud;
-          document.getElementById('dashLongitud').value = data.longitud;
-
-          const statusText = document.getElementById('dashGeoStatus');
-          statusText.innerText = `📍 Ubicación guardada (${parseFloat(data.latitud).toFixed(4)}, ${parseFloat(data.longitud).toFixed(4)})`;
-          statusText.style.color = "var(--success-color)";
-        }
-
-        generarCodigoQR();
-      } else {
-        document.getElementById('lblNombreRestaurante').innerText = "Perfil Incompleto";
-      }
-    } catch (err) {
-      console.error("Error al cargar perfil:", err);
-      document.getElementById('lblNombreRestaurante').innerText = "Error al cargar perfil";
+      generarCodigoQR();
+    } else {
+      document.getElementById('lblNombreRestaurante').innerText = "Configura tu Restaurante";
     }
   }
 
-  // GUARDAR PERFIL (Filtrando por user_id)
   async function guardarPerfilRestaurante(e) {
     e.preventDefault();
+    if (!restauranteId) return alert("Restaurante no identificado.");
 
-    if (!currentUser) {
-      alert("Sesión no válida. Inicia sesión nuevamente.");
-      return;
-    }
+    const { error } = await _supabase.from('restaurantes').update({
+      nombre: document.getElementById('dashNombre').value.trim(),
+      whatsapp: document.getElementById('dashWhatsapp').value.trim(),
+      direccion: document.getElementById('dashDireccion').value.trim(),
+      banco: document.getElementById('dashBanco').value.trim(),
+      clabe: document.getElementById('dashClabe').value.trim(),
+      latitud: document.getElementById('dashLatitud').value ? parseFloat(document.getElementById('dashLatitud').value) : null,
+      longitud: document.getElementById('dashLongitud').value ? parseFloat(document.getElementById('dashLongitud').value) : null
+    }).eq('id', restauranteId);
 
-    const btn = document.getElementById('btnGuardarPerfil');
-    btn.disabled = true;
-
-    const nombre = document.getElementById('dashNombre').value.trim();
-    const direccion = document.getElementById('dashDireccion').value.trim();
-    const whatsapp = document.getElementById('dashWhatsapp').value.trim();
-    const banco = document.getElementById('dashBanco').value.trim();
-    const clabe = document.getElementById('dashClabe').value.trim();
-    
-    const latitudRaw = document.getElementById('dashLatitud').value;
-    const longitudRaw = document.getElementById('dashLongitud').value;
-
-    try {
-      const { error } = await _supabase
-        .from('restaurantes')
-        .update({
-          nombre: nombre,
-          direccion: direccion,
-          whatsapp: whatsapp,
-          banco: banco,
-          clabe: clabe,
-          latitud: latitudRaw ? parseFloat(latitudRaw) : null,
-          longitud: longitudRaw ? parseFloat(longitudRaw) : null
-        })
-        .eq('user_id', currentUser.id);
-
-      if (error) throw error;
-
-      document.getElementById('lblNombreRestaurante').innerText = nombre;
-      alert("¡Perfil y datos bancarios actualizados con éxito!");
-      
-      // Recargar datos para refrescar ID y QR en pantalla
-      await cargarPerfilRestaurante();
-    } catch (err) {
-      alert("Error al actualizar perfil: " + err.message);
-    } finally {
-      btn.disabled = false;
+    if (error) alert("Error: " + error.message);
+    else {
+      alert("¡Perfil guardado correctamente!");
+      cargarPerfil();
     }
   }
 
-  // CARGAR PLATILLOS
   async function cargarPlatillos() {
     const contenedor = document.getElementById('listaPlatillos');
-    if (!restauranteId) {
-      contenedor.innerHTML = `<p style="text-align: center; color: #888; grid-column: 1/-1;">Guarda tu perfil para comenzar a registrar platillos.</p>`;
+    if (!restauranteId) return;
+
+    const { data } = await _supabase.from('platillos').select('*').eq('restaurante_id', restauranteId);
+
+    if (!data || data.length === 0) {
+      contenedor.innerHTML = `<p style="text-align: center; color: #888; grid-column: 1/-1;">No hay platillos aún.</p>`;
       return;
     }
 
-    try {
-      const { data, error } = await _supabase
-        .from('platillos')
-        .select('*')
-        .eq('restaurante_id', restauranteId);
-
-      if (error) throw error;
-
-      if (!data || data.length === 0) {
-        contenedor.innerHTML = `<p style="text-align: center; color: #888; grid-column: 1/-1;">No tienes platillos en tu menú.</p>`;
-        return;
-      }
-
-      contenedor.innerHTML = data.map(item => `
-        <div class="platillo-card">
-          <img src="${item.imagen_url || 'https://via.placeholder.com/300x180?text=Sin+Imagen'}" class="platillo-img" alt="${item.nombre}">
-          <div class="platillo-body">
-            <div>
-              <div class="platillo-title">${item.nombre}</div>
-              <div class="platillo-desc">${item.descripcion || 'Sin descripción'}</div>
-            </div>
-            <div class="platillo-footer">
-              <span class="platillo-price">$${parseFloat(item.precio).toFixed(2)} MXN</span>
-              <button class="btn-delete" onclick="eliminarPlatillo('${item.id}')" title="Eliminar">🗑️</button>
-            </div>
+    contenedor.innerHTML = data.map(item => `
+      <div class="platillo-card">
+        <img src="${item.imagen_url || 'https://via.placeholder.com/300x180?text=Sin+Imagen'}" class="platillo-img">
+        <div class="platillo-body">
+          <div>
+            <div class="platillo-title">${item.nombre}</div>
+            <div class="platillo-desc">${item.descripcion || 'Sin descripción'}</div>
+          </div>
+          <div class="platillo-footer">
+            <span class="platillo-price">$${parseFloat(item.precio).toFixed(2)} MXN</span>
+            <button class="btn-delete" onclick="eliminarPlatillo('${item.id}')">🗑️</button>
           </div>
         </div>
-      `).join('');
-
-    } catch (err) {
-      contenedor.innerHTML = `<p style="color: var(--danger-color); grid-column: 1/-1;">Error al cargar platillos.</p>`;
-    }
+      </div>
+    `).join('');
   }
 
-  // AGREGAR PLATILLO
   async function agregarPlatillo(e) {
     e.preventDefault();
+    if (!restauranteId) return alert("Falta ID del restaurante.");
 
-    if (!restauranteId) {
-      alert("Primero debes configurar y guardar el perfil de tu restaurante.");
-      return;
-    }
+    const { error } = await _supabase.from('platillos').insert([{
+      restaurante_id: restauranteId,
+      nombre: document.getElementById('platilloNombre').value.trim(),
+      precio: parseFloat(document.getElementById('platilloPrecio').value),
+      descripcion: document.getElementById('platilloDescripcion').value.trim(),
+      imagen_url: imagenBase64
+    }]);
 
-    const btn = document.getElementById('btnAgregarPlatillo');
-    btn.disabled = true;
-
-    const nombre = document.getElementById('platilloNombre').value.trim();
-    const precio = parseFloat(document.getElementById('platilloPrecio').value);
-    const descripcion = document.getElementById('platilloDescripcion').value.trim();
-
-    try {
-      const { error } = await _supabase
-        .from('platillos')
-        .insert([
-          {
-            restaurante_id: restauranteId,
-            nombre: nombre,
-            precio: precio,
-            descripcion: descripcion,
-            imagen_url: imagenBase64
-          }
-        ]);
-
-      if (error) throw error;
-
+    if (error) alert(error.message);
+    else {
       document.getElementById('formPlatillo').reset();
       document.getElementById('imgPreview').style.display = 'none';
       imagenBase64 = null;
-
-      await cargarPlatillos();
-    } catch (err) {
-      alert("Error al agregar platillo: " + err.message);
-    } finally {
-      btn.disabled = false;
+      cargarPlatillos();
     }
   }
 
-  // ELIMINAR PLATILLO
   async function eliminarPlatillo(id) {
-    if (!confirm("¿Deseas eliminar este platillo?")) return;
-
-    try {
-      const { error } = await _supabase.from('platillos').delete().eq('id', id);
-      if (error) throw error;
-      await cargarPlatillos();
-    } catch (err) {
-      alert("Error al eliminar platillo: " + err.message);
-    }
+    if (!confirm("¿Eliminar este platillo?")) return;
+    await _supabase.from('platillos').delete().eq('id', id);
+    cargarPlatillos();
   }
 
-  // GENERAR CÓDIGO QR
   function generarCodigoQR() {
     const qrDiv = document.getElementById("qrcode");
     qrDiv.innerHTML = "";
-
     if (!restauranteId) return;
 
-    const baseUrl = window.location.origin + window.location.pathname.replace("dashboard-restaurante.html", "index.html");
-    const menuUrl = `${baseUrl}?id=${restauranteId}`;
-
+    const menuUrl = `${window.location.origin}${window.location.pathname.replace("dashboard-restaurante.html", "index.html")}?id=${restauranteId}`;
     document.getElementById("qrUrlText").innerText = menuUrl;
 
     new QRCode(qrDiv, {
@@ -740,8 +325,7 @@
       width: 200,
       height: 200,
       colorDark: "#ff5722",
-      colorLight: "#ffffff",
-      correctLevel: QRCode.CorrectLevel.H
+      colorLight: "#ffffff"
     });
   }
 </script>
