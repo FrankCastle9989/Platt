@@ -223,60 +223,48 @@
     submitBtn.innerText = "Registrando...";
 
     try {
-      // 1. Registrar usuario guardando metadatos
+      // 1. Crear el usuario directamente en Auth
       const { data: authData, error: authError } = await _supabase.auth.signUp({
         email: email,
-        password: password,
-        options: {
-          data: {
-            nombre_restaurante: nombre,
-            whatsapp: whatsapp,
-            direccion: "Por definir"
-          }
-        }
+        password: password
       });
 
       if (authError) throw authError;
 
-      // 2. Si hay sesión activa (no requiere confirmación previa de email)
-      if (authData.session && authData.user) {
-        const { data: restData, error: restError } = await _supabase
-          .from('restaurantes')
-          .insert([
-            {
-              user_id: authData.user.id,
-              nombre: nombre,
-              whatsapp: whatsapp,
-              direccion: "Por definir"
-            }
-          ])
-          .select()
-          .single();
+      const user = authData.user;
+      if (!user) throw new Error("No se pudo crear el usuario.");
 
-        if (restError) throw restError;
+      // 2. Insertar directamente el restaurante en la base de datos
+      const { data: restData, error: restError } = await _supabase
+        .from('restaurantes')
+        .insert([
+          {
+            user_id: user.id,
+            nombre: nombre,
+            whatsapp: whatsapp,
+            direccion: "Por definir"
+          }
+        ])
+        .select()
+        .single();
 
-        if (restData) {
-          localStorage.setItem("platt_restaurante_id", restData.id);
-        }
+      if (restError) throw restError;
 
-        successMsg.innerText = "¡Registro exitoso! Entrando a tu panel...";
-        successMsg.style.display = 'block';
-
-        setTimeout(() => {
-          window.location.href = "dashboard-restaurante.html";
-        }, 1000);
-
-      } else {
-        // Si Supabase requiere que el usuario confirme su correo primero
-        successMsg.innerText = "¡Cuenta creada! Revisa tu correo electrónico para confirmar la cuenta antes de iniciar sesión.";
-        successMsg.style.display = 'block';
-        submitBtn.disabled = false;
-        submitBtn.innerText = "Crear Cuenta";
+      // 3. Guardar el ID de sesión e ir al Dashboard
+      if (restData) {
+        localStorage.setItem("platt_restaurante_id", restData.id);
       }
+
+      successMsg.innerText = "¡Registro exitoso! Entrando a tu panel...";
+      successMsg.style.display = 'block';
+
+      setTimeout(() => {
+        window.location.href = "dashboard-restaurante.html";
+      }, 1000);
 
     } catch (err) {
       console.error("Error en el registro:", err);
-      errorMsg.innerText = err.message || "Ocurrió un error al registrar.";
+      errorMsg.innerText = err.message || "Ocurrió un error al registrar la cuenta.";
       errorMsg.style.display = 'block';
       submitBtn.disabled = false;
       submitBtn.innerText = "Crear Cuenta";
