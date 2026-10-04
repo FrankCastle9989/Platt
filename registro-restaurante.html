@@ -4,154 +4,29 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Platt - Registro de Restaurante</title>
-
-  <!-- Hoja de estilos del Navbar Global -->
   <link rel="stylesheet" href="navbar.css">
-
-  <!-- CDN Oficial de Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
   <style>
-    :root {
-      --primary-color: #ff5722;
-      --primary-hover: #e64a19;
-      --bg-color: #f4f6f8;
-      --card-bg: #ffffff;
-      --text-color: #333333;
-      --gray-light: #e0e0e0;
-      --error-color: #d32f2f;
-      --success-color: #2e7d32;
-    }
-
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    }
-
-    body {
-      background-color: var(--bg-color);
-      color: var(--text-color);
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .page-wrapper {
-      flex: 1;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 40px 20px;
-    }
-
-    .register-container {
-      width: 100%;
-      max-width: 450px;
-      background: var(--card-bg);
-      border-radius: 12px;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.08);
-      padding: 30px 25px;
-    }
-
-    .logo-container {
-      text-align: center;
-      margin-bottom: 25px;
-    }
-
-    .logo-container h1 {
-      color: var(--primary-color);
-      font-size: 2rem;
-    }
-
-    .logo-container p {
-      font-size: 0.9rem;
-      color: #666;
-      margin-top: 5px;
-    }
-
-    .form-group {
-      margin-bottom: 16px;
-    }
-
-    .form-group label {
-      display: block;
-      font-size: 0.85rem;
-      font-weight: bold;
-      margin-bottom: 6px;
-    }
-
-    .form-group input {
-      width: 100%;
-      padding: 12px;
-      border: 1px solid var(--gray-light);
-      border-radius: 8px;
-      font-size: 0.95rem;
-      outline: none;
-    }
-
-    .form-group input:focus {
-      border-color: var(--primary-color);
-    }
-
-    .alert-msg {
-      padding: 10px;
-      border-radius: 6px;
-      font-size: 0.85rem;
-      margin-bottom: 15px;
-      display: none;
-      text-align: center;
-    }
-
-    .alert-error {
-      background-color: #ffebee;
-      color: var(--error-color);
-    }
-
-    .alert-success {
-      background-color: #e8f5e9;
-      color: var(--success-color);
-    }
-
-    .btn-submit {
-      width: 100%;
-      background-color: var(--primary-color);
-      color: white;
-      border: none;
-      padding: 14px;
-      border-radius: 8px;
-      font-size: 1rem;
-      font-weight: bold;
-      cursor: pointer;
-      transition: background-color 0.2s;
-    }
-
-    .btn-submit:hover {
-      background-color: var(--primary-hover);
-    }
-
-    .btn-submit:disabled {
-      background-color: #ccc;
-      cursor: not-allowed;
-    }
-
-    .login-link {
-      text-align: center;
-      margin-top: 20px;
-      font-size: 0.85rem;
-      color: #666;
-    }
-
-    .login-link a {
-      color: var(--primary-color);
-      text-decoration: none;
-      font-weight: bold;
-    }
-
-    .login-link a:hover {
-      text-decoration: underline;
-    }
+    :root { --primary-color: #ff5722; --primary-hover: #e64a19; --bg-color: #f4f6f8; --card-bg: #ffffff; --text-color: #333; --gray-light: #e0e0e0; --error-color: #d32f2f; --success-color: #2e7d32; }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    body { background-color: var(--bg-color); color: var(--text-color); min-height: 100vh; display: flex; flex-direction: column; }
+    .page-wrapper { flex: 1; display: flex; justify-content: center; align-items: center; padding: 40px 20px; }
+    .register-container { width: 100%; max-width: 450px; background: var(--card-bg); border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); padding: 30px 25px; }
+    .logo-container { text-align: center; margin-bottom: 25px; }
+    .logo-container h1 { color: var(--primary-color); font-size: 2rem; }
+    .logo-container p { font-size: 0.9rem; color: #666; margin-top: 5px; }
+    .form-group { margin-bottom: 16px; }
+    .form-group label { display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 6px; }
+    .form-group input { width: 100%; padding: 12px; border: 1px solid var(--gray-light); border-radius: 8px; font-size: 0.95rem; outline: none; }
+    .form-group input:focus { border-color: var(--primary-color); }
+    .alert-msg { padding: 10px; border-radius: 6px; font-size: 0.85rem; margin-bottom: 15px; display: none; text-align: center; }
+    .alert-error { background-color: #ffebee; color: var(--error-color); }
+    .alert-success { background-color: #e8f5e9; color: var(--success-color); }
+    .btn-submit { width: 100%; background-color: var(--primary-color); color: white; border: none; padding: 14px; border-radius: 8px; font-size: 1rem; font-weight: bold; cursor: pointer; transition: background-color 0.2s; }
+    .btn-submit:hover { background-color: var(--primary-hover); }
+    .btn-submit:disabled { background-color: #ccc; cursor: not-allowed; }
+    .login-link { text-align: center; margin-top: 20px; font-size: 0.85rem; color: #666; }
+    .login-link a { color: var(--primary-color); text-decoration: none; font-weight: bold; }
   </style>
 </head>
 <body>
@@ -223,23 +98,21 @@
     submitBtn.innerText = "Registrando...";
 
     try {
-      // 1. Crear el usuario directamente en Auth
+      // 1. Crear usuario en Auth
       const { data: authData, error: authError } = await _supabase.auth.signUp({
         email: email,
         password: password
       });
 
       if (authError) throw authError;
-
       const user = authData.user;
-      if (!user) throw new Error("No se pudo crear el usuario.");
 
-      // 2. Insertar directamente el restaurante en la base de datos
+      // 2. Insertar restaurante en la tabla
       const { data: restData, error: restError } = await _supabase
         .from('restaurantes')
         .insert([
           {
-            user_id: user.id,
+            user_id: user ? user.id : null,
             nombre: nombre,
             whatsapp: whatsapp,
             direccion: "Por definir"
@@ -250,7 +123,7 @@
 
       if (restError) throw restError;
 
-      // 3. Guardar el ID de sesión e ir al Dashboard
+      // 3. Guardar ID y redirigir
       if (restData) {
         localStorage.setItem("platt_restaurante_id", restData.id);
       }
@@ -260,7 +133,7 @@
 
       setTimeout(() => {
         window.location.href = "dashboard-restaurante.html";
-      }, 1000);
+      }, 800);
 
     } catch (err) {
       console.error("Error en el registro:", err);
